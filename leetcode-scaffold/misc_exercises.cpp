@@ -6,10 +6,10 @@ using namespace osrm;
 /* leetcode: 150,224,227,772, 3, 223, 836, 189, 56 */
 class Solution {
 public:
-    int evalRPN(vector<string>& tokens);
     int calculate_224(string s);
     int calculate_227(string s);
     int calculate_772(string s);
+    int evalRPN(vector<string>& tokens);
     int lengthOfLongestSubstring(string s);
     int computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2);
     bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2);
@@ -111,17 +111,17 @@ void merge_scaffold(string input, string expectedResult) {
 
 
 /*
-    Given an array, rotate the array to the right by k steps, where k is non-negative.
-    Example 1:
-        Input: nums = [1,2,3,4,5,6,7], k = 3
-        Output: [5,6,7,1,2,3,4]
-        Explanation:
-        rotate 1 steps to the right: [7,1,2,3,4,5,6]
-        rotate 2 steps to the right: [6,7,1,2,3,4,5]
-        rotate 3 steps to the right: [5,6,7,1,2,3,4]
-    Example 2:
-        Input: nums = [-1,-100,3,99], k = 2
-        Output: [3,99,-1,-100]
+Given an array, rotate the array to the right by k steps, where k is non-negative.
+Example 1:
+    Input: nums = [1,2,3,4,5,6,7], k = 3
+    Output: [5,6,7,1,2,3,4]
+    Explanation:
+    rotate 1 steps to the right: [7,1,2,3,4,5,6]
+    rotate 2 steps to the right: [6,7,1,2,3,4,5]
+    rotate 3 steps to the right: [5,6,7,1,2,3,4]
+Example 2:
+    Input: nums = [-1,-100,3,99], k = 2
+    Output: [3,99,-1,-100]
 */
 void Solution::rotate(vector<int>& nums, int k) {
     // reverse subarray nums[s:e], e is not inclusive
@@ -157,67 +157,52 @@ void rotate_scaffold(string input1, int input2, string expectedResult) {
 }
 
 
-bool Solution::isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
 /*
-    An axis-aligned rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) is the coordinate of its bottom-left corner, 
-    and (x2, y2) is the coordinate of its top-right corner. Its top and bottom edges are parallel to the X-axis, and its left and right edges are parallel to the Y-axis.
-    Two rectangles overlap if the area of their intersection is positive. To be clear, two rectangles that only touch at the corner or edges do not overlap.
-    Given two axis-aligned rectangles rec1 and rec2, return true if they overlap, otherwise return false.
+An axis-aligned rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) is the coordinate of its bottom-left corner, 
+and (x2, y2) is the coordinate of its top-right corner. Its top and bottom edges are parallel to the X-axis, and its left and right edges are parallel to the Y-axis.
+Two rectangles overlap if the area of their intersection is positive. To be clear, two rectangles that only touch at the corner or edges do not overlap.
+Given two axis-aligned rectangles rec1 and rec2, return true if they overlap, otherwise return false.
 */
-    if (rec1[0] >= rec2[2] || rec2[0] >= rec1[2] || // kept away from x-axis
-        rec1[1] >= rec2[3] || rec2[1] >= rec1[3] ) { // kept away from y-axis
+bool Solution::isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
+    if (rec1[0] >= rec2[2] || rec2[0] >= rec1[2] || // separated from x-axis
+        rec1[1] >= rec2[3] || rec2[1] >= rec1[3] ) { // separated from y-axis
         return false;
     } else {
         return true;
     }
 }
 
-int Solution::computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2) {
+
 /*
-    Given the coordinates of two rectilinear rectangles in a 2D plane, return the total area covered by the two rectangles.
-    The first rectangle is defined by its bottom-left corner (ax1, ay1) and its top-right corner (ax2, ay2).
-    The second rectangle is defined by its bottom-left corner (bx1, by1) and its top-right corner (bx2, by2).
-    Hint: ans = area1 + area2 - joint_area
+Given the coordinates of two rectilinear rectangles in a 2D plane, return the total area covered by the two rectangles.
+The first rectangle is defined by its bottom-left corner (ax1, ay1) and its top-right corner (ax2, ay2).
+The second rectangle is defined by its bottom-left corner (bx1, by1) and its top-right corner (bx2, by2).
+Hint: ans = area1 + area2 - joint_area
 */
+int Solution::computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2) {
     auto area = [] (int ax1, int ay1, int ax2, int ay2) {
         return (ax2-ax1)*(ay2-ay1);
     };
     int ans = area(ax1, ay1, ax2, ay2) + area(bx1, by1, bx2, by2);
     int intersection = 0;
-    if (ax1>=bx2 || bx1>=ax2 || ay1>=by2 || by1>=ay2) { // no intersection
+    if (ax1>=bx2 || bx1>=ax2 || ay1>=by2 || by1>=ay2) { // the two rectangles are not overlapped
         intersection = 0;
-    } else {
-        intersection = area(max(ax1,bx1), max(ay1, by1), min(ax2,bx2), min(ay2, by2));
+    } else { // brilliant
+        intersection = area(max(ax1, bx1), max(ay1, by1), min(ax2, bx2), min(ay2, by2));
     }
     return ans - intersection;
 }
 
-int Solution::lengthOfLongestSubstring(string str) {
+
 /*
-    Given a string s, find the length of the longest substring(not subsequence) without repeating characters.
+Given a string s, find the length of the longest substring(not subsequence) without repeating characters.
 
-    Example 1:
-        Input: s = "abcabcbb"
-        Output: 3
-        Explanation: The answer is "abc", with the length of 3.
+Example 1:
+    Input: s = "abcabcbb"
+    Output: 3
+    Explanation: The answer is "abc", with the length of 3.
 */
-
-{ // simplified version
-    int ans = 0;
-    map<char, int> m; // char, the latest position of char
-    int left = 0; // left boudary of substring without repeating characters
-    int sz = str.size();
-    for (int i=0; i<sz; ++i) {
-        if (m.count(str[i])) { // duplicate found
-            left = max(left, m[str[i]] + 1); // update left boundary
-        } 
-        ans = max(ans, i-left+1);
-        m[str[i]] = i;
-    }
-    return ans;
-}
-
-{ // keep this solution as following for ease of understanding 
+int Solution::lengthOfLongestSubstring(string str) {
     int ans = 0;
     map<char, int> m; // char, the latest position of char
     int left = 0; // left boundary of substring without duplicate characters
@@ -234,7 +219,7 @@ int Solution::lengthOfLongestSubstring(string str) {
     }
     return ans;
 }
-}
+
 
 int Solution::calculate_227_inplace(string s) {
     stack<int> operand_st;
@@ -578,63 +563,66 @@ int Solution::calculate_224(string s) {
     return evaluate_postfix_notation(tokens);
 }
 
-int Solution::evalRPN(vector<string>& tokens) {
-    /*
-        Evaluate the value of an arithmetic expression in Reverse Polish Notation.
-        Valid operators are +, -, *, and /. Each operand may be an integer or another expression.
-        Note that division between two integers should truncate toward zero.
-        It is guaranteed that the given RPN expression is always valid. That means the expression would 
-        always evaluate to a result, and there will not be any division by zero operation.
-        Example 1:
-            Input: tokens = ["2","1","+","3","*"]
-            Output: 9
-            Explanation: ((2 + 1) * 3) = 9
-    */
 
-    stack<int> st;
-    auto evaluate = [&] (const string& t) {
-        int res = 0;
-        int t2 = st.top(); st.pop();
-        int t1 = st.top(); st.pop();
-        switch(t[0]) {
-            case '+':
-                res = t1 + t2;
-                break;
-            case '-':
-                res = t1 - t2;
-                break;
-            case '*':
-                res = t1 * t2;
-                break;
-            case '/':
-                res = t1 / t2;
-                break;  
-            default:
-                break;              
-        }
-        st.push(res);
+/*
+Evaluate the value of an arithmetic expression in Reverse Polish Notation. (后缀表达式)
+Valid operators are +, -, *, and /. Each operand may be an integer or another expression.
+Note that division between two integers should truncate toward zero.
+It is guaranteed that the given RPN expression is always valid. That means the expression would 
+always evaluate to a result, and there will not be any division by zero operation.
+
+Example 1:
+    Input: tokens = ["2","1","+","3","*"]
+    Output: 9
+    Explanation: ((2 + 1) * 3) = 9
+*/
+int Solution::evalRPN(vector<string>& tokens) {
+    auto is_operator = [] (string t) {
+        string ops = "+-*/";
+        return ops.find(t) != string::npos; 
     };
-    for (auto t : tokens) {
-        if (t == "+" || t == "-" ||
-            t == "*" || t == "/") {
-            evaluate(t);
+    stack<int> st;
+    for (const auto& t: tokens) {
+        if (is_operator(t)) {
+            // they are all binary operators
+            // note that the order of stack is first-in, last-out
+            int t2 = st.top(); st.pop(); 
+            int t1 = st.top(); st.pop(); 
+            switch(t[0]) {
+                case '+': 
+                    st.push(t1+t2);
+                    break;
+                case '-': 
+                    st.push(t1-t2);
+                    break;
+                case '*': 
+                    st.push(t1*t2);
+                    break;
+                case '/': 
+                    st.push(t1/t2); // integer division
+                    break;
+                default:
+                    break;
+            }
         } else {
             st.push(std::stoi(t));
         }
     }
-   return st.top();
+    return st.top();
 }
+
 
 void evalRPN_scaffold(string input, int expectedResult) {
     Solution ss;
     auto nums = stringTo1DArray<string>(input);
     int actual = ss.evalRPN(nums);
     if(actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void calculate_scaffold(string input, int expectedResult, int test_func) {
     Solution ss;
@@ -657,26 +645,29 @@ void calculate_scaffold(string input, int expectedResult, int test_func) {
     }
 }
 
+
 void lengthOfLongestSubstring_scaffold(string input, int expectedResult) {
     Solution ss;
     int actual = ss.lengthOfLongestSubstring(input);
     if(actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void computeArea_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<int> vi = stringTo1DArray<int>(input);
     int actual = ss.computeArea(vi[0], vi[1], vi[2], vi[3], vi[4], vi[5], vi[6], vi[7]);
     if(actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void isRectangleOverlap_scaffold(string input1, string input2, int expectedResult) {
     Solution ss;
@@ -684,11 +675,12 @@ void isRectangleOverlap_scaffold(string input1, string input2, int expectedResul
     vector<int> v2 = stringTo1DArray<int>(input2);
     int actual = ss.isRectangleOverlap(v1, v2);
     if(actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input1 << ", " << input2 << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
     }
 }
+
 
 // 快速幂: https://zhuanlan.zhihu.com/p/95902286
 int qpow2(int a, int n) {
@@ -703,7 +695,6 @@ int qpow2(int a, int n) {
     return ans;
 }
 
-// 区间合并: 给出
 
 int main() {
     util::LogPolicy::GetInstance().Unmute();

@@ -2,7 +2,7 @@
 
 cd `dirname $(readlink -f $0)`
 
-python -m pip install transformers -i https://mirrors.aliyun.com/pypi/simple/
+python3 -m pip install transformers -i https://mirrors.aliyun.com/pypi/simple/
 python3 onnx_exporter.py
 
 #/usr/src/tensorrt/bin/trtexec --onnx=model.onnx --saveEngine=model.plan --minShapes=input_ids:1x512,attention_mask:1x512 --optShapes=input_ids:16x512,attention_mask:16x512 --maxShapes=input_ids:32x512,attention_mask:32x512 --fp16 --verbose | tee conversion_bs16_dy.txt

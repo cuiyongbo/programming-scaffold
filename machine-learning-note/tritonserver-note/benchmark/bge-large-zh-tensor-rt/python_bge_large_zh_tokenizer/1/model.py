@@ -34,8 +34,6 @@ import traceback
 import numpy as np
 import triton_python_backend_utils as pb_utils
 from transformers import AutoTokenizer
-import onnxruntime as ort
-from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions, get_all_providers
 
 '''
 # Debug
@@ -82,10 +80,6 @@ class TritonPythonModel:
                 input_list = input_tensor.as_numpy().flatten().tolist()
                 input_list = [s.decode("utf-8") for s in input_list]
                 inputs = self.tokenizer(input_list, padding=True, truncation=True, return_tensors="np", max_length=self.max_sequence_len)
-                input_feed = {
-                    "input_ids": inputs["input_ids"].astype(np.int32),
-                    "attention_mask": inputs["attention_mask"].astype(np.int32),
-                }
                 total_tokens = np.sum(inputs["attention_mask"], axis=1, keepdims=True)
                 inference_response = pb_utils.InferenceResponse(
                     output_tensors=[

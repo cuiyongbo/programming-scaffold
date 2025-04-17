@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # stop processes which may use GPU
-sudo systemctl stop gdm
+sudo systemctl stop gdm3
 
 # how to find GPU BUS ID
 # use nvidia-smi
