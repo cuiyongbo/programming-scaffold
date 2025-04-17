@@ -1,0 +1,63 @@
+# cat resnet/config.pbtxt
+name: "bge_large_zh_trt" # it must match the name of model folder if specified, optional
+backend: "tensorrt"  # [backend type](https://github.com/triton-inference-server/backend/blob/main/README.md#backends)
+platform: "tensorrt_plan"
+default_model_filename: "model.plan" # If not specified the default name is 'model.graphdef', 'model.savedmodel', 'model.plan' or 'model.pt' depending on the model type.
+
+# input schema
+input [
+  {
+    name: "input_ids"
+    data_type: TYPE_INT32
+    dims: [-1]
+  },
+  {
+    name: "attention_mask"
+    data_type: TYPE_INT32
+    dims: [-1]
+  }
+]
+
+# output schema
+output {
+  name: "sentence_embedding"
+  data_type: TYPE_FP32
+  dims: [1024]
+}
+
+# how to batch requests during inference 
+max_batch_size: 32 # [max_batch_size](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#maximum-batch-size)
+# [batch strategy](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#scheduling-and-batching)
+dynamic_batching {
+  preferred_batch_size: [2, 4, 8]
+}
+
+# specify where to load the model
+# https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#instance-groups
+instance_group {
+  count: 1      # start one model instance during serving it
+  kind: KIND_GPU # load the model to GPU memory
+}
+
+# [warmup](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html#model-warmup)
+model_warmup {
+    name: "random Warmup"
+    batch_size: 2
+    count: 10
+    inputs: {
+        key: "input_ids"
+        value: {
+            data_type: TYPE_INT32
+            dims: [512]
+            random_data: true
+        }
+    }
+    inputs: {
+        key: "attention_mask"
+        value: {
+            data_type: TYPE_INT32
+            dims: [512]
+            zero_data: false
+        }
+    }
+}
