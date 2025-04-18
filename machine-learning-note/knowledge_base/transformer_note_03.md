@@ -509,3 +509,63 @@ print(f"Shape of last hidden state: {last_hidden_state.shape}")
 - **Final Hidden States:** Capture rich contextualized information, useful for various NLP tasks.
 
 By understanding and leveraging hidden states, you can extract meaningful representations from transformer models, enabling their application in a wide range of natural language processing tasks.
+
+# in my case, I convert a bert model in onnx format to tensorrt, and it has two inputs: input_ids, attention_mask, and both inputs are of variable length in range [1, 512] except the batch dimension. how to call trtexec then?
+
+You're correct; you should be specifying the `minShapes`, `optShapes`, and `maxShapes` only once, but you misunderstood the CLI structure. The correct approach for handling dynamic inputs is specifying the dynamic ranges for each input in one call to `trtexec`.
+
+Here's how you can do it for a BERT model with both `input_ids` and `attention_mask` having dynamic lengths from 1 to 512, and a variable batch size:
+
+### Correct Command
+
+```bash
+trtexec --onnx=bert_model.onnx \
+        --minShapes=input_ids:1x1,attention_mask:1x1 \
+        --optShapes=input_ids:1x128,attention_mask:1x128 \
+        --maxShapes=input_ids:1x512,attention_mask:1x512 \
+        --saveEngine=bert_model.plan
+```
+
+### Explanation
+
+- `--minShapes=input_ids:1x1,attention_mask:1x1`: Minimum shapes for `input_ids` and `attention_mask`, used to define the smallest shape in the batch with sequence length 1.
+- `--optShapes=input_ids:1x128,attention_mask:1x128`: Optimal shapes for `input_ids` and `attention_mask`, used to define the expected average shape of the data in batch, with sequence length 128.
+- `--maxShapes=input_ids:1x512,attention_mask:1x512`: Maximum shapes for `input_ids` and `attention_mask`, used to define the largest shape in the data batch, with sequence length up to 512.
+- `--saveEngine=bert_model.plan`: Specifies the output file for the TensorRT engine.
+
+### Including Larger Batch Support
+
+If you want to build with a larger batch size for `input_ids` and `attention_mask`, you would specify these ranges accordingly:
+
+### Command with Larger Support for Batch Sizes
+
+```bash
+trtexec --onnx=bert_model.onnx \
+        --minShapes=input_ids:1x1,attention_mask:1x1 \
+        --optShapes=input_ids:8x128,attention_mask:8x128 \
+        --maxShapes=input_ids:16x512,attention_mask:16x512 \
+        --saveEngine=bert_model.plan
+```
+
+This command sets the minimum, optimal, and maximum shapes for both tensors with consideration for dynamic batch sizes ranging from 1 to 16, and sequence lengths from 1 to 512. 
+
+### Additional Options for Optimized Performance
+
+- Work with FP16 precision: `--fp16`
+- Specify max workspace size: `--workspace=N` (where `N` is in MB; e.g., `--workspace=4096`)
+
+### Example with Additional Options
+
+```bash
+trtexec --onnx=bert_model.onnx \
+        --minShapes=input_ids:1x1,attention_mask:1x1 \
+        --optShapes=input_ids:8x128,attention_mask:8x128 \
+        --maxShapes=input_ids:16x512,attention_mask:16x512 \
+        --saveEngine=bert_model.plan \
+        --workspace=4096 \
+        --fp16
+```
+
+This example sets the dynamic range for both `input_ids` and `attention_mask` considering higher batch sizes, includes workspace memory constraints, and employs FP16 precision for enhanced performance on compatible hardware.
+
+By correctly specifying these options, you can effectively create a TensorRT plan that supports dynamic input sizes, optimizing both flexibility and performance.
