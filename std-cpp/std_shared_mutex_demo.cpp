@@ -10,22 +10,25 @@ public:
   ThreadSafeCounter() = default;
 
   int get() const {
+    // lock mutex in shared mode
     std::shared_lock lock(m_mutex);
     return m_value;
   }
 
   void increment() {
+    // lock mutex in exclusive mode
     std::unique_lock lock(m_mutex);
     m_value++;
   }
 
   void reset() {
+    // lock mutex in exclusive mode
     std::unique_lock lock(m_mutex);
     m_value = 0;
   }
 
 private:
-  mutable std::shared_mutex m_mutex;
+  mutable std::shared_mutex m_mutex; // to use m_mutex in const member function
   int m_value;
 };
 

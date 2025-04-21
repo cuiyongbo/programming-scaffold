@@ -31,8 +31,8 @@ using task_func_t = std::function<void()>;
 class ThreadPool {
 private:
     int m_worker_num;
-    std::vector<std::thread> m_workers;
-    std::queue<task_func_t> m_tasks;
+    std::vector<std::thread> m_workers;  // workers to run tasks
+    std::queue<task_func_t> m_tasks;    // queue to store tasks
     std::mutex m_mutex;
     std::condition_variable m_cv;
     bool m_is_running;
@@ -51,7 +51,7 @@ public:
     }
 
     int task_count() {
-        // you must query the size of queue with lock obtained
+        // you must obtain the lock before querying the size of queue
         std::unique_lock<std::mutex> lock(m_mutex);
         return m_tasks.size();
     }
@@ -63,12 +63,15 @@ public:
     }
 
     int enqueue_impl(task_func_t&& t) {
+        // obtain the lock
         std::unique_lock<std::mutex> lock(m_mutex);
         if (!m_is_running) {
             std::cout << "thread pool is going to close, no more tasks" << std::endl;
             return 1;
         }
+        // add the task to queue
         m_tasks.push(t);
+        // notify one worker, note that notify with mutex locked
         m_cv.notify_one();
         return 0;
     }
@@ -76,19 +79,23 @@ public:
     void stop() {
         std::unique_lock<std::mutex> lock(m_mutex);
         m_is_running = false;
+        // notify all workers, note that notify with mutex locked
         m_cv.notify_all();
     }
 
 private:
+    // non-static member function
     void woker_fn() {
         while (true) {
             task_func_t task;
             {
-                // wait with lock obtained
+                // NOTE: we must wait with mutex locked
                 std::unique_lock<std::mutex> lock(m_mutex);
+                // wait until we got one task or the worker is ready to exit
                 m_cv.wait(lock, [this](){
                     return !m_tasks.empty() || !m_is_running;
                 });
+                // it's ok to exit after we have finished executing all tasks
                 if (m_tasks.empty() && !m_is_running) {
                     break;
                 }

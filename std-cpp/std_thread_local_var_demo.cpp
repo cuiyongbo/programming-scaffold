@@ -2,6 +2,11 @@
 #include <thread>
 #include <stdint.h>
 
+/*
+how to compile?
+g++ std_thread_local_var_demo.cpp -std=c++11
+*/
+
 thread_local int tt = 0;
 std::mutex cout_mutex;
 
@@ -9,18 +14,18 @@ void thread_func(int i) {
 	tt = i;
 	tt++;
 	std::lock_guard<std::mutex> guard(cout_mutex);
-	std::cout << "thread: " << std::this_thread::get_id() << ", &tt: " <<  &tt << ", tt: " <<  tt << std::endl;
+	std::cout << "thread: " << std::this_thread::get_id() << ", thread_local_var address: " <<  &tt << ", value: " <<  tt << std::endl;
 }
 
 void naive_test() {
 	tt = 9;
-	std::thread t1(thread_func, 1);	
-	std::thread t2(thread_func, 3);	
+	std::thread t1(thread_func, 1);
+	std::thread t2(thread_func, 3);
 	t1.join();
 	t2.join();
 	{
 		std::lock_guard<std::mutex> guard(cout_mutex);
-		std::cout << "main_thread: " << std::this_thread::get_id() << ", &tt: " <<  &tt << ", tt: " <<  tt << std::endl;
+		std::cout << "main_thread: " << std::this_thread::get_id() << ", thread_local_var address: " <<  &tt << ", value: " <<  tt << std::endl;
 	}
 
 }

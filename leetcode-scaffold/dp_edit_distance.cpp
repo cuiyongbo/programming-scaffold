@@ -14,15 +14,15 @@ private:
     int minDistance_memoization(string word1, string word2);
 };
 
-int Solution::minDistance(string word1, string word2) {
 /*
-    Given two words word1 and word2, find the minimum number of steps required 
-    to convert word1 to word2. (each operation is counted as 1 step.)
-    You have the following 3 operations permitted on a word:
-        a) Insert a character
-        b) Delete a character
-        c) Replace a character
+Given two words word1 and word2, find the minimum number of steps required 
+to convert word1 to word2. (each operation is counted as 1 step.)
+You have the following 3 operations permitted on a word:
+    a) Insert a character
+    b) Delete a character
+    c) Replace a character
 */
+int Solution::minDistance(string word1, string word2) {
     // return minDistance_dp(word1, word2);
     return minDistance_memoization(word1, word2);
 }
@@ -81,20 +81,19 @@ int Solution::minDistance_memoization(string word1, string word2) {
 }
 
 
-bool Solution::isMatch(string s, string p) {
 /*
-    Given an input string (s) and a pattern (p), implement regular expression matching with support for '.' and '*'.
-    '.' Matches any single character. and '*' Matches zero or more of the preceding element. The matching should cover the entire input string (not partial).
-    Note:
-        s could be empty or contains only lowercase letters a-z.
-        p could be empty or contains only lowercase letters a-z, and characters like . or  *.
-    For example, given an input: s = "ab", p = ".*", output: true, explanation: ".*" means "zero or more (*) of any character (.)".
+Given an input string (s) and a pattern (p), implement regular expression matching with support for '.' and '*'.
+'.' Matches any single character. and '*' Matches zero or more of the preceding element. The matching should cover the entire input string (not partial).
+Note:
+    s could be empty or contains only lowercase letters a-z.
+    p could be empty or contains only lowercase letters a-z, and characters like . or  *.
+For example, given an input: s = "ab", p = ".*", output: true, explanation: ".*" means "zero or more (*) of any character (.)".
 */
-
-if (1) {
+bool Solution::isMatch(string s, string p) {
     int m = s.size(), n = p.size();
     // dp[i][j] means whether p[:j] matches s[:i] or not (**the right ends are inclusive**)
     vector<vector<bool>> dp(m+1, vector<bool>(n+1, false));
+    // initialization:
     dp[0][0] = true; // trivial case
     for (int j=2; j<=n; ++j) {
         if (p[j-1] == '*') { // trivial cases to match an empty string
@@ -104,10 +103,10 @@ if (1) {
     // i, j are not inclusive
     for (int i=1; i<=m; ++i) {
         for (int j=1; j<=n; ++j) {
-            if (p[j-1] == '.') { // a "." match
+            if (p[j-1] == '.') { // a "." matches all possible characters
                 dp[i][j] = dp[i-1][j-1];
             } else if (p[j-1] == '*') {
-                // 1. Use '*' to match zero characters in s
+                // 1. Use '*' to match zero character in s
                 dp[i][j] = dp[i][j-2];
                 // 2. Use '*' to match one or more characters in s
                 if (s[i-1] == p[j-2] || p[j-2]=='.') {
@@ -119,39 +118,6 @@ if (1) {
         }
     }
     return dp[m][n];
-}
-
-{ // failure solution
-    int n1 = s.size();
-    int n2 = p.size();
-    function<bool(int, int)> dfs = [&](int l1, int l2) {
-        if (l2 == n2) {
-            return l1 == n1;
-        }
-        if (l2+1 != n2 && p[l2+1] == '*') { // next character in pattern is a wildcard
-            //int i = (l1 > 0) ? (l1-1): 0;
-            int i = l1;
-            while (i<n1 && (s[i] == p[l2] || p[l2] == '.')) {
-                if (dfs(i+1, l2+2)) { // the wildcard at p[l2+1] match zero or more character(s)
-                    return true;
-                }
-                ++i;
-            }
-        } else { // next character in pattern is either a dot or a lowercase letter
-            // s comes to end
-            if (l1 == n1) {
-                return false;
-            }
-            // dot or exact match
-            if (s[l1] == p[l2] || p[l2] == '.') {
-                return dfs(l1+1, l2+1);
-            }
-        }
-        return false;
-    };
-    return dfs(0, 0);
-}
-
 }
 
 
