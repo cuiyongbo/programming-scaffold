@@ -1,5 +1,4 @@
-```
-Q: what does a C/C++ program consist of? and what is its memory layout when running on os?
+# what does a C/C++ program consist of? and what is its memory layout when running on os?
 
 ### Memory Layout of a Running C/C++ Program
 
@@ -83,7 +82,7 @@ When a C/C++ program runs, its memory is divided into several segments. Here’s
 Understanding the memory layout and structure of a C/C++ program is crucial for efficient memory management, debugging, and ensuring program stability. This knowledge helps in avoiding common issues such as memory leaks, buffer overflows, and segmentation faults.
 
 
-Q: why we have to declare a static member var outside the class body in c++?
+# why we have to declare a static member var outside the class body in c++?
 
 In C++, static member variables are declared inside the class body, but they must also be defined outside the class body. This is because the declaration inside the class body only declares the existence of the static member variable, but does not allocate any memory for it. The definition outside the class body actually allocates memory for the static member variable.
 
@@ -113,7 +112,7 @@ ld: symbol(s) not found for architecture arm64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 ```
 
-Q: please tell me about C++ lvalue and rvalue, when to use them?
+# please tell me about C++ lvalue and rvalue, when to use them?
 
 In C++, understanding the concepts of lvalues and rvalues is crucial for grasping how expressions are evaluated, how objects are moved or copied, and how resources are managed efficiently. These concepts are especially important in the context of modern C++ features like move semantics and perfect forwarding.
 
@@ -172,7 +171,7 @@ In C++, understanding the concepts of lvalues and rvalues is crucial for graspin
 - **Use lvalue references** (`T&`) to pass objects that you might modify without copying.
 - **Use rvalue references** (`T&&`) to implement move semantics or perfect forwarding, allowing your program to transfer resources from temporaries efficiently.
 
-Q: in CMakeList.txt what does the PRIVATE mean in `target_link_libraries(prog_name PRIVATE libs)`
+# in CMakeList.txt what does the PRIVATE mean in `target_link_libraries(prog_name PRIVATE libs)`
 In CMake, the `target_link_libraries` command is used to specify libraries or other targets that a target (such as an executable or another library) depends on. The command manages dependencies and linking for both static and shared libraries.
 
 The `PRIVATE`, `PUBLIC`, and `INTERFACE` keywords specify thescope" or "visibility" of the linked library. They control how the properties of the linked libraries are propagated to consumers of the target. Here’s what each term means:
@@ -246,6 +245,3 @@ In this case:
 - Other targets that link against `my_executable` will **inherit** the `my_lib` dependency.
 
 Choosing the right visibility (`PRIVATE`, `PUBLIC`, `INTERFACE`) helps manage dependencies more cleanly and ensures that only the necessary dependencies are propagated, reducing potential conflicts and unnecessary linkage.
-
-
-```

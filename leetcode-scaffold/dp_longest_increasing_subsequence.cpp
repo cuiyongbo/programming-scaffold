@@ -6,35 +6,34 @@ using namespace std;
 
 class Solution {
 public:
+    int longestSubsequence(vector<int>& arr, int d);
     int lengthOfLongestIncreasingSubsequence(vector<int>& nums);
     int findNumberOfLongestIncreasingSubsequence(vector<int>& nums);
     int findLengthOfLongestContinuousIncreasingSubsequence(vector<int>& nums);
     int longestStrChain(vector<string>& words);
     int longestConsecutive(vector<int> &num);
-    int longestSubsequence(vector<int>& arr, int d);
 };
 
-int Solution::longestSubsequence(vector<int>& arr, int d) {
 /*
-    Given an integer array arr and an integer difference d, return the length of the longest subsequence in arr 
-    which is an arithmetic sequence such that the difference between adjacent elements in the subsequence equals difference. [等差数列]
+Given an integer array arr and an integer difference d, return the length of the longest subsequence in arr 
+which is an arithmetic sequence such that the difference between adjacent elements in the subsequence equals difference. [等差数列]
 
-    Example 1:
-        Input: arr = [1,2,3,4], difference = 1
-        Output: 4
-        Explanation: The longest arithmetic subsequence is [1,2,3,4].
-    Example 2:
-        Input: arr = [1,3,5,7], difference = 1
-        Output: 1
-        Explanation: The longest arithmetic subsequence is any single element.
+Example 1:
+    Input: arr = [1,2,3,4], difference = 1
+    Output: 4
+    Explanation: The longest arithmetic subsequence is [1,2,3,4].
+Example 2:
+    Input: arr = [1,3,5,7], difference = 1
+    Output: 1
+    Explanation: The longest arithmetic subsequence is any single element.
 */
-
+int Solution::longestSubsequence(vector<int>& arr, int d) {
     int ans = INT32_MIN;
     int n = arr.size();
     // dp[i] means longestSubsequence ending with arr[i] 
     // dp[i] = max{dp[j]+1} for j in [0,i-1] if arr[i]-arr[j]==d else 1
     vector<int> dp(n, 1); // initializa dp with trivial cases
-    for (int i=1; i<n; ++i) {
+    for (int i=0; i<n; ++i) {
         for (int j=0; j<i; ++j) {
             if (arr[i]-arr[j] == d) {
                 // state transition
@@ -47,12 +46,12 @@ int Solution::longestSubsequence(vector<int>& arr, int d) {
 }
 
 
-int Solution::lengthOfLongestIncreasingSubsequence(vector<int>& nums) {
 /*
-    Given an unsorted array of integers, find the length of the longest increasing subsequence.
-    For example, Given [10, 9, 2, 5, 3, 7, 101, 18], The longest increasing subsequence is [2, 3, 7, 101], therefore the length is 4. 
-    Note that there may be more than one LIS combination, it is only necessary for you to return the length.
+Given an unsorted array of integers, find the length of the longest increasing subsequence.
+For example, Given [10, 9, 2, 5, 3, 7, 101, 18], The longest increasing subsequence is [2, 3, 7, 101], therefore the length is 4. 
+Note that there may be more than one LIS combination, it is only necessary for you to return the length.
 */
+int Solution::lengthOfLongestIncreasingSubsequence(vector<int>& nums) {
     // dp[i] means lengthOfLongestIncreasingSubsequence ending with nums[i]
     // dp[i] = max{dp[j]+1} if(nums[j] < nums[i]), 0 <= j <i
     int ans = INT32_MIN;
@@ -70,26 +69,26 @@ int Solution::lengthOfLongestIncreasingSubsequence(vector<int>& nums) {
 }
 
 
-int Solution::findNumberOfLongestIncreasingSubsequence(vector<int>& nums) {
 /*
-    Given an unsorted array of integers, find the number of the longest increasing subsequence.
+Given an unsorted array of integers, find the number of the longest increasing subsequence.
 */
+int Solution::findNumberOfLongestIncreasingSubsequence(vector<int>& nums) {
     int max_len = 0;
     int sz = nums.size();
     // dp[i] means longestIncreasingSubsequence ending with nums[i]
     // dp[i] = max{dp[j]+1 if nums[j] < nums[i] for 0<=j<i}
-    vector<int> dp(sz, 1); // initialze trivial cases
+    vector<int> dp(sz, 1); // initialize trivial cases
     // count[i] means the number of longestIncreasingSubsequence ending with nums[i]
     vector<int> count(sz, 1);
-    for (int i=1; i<sz; i++) {
+    for (int i=0; i<sz; i++) {
         for (int j=0; j<i; j++) {
             if (nums[j]<nums[i]) {
                 //dp[i] = max(dp[i], dp[j]+1);
-                if (dp[j]+1 > dp[i]) {
+                if (dp[j]+1 > dp[i]) { // longer subsequences found
                     dp[i] = dp[j]+1;
-                    count[i] = count[j]; 
-                } else if (dp[j]+1 == dp[i]) {
-                    count[i] += count[j]; 
+                    count[i] = count[j];
+                } else if (dp[j]+1 == dp[i]) { // ties found
+                    count[i] += count[j];
                 } else {
                     // do nothing
                 }
@@ -107,20 +106,17 @@ int Solution::findNumberOfLongestIncreasingSubsequence(vector<int>& nums) {
 }
 
 
-int Solution::findLengthOfLongestContinuousIncreasingSubsequence(vector<int>& nums) {
 /*
-    Given an unsorted array of integers, find the length of longest continuous increasing subsequence.
-
-    Example 1:
-        Input: [1,3,5,4,7]
-        Output: 3
-    Explanation: The longest continuous increasing subsequence is [1,3,5], its length is 3. 
-    Even though [1,3,5,7] is also an increasing subsequence, it’s not a continuous one where 5 and 7 are separated by 4.
+Given an unsorted array of integers, find the length of longest continuous increasing subsequence.
+Example 1:
+    Input: [1,3,5,4,7]
+    Output: 3
+Explanation: The longest continuous increasing subsequence is [1,3,5], its length is 3. 
+Even though [1,3,5,7] is also an increasing subsequence, it’s not a continuous one where 5 and 7 are separated by 4.
 */
-
+int Solution::findLengthOfLongestContinuousIncreasingSubsequence(vector<int>& nums) {
     // dp[i] means lengthOfLongestContinuousIncreasingSubsequence ending with nums[i]
-    // dp[i] = 1 if nums[i] <= nums[i-1] else
-    //  dp[i] = dp[i-1] + 1
+    // dp[i] = 1 if nums[i] <= nums[i-1] else dp[i-1]+1
     int ans = INT32_MIN;
     int n = nums.size();
     vector<int> dp(n, 1);
@@ -134,26 +130,26 @@ int Solution::findLengthOfLongestContinuousIncreasingSubsequence(vector<int>& nu
 }
 
 
-int Solution::longestStrChain(vector<string>& words) {
 /*
-    Given a list of words, each word consists of English lowercase letters.
-    Let's say word1 is a predecessor of word2 if and only if we can add exactly one letter anywhere in word1 to make it equal to word2. For example, "abc" is a predecessor of "abac".
-    A word chain is a sequence of words [word_1, word_2, ..., word_k] with k >= 1, where word_1 is a predecessor of word_2, word_2 is a predecessor of word_3, and so on.
-    Return the longest possible length of a word chain with words chosen from the given list of words.
+Given a list of words, each word consists of English lowercase letters.
+Let's say word1 is a predecessor of word2 if and only if we can add exactly one letter anywhere in word1 to make it equal to word2. For example, "abc" is a predecessor of "abac".
+A word chain is a sequence of words [word_1, word_2, ..., word_k] with k >= 1, where word_1 is a predecessor of word_2, word_2 is a predecessor of word_3, and so on.
+Return the longest possible length of a word chain with words chosen from the given list of words.
 
-    Example 1:
-        Input: ["a","b","ba","bca","bda","bdca"]
-        Output: 4
-        Explanation: one of the longest word chain is "a","ba","bda","bdca".
+Example 1:
+    Input: ["a","b","ba","bca","bda","bdca"]
+    Output: 4
+    Explanation: one of the longest word chain is "a","ba","bda","bdca".
 
-    Example 2:
-        Input: words = ["xbc","pcxbcf","xb","cxbc","pcxbc"]
-        Output: 5
-        Explanation: All the words can be put in a word chain ["xb", "xbc", "cxbc", "pcxbc", "pcxbcf"].
+Example 2:
+    Input: words = ["xbc","pcxbcf","xb","cxbc","pcxbc"]
+    Output: 5
+    Explanation: All the words can be put in a word chain ["xb", "xbc", "cxbc", "pcxbc", "pcxbcf"].
 
-    Hint: first sort words by length, then we can work out the longestStrChain ending with words[i]
-    by dp[i] = max{dp[j]+1} if (is_predecessor(words[j], word[i])) 0<=j<i
+Hint: first sort words by length, then we can work out the longestStrChain ending with words[i]
+by dp[i] = max{dp[j]+1} if (is_predecessor(words[j], word[i])) 0<=j<i
 */
+int Solution::longestStrChain(vector<string>& words) {
     auto is_predecessor = [] (const string& pre, const string& next) {
         int s1 = pre.size();
         int s2 = next.size();
@@ -168,7 +164,7 @@ int Solution::longestStrChain(vector<string>& words) {
                 j++; diff++;
             }
         }
-        return diff <= 1; // diff may be 0 if pre == next[:s1]
+        return diff <= 1; // diff is 0 if pre == next[:s1]
     };
     // sort words by length of word
     std::sort(words.begin(), words.end(), [&](const string& l, const string& r) {
@@ -190,12 +186,12 @@ int Solution::longestStrChain(vector<string>& words) {
 }
 
 
-int Solution::longestConsecutive(vector<int>& nums) {
 /*
-    Given an unsorted array of integers, find the length of the longest consecutive element sequence.
-    For example, Given [100, 4, 200, 1, 3, 2], The longest consecutive elements sequence is [1, 2, 3, 4]. Return its length: 4.
-    Your algorithm should run in O(n) complexity.
+Given an unsorted array of integers, find the length of the longest consecutive element sequence.
+For example, Given [100, 4, 200, 1, 3, 2], The longest consecutive elements sequence is [1, 2, 3, 4]. Return its length: 4.
+Your algorithm should run in O(n) complexity.
 */
+int Solution::longestConsecutive(vector<int>& nums) {
 
 { // dp solution
     // sort the array in ascending order
@@ -346,6 +342,8 @@ int main() {
     longestConsecutive_scaffold("[2,2,2,2,2]", 1);
     longestConsecutive_scaffold("[1,3,5,4,7]", 3);
     longestConsecutive_scaffold("[100,4,200,1,3,2]", 4);
+    longestConsecutive_scaffold("[100,4,200,1,3,2,2]", 4);
+    longestConsecutive_scaffold("[100,4,200,1,3,3,2,2]", 4);
     longestConsecutive_scaffold("[-4,-1,4,-5,1,-6,9,-6,0,2,2,7,0,9,-3,8,9,-2,-6,5,0,3,4,-2]", 12);
     longestConsecutive_scaffold("[0,3,7,2,5,8,4,6,0,1]", 9);
     TIMER_STOP(longestConsecutive);

@@ -218,7 +218,7 @@ Q: 这是一段项目经历, 如何按照 STAR 法则进行优化:
 在搭建向量库数据特征生产链路过程中:
 
 1. 利用Hugging Face Transformer技术，搭建高效的文本特征生产链路，包括优化的在线与离线处理流程
-2. 推理框架调研: 站内 bernard, torchserve, nvidia tritonsever, 从公有云基建支持程度, 服务性能, 框架可定制化程度，稳定性角度出发选择 nvidia tritonserver
+2. 推理框架调研: 站内 公司内部推理框架, torchserve, nvidia tritonsever, 从公有云基建支持程度, 服务性能, 框架可定制化程度，稳定性角度出发选择 nvidia tritonserver
 3. 服务性能调优: 引入 warmup，dynamic batching, onnx, tensorRT 等优化手段提升推理性能
 4. 服务压测: 结合输入长度, batch, 并发数, 确定在线链路和离线链路的服务配置
 5. 结合 model ensemble 做模型编排，减少模型混合使用场景下的网络开销，同时提高显存利用率
@@ -256,7 +256,7 @@ Q: 这是一段项目经历, 如何按照 STAR 法则进行优化:
    - 利用Hugging Face Transformer技术，搭建高效的文本特征生产链路，包括优化的在线与离线处理流程。
    
 6. **推理框架选择与优化**：
-   - 调研各类推理框架，包括bernard、torchserve和nvidia tritonserver，并根据公有云基建支持程度、服务性能、框架可定制化程度和稳定性，选择Nvidia Tritonserver作为最终解决方案。
+   - 调研各类推理框架，包括公司内部推理框架、torchserve和nvidia tritonserver，并根据公有云基建支持程度、服务性能、框架可定制化程度和稳定性，选择Nvidia Tritonserver作为最终解决方案。
    
 7. **性能调优**：
    - 引入warmup、dynamic batching、onnx和tensorRT等优化手段，提升推理性能。
@@ -296,7 +296,7 @@ Q: 这是一段项目经历, 如何按照 STAR 法则进行优化:
 3. 整合向量库与公有云的大模型能力，打造创新知识库，满足RAG需求客户的特定要求。
 4. 对接公有云交易系统，实现产品计费机制，推进商业化进程。
 5. 利用Hugging Face Transformer技术，搭建高效的文本特征生产链路，优化在线与离线处理流程。
-6. 通过调研bernard、torchserve和nvidia tritonserver等框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver。
+6. 通过调研公司内部推理框架、torchserve和nvidia tritonserver等框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver。
 7. 引入warmup、dynamic batching、onnx和tensorRT等优化手段，提升推理性能。
 8. 结合输入长度、batch、并发数进行服务压测，确定在线链路和离线链路的服务配置。
 9. 通过model ensemble进行模型编排，减少模型混合使用场景下的网络开销，提高显存利用率。
@@ -346,7 +346,7 @@ Q: 如何结合我的期望工作职位对项目经历做优化呢?
    - 采用Hugging Face Transformer技术，搭建高效的文本特征生产链路，优化了在线与离线处理流程。
 
 2. **推理框架选择与优化**:
-   - 调研和评估bernard、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
+   - 调研和评估公司内部推理框架、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
    - 引入warmup、dynamic batching、onnx和tensorRT等优化手段，提升推理性能。
 
 3. **性能调优和压测**:
@@ -415,7 +415,7 @@ Q: 对于结果, 如何引入数据来证明工作成果? 我在项目中主要�
    - 采用Hugging Face Transformer技术，搭建高效的文本特征生产链路，优化在线与离线处理流程。
 
 2. **推理框架选择与优化**：
-   - 调研和评估bernard、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
+   - 调研和评估公司内部推理框架、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
    - 引入warmup、dynamic batching、onnx和tensorRT等优化手段，提升推理性能。
 
 3. **性能调优和压测**：
@@ -948,7 +948,7 @@ Q: 请结合以上对话, 生成一份简历的草稿
    - 采用Hugging Face Transformer技术，搭建高效的文本特征生产链路，优化在线与离线处理流程。
 
 2. **推理框架选择与优化**：
-   - 调研和评估bernard、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
+   - 调研和评估公司内部推理框架、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
    - 引入warmup、dynamic batching、onnx和tensorRT等优化手段，提升推理性能。
 
 3. **性能调优和压测**：
@@ -1208,7 +1208,7 @@ Q: 以下是一份模型推理工程师的职位介绍, 如何结合这些信息
    - 采用Hugging Face Transformer技术，搭建高效的文本特征生产链路，优化在线与离线处理流程。
 
 2. **推理框架选择与优化**：
-   - 调研和评估bernard、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
+   - 调研和评估公司内部推理框架、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
    - 引入warmup、dynamic batching、onnx和tensorRT等优化手段，提升推理性能。
 
 3. **性能调优和压测**：
@@ -1306,7 +1306,7 @@ Q: 可以只结合当前的工作经历, 重新生成一份简历
    - 采用Hugging Face Transformer技术，搭建高效的文本特征生产链路，优化在线与离线处理流程。
 
 2. **推理框架选择与优化**：
-   - 调研和评估bernard、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
+   - 调研和评估公司内部推理框架、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
    - 引入warmup、dynamic batching、onnx和tensorRT等优化手段，提升推理性能。
 
 3. **性能调优和压测**：
@@ -1383,7 +1383,7 @@ Q: 简历里先不加工作经历, 结合模型推理工程师的职位要求重
    - 采用Hugging Face Transformer技术，搭建高效的文本特征生产链路，优化在线与离线处理流程。
 
 2. **推理框架选择与优化**：
-   - 调研和评估bernard、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
+   - 调研和评估公司内部推理框架、torchserve和nvidia tritonserver等推理框架，从公有云基建支持程度、服务性能、框架可定制化程度和稳定性角度，选择nvidia tritonserver作为最终解决方案。
    - 引入warmup、dynamic batching、onnx和tensorRT等优化手段，提升推理性能。
 
 3. **性能调优和压测**：

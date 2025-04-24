@@ -373,13 +373,21 @@ add_executable(binary_search_tester binary_search_tester.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_search_tester PUBLIC cxx_auto_type)
 target_link_libraries(binary_search_tester)
 
-add_executable(misc_exercises misc_exercises.cpp ${PUB_UTIL_FILES})
-target_compile_features(misc_exercises PUBLIC cxx_auto_type)
-target_link_libraries(misc_exercises PRIVATE spdlog::spdlog_header_only)
+add_executable(calculator_exercises calculator_exercises.cpp ${PUB_UTIL_FILES})
+target_compile_features(calculator_exercises PUBLIC cxx_auto_type)
+target_link_libraries(calculator_exercises PRIVATE spdlog::spdlog_header_only)
 
 add_executable(monotonic_stack_exercises monotonic_stack_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(monotonic_stack_exercises PUBLIC cxx_auto_type)
 target_link_libraries(monotonic_stack_exercises PRIVATE spdlog::spdlog_header_only)
+
+add_executable(misc_exercises misc_exercises.cpp ${PUB_UTIL_FILES})
+target_compile_features(misc_exercises PUBLIC cxx_auto_type)
+target_link_libraries(misc_exercises PRIVATE spdlog::spdlog_header_only)
+
+add_executable(misc_exercises_02 misc_exercises_02.cpp ${PUB_UTIL_FILES})
+target_compile_features(misc_exercises_02 PUBLIC cxx_auto_type)
+target_link_libraries(misc_exercises_02 PRIVATE spdlog::spdlog_header_only)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

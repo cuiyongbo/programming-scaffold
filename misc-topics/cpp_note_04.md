@@ -1,5 +1,4 @@
-```
-Q: what happens if there is hash collision when using std::unordered_map?
+# what happens if there is hash collision when using std::unordered_map?
 
 When using `std::unordered_map` in C++, a hash collision occurs when two different keys produce the same hash value. The `std::unordered_map` handles hash collisions internally using a technique called chaining, which involves storing multiple elements in the same bucket.
 
@@ -64,7 +63,7 @@ int main() {
 `std::unordered_map` handles hash collisions using chaining, which allows multiple elements to be stored in the same bucket. While collisions can affect performance, the average case remains efficient with constant time complexity. Properly designed hash functions can minimize collisions and maintain the performance benefits of `std::unordered_map`.
 
 
-Q: what if there are many hash collisions? what std does to migrate the effect on insertion and searching
+# what if there are many hash collisions? what std does to migrate the effect on insertion and searching
 
 When there are many hash collisions in a `std::unordered_map`, the performance of insertion and searching operations can degrade because multiple elements are stored in the same bucket, leading to longer chains that need to be traversed. To mitigate the effects of hash collisions, the C++ Standard Library employs several strategies:
 
@@ -142,7 +141,7 @@ int main() {
 
 By employing these strategies, `std::unordered_map` can effectively mitigate the impact of hash collisions and maintain efficient performance for insertion and searching operations.
 
-Q: how large should I set `std::unordered_map::max_load_factor` usually?
+# how large should I set `std::unordered_map::max_load_factor` usually?
 
 The `max_load_factor` of a `std::unordered_map` in C++ determines the maximum average number of elements per bucket before the container automatically increases the number of buckets and rehashes the elements. The default `max_load_factor` is typically set to 1.0, which means that on average, there will be one element per bucket.
 
@@ -199,5 +198,3 @@ int main() {
 - **Higher Load Factor**: Consider a higher `max_load_factor` (e.g., 1.5 or 2.0) for memory-constrained environments where slightly slower performance is acceptable.
 
 Ultimately, the optimal `max_load_factor` depends on the specific requirements and constraints of your application. You may need to experiment with different values and measure the performance and memory usage to find the best balance for your use case.
-
-```

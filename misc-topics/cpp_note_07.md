@@ -1,4 +1,4 @@
-Q: in C++, is it necessary to wrap a mutex around it before reading/writing a bool var in multi-thread environment
+# in C++, is it necessary to wrap a mutex around it before reading/writing a bool var in multi-thread environment
 
 In a multi-threaded environment, accessing shared data can lead to race conditions if proper synchronization is not implemented. This includes reading and writing to a `bool` variable.
 
@@ -61,7 +61,7 @@ int main() {
 
 Thus, to properly manage a `bool` variable in a multi-threaded environment, you should use `std::atomic<bool>` to avoid race conditions and ensure proper synchronization.
 
-Q: what is the difference with std::atomic_bool and std::mutex+bool solution?
+# what is the difference with std::atomic_bool and std::mutex+bool solution?
 
 When dealing with concurrency in C++, you have several tools at your disposal to ensure safe access to shared variables. Two common approaches are using `std::atomic<bool>` and using a `bool` variable protected with `std::mutex`. Here are the differences between these two approaches:
 

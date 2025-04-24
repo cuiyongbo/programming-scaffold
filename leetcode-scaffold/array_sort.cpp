@@ -83,9 +83,9 @@ void Solution::sortArray(vector<int>& nums, AlgorithmType type) {
 }
 
 /*
-// O(nlogn) on average case
+// runtime complexity O(nlogn) on average case
 1. pick and element, called a pivot, from the array
-2. patitioning: reorder the array so that the elements with values less than the pivot come before the pivot, and the elements with values greater than the pivot come after it (equal values can go either way). after the partition, the pivot is in its final position
+2. partitioning: reorder the array so that the elements with values less than the pivot come before the pivot, and the elements with values greater than the pivot come after it (equal values can go either way). after the partition, the pivot is in its final position
 3. recursively apply the above steps to all sub-arrays
 */
 
@@ -98,6 +98,7 @@ void Solution::quickSort(vector<int>& nums) {
         int i = l-1;
         int pivot = nums[r];
         for (int k=l; k<r; ++k) {
+            // put elements less than pivot to nums[l:i]
             if (nums[k] < pivot) { // num[k]<pivot, l <= k <= i
                 ++i;
                 std::swap(nums[i], nums[k]);
@@ -114,6 +115,8 @@ void Solution::quickSort(vector<int>& nums) {
             return;
         }
         int m = naive_partitioner(l, r);
+        // nums[m] is in its final sorted position after parititon
+        // continue to sort remaining array
         dac(l, m-1);
         dac(m+1, r);
     };
@@ -123,14 +126,14 @@ void Solution::quickSort(vector<int>& nums) {
 // \Theta(k) [k = max(array) - min(array)]
 void Solution::countingSort(vector<int>& nums) {
 /* 
-    NOT suitable for sparse arrays splitting in a large array, 
-    such as [INT_MIN, INT_MAX], suffering to range overflow problem
+    NOT suitable for sparse arrays whose elements split in a large domain,
+    such as [INT_MIN, INT_MAX], suffering to range overflow
 */
     auto p = minmax_element(nums.begin(), nums.end());
     int l = *(p.first);
     int r = *(p.second);
     long range = r-l+1;
-    SPDLOG_INFO("CountingSort(min={}, max={}, range={})", l, r, range);
+    SPDLOG_DEBUG("CountingSort(min={}, max={}, range={})", l, r, range);
     vector<int> count(range, 0);
     for (auto n: nums) {
         count[n-l]++;
@@ -160,36 +163,95 @@ loop 3: (6218), (3366), (2400, 2457, 8469), (3604), (7705, 8773), (6845), (7939)
 loop 4:  (2400, 2457), (3366, 3604), (6218, 6845), (7705, 7939), (8469, 8773)
 */
 void Solution::radixSort(vector<int>& nums) {
+    // calculate input value range
     auto p = minmax_element(nums.begin(), nums.end());
     int l = *(p.first);
     int r = *(p.second);
-    // map array elements to [0, r-l]
+    // map array elements to [0, r-l], NON-NEGATIVE
     std::transform(nums.begin(), nums.end(), nums.begin(), [&](int a) {return a-l;});
 
-    std::function<void(int)> worker = [&] (int base) {
+    /*
+    # ./array_sort 10000
+    [2025-04-26 11:54:30.525] [warning] [array_sort.cpp:435] Running batch tests(array_size=10000)
+    [2025-04-26 11:54:30.525] [info] [array_sort.cpp:358] Running countingSort tests
+    [2025-04-26 11:54:30.540] [info] [array_sort.cpp:381] countingSort tests use 15.3112 ms
+    [2025-04-26 11:54:30.540] [info] [array_sort.cpp:358] Running radixSort tests
+    [2025-04-26 11:54:30.631] [info] [array_sort.cpp:381] radixSort tests use 91.126711 ms
+    [2025-04-26 11:54:30.631] [info] [array_sort.cpp:358] Running insertionSort tests
+    [2025-04-26 11:54:31.586] [info] [array_sort.cpp:381] insertionSort tests use 954.826413 ms
+    [2025-04-26 11:54:31.586] [info] [array_sort.cpp:358] Running mergeSort tests
+    [2025-04-26 11:54:31.619] [info] [array_sort.cpp:381] mergeSort tests use 32.868097 ms
+    [2025-04-26 11:54:31.619] [info] [array_sort.cpp:358] Running quickSort tests
+    [2025-04-26 11:54:31.653] [info] [array_sort.cpp:381] quickSort tests use 33.590679 ms
+    [2025-04-26 11:54:31.653] [info] [array_sort.cpp:358] Running heapSort tests
+    [2025-04-26 11:54:31.694] [info] [array_sort.cpp:381] heapSort tests use 41.260992 ms
+    [2025-04-26 11:54:31.694] [warning] [array_sort.cpp:444] batch tests using 1169.08 milliseconds
+    # ./array_sort 100000
+    [2025-04-26 11:54:39.132] [warning] [array_sort.cpp:435] Running batch tests(array_size=100000)
+    [2025-04-26 11:54:39.132] [info] [array_sort.cpp:358] Running countingSort tests
+    [2025-04-26 11:54:39.223] [info] [array_sort.cpp:381] countingSort tests use 90.644472 ms
+    [2025-04-26 11:54:39.223] [info] [array_sort.cpp:358] Running radixSort tests
+    [2025-04-26 11:54:40.200] [info] [array_sort.cpp:381] radixSort tests use 976.858026 ms
+    [2025-04-26 11:54:40.200] [info] [array_sort.cpp:358] Running insertionSort tests
+    [2025-04-26 11:56:13.234] [info] [array_sort.cpp:381] insertionSort tests use 93034.092811 ms
+    [2025-04-26 11:56:13.234] [info] [array_sort.cpp:358] Running mergeSort tests
+    [2025-04-26 11:56:13.602] [info] [array_sort.cpp:381] mergeSort tests use 368.23889199999996 ms
+    [2025-04-26 11:56:13.602] [info] [array_sort.cpp:358] Running quickSort tests
+    [2025-04-26 11:56:13.994] [info] [array_sort.cpp:381] quickSort tests use 391.669153 ms
+    [2025-04-26 11:56:13.994] [info] [array_sort.cpp:358] Running heapSort tests
+    [2025-04-26 11:56:14.470] [info] [array_sort.cpp:381] heapSort tests use 475.754686 ms
+    [2025-04-26 11:56:14.470] [warning] [array_sort.cpp:444] batch tests using 95337.40 milliseconds
+    */
+    auto sort_by_counting_sort = [&] (int base) {
         int sz = nums.size();
-        for (int i=1; i<sz; i++) {
-            int tmp = nums[i];
-            int ni = nums[i]/base%10;
+        vector<vector<int>> count(10);
+        for (int i=0; i<sz; i++) {
+            int ni = nums[i]/base%10; // this operation takes time
+            count[ni].push_back(nums[i]);
+        }
+        int k=0;
+        for (const auto& vals: count) {
+            for (auto p: vals) {
+                nums[k++] = p;
+            }
+        }
+    };
+    /*
+    in naive implementation, the runtime of radixSort is about 40 times of insertionSort
+    # ./array_sort 1000
+    [2025-04-26 11:31:32.155] [info] [array_sort.cpp:334] Running radixSort tests
+    [2025-04-26 11:31:32.558] [info] [array_sort.cpp:357] radixSort tests use 402.431399 ms
+    [2025-04-26 11:31:32.558] [info] [array_sort.cpp:334] Running insertionSort tests
+    [2025-04-26 11:31:32.570] [info] [array_sort.cpp:357] insertionSort tests use 12.235455 ms
+    */
+   /*
+    // workhorse
+    auto sort_by_ith_digit = [&] (int base) {
+        int sz = nums.size();
+        for (int i=0; i<sz; i++) {
+            int tmp = nums[i]; // save nums[i]
+            int ni = nums[i]/base%10; // this operation takes time
             for (int j=0; j<i; j++) {
                 int nj = nums[j]/base%10;
                 if (ni<nj) {
-                    // we should put ni at nj, but before we do that, we must shift nums[j:i-1] to right by one place to spare place
+                    // we should put ni at nj, but before we do that, we must shift nums[j:i-1] to right by one place to save place for nums[j]
                     for (int k=i; k>j; k--) {
                         nums[k] = nums[k-1];
                     }
-                    nums[j] = tmp;
+                    nums[j] = tmp; // put nums[i] to nums[j]
                     break;
                 }
             }
         }
     };
-
+   */
+    // main program
     int base = 1;
     int max_num = r-l;
     while (max_num > 0) {
         // perform stable sort on ith digit, such as insertion sort
-        worker(base);
+        //sort_by_ith_digit(base);
+        sort_by_counting_sort(base);
         base *= 10;
         max_num /= 10;
     }
@@ -202,22 +264,25 @@ void Solution::radixSort(vector<int>& nums) {
 // O(nlogn) for worst-case running time
 void Solution::heapSort(vector<int>& nums) {
 {
-    auto sift_down = [&] (int root, int size) {
-        while (root<size) {
-            int p_i = root;
-            int left=2*p_i+1;
-            int right=2*p_i+2;
-            if (left<size && nums[left]>nums[p_i]) {
-                p_i = left;
+    // r is not inclusive
+    auto sift_down = [&] (int l, int r) {
+        int root = l;
+        while (root < r) {
+            int left = 2*root+1;
+            int right = 2*root+2;
+            int max_i = root;
+            if (left<r && nums[left] > nums[max_i]) {
+                max_i = left;
             }
-            if (right<size && nums[right]>nums[p_i]) {
-                p_i = right;
+            if (right<r && nums[right] > nums[max_i]) {
+                max_i = right;
             }
-            if (p_i == root) {
+            // the heap is in its shape
+            if (max_i == root) {
                 break;
             }
-            swap(nums[p_i], nums[root]);
-            root = p_i;
+            swap(nums[root], nums[max_i]);
+            root = max_i;
         }
     };
     // 1. build heap with sift-up
@@ -228,7 +293,7 @@ void Solution::heapSort(vector<int>& nums) {
     // 2. extract the largest element from the remaining array one by one
     for (int i=size-1; i>0; i--) {
         std::swap(nums[0], nums[i]);
-        // restore the heap with sift-down
+        // restore the heap property for nums[0:i] (note that i is not inclusive) with sift-down
         sift_down(0, i);
     }
     return;
@@ -247,6 +312,7 @@ void Solution::heapSort(vector<int>& nums) {
 
 }
 
+
 /*
 // O(nlogn) for worst-case running time
 1. divide the unsorted list into n sublists, each containing 1 element
@@ -259,6 +325,7 @@ void Solution::mergeSort(std::vector<int>& nums) {
         if (l >= r) { // trivial case
             return;
         }
+        // std::vector<int> twins = nums;
         int m = (l+r)/2;
         // divide
         dac(l, m); dac(m+1, r);
@@ -274,36 +341,39 @@ void Solution::mergeSort(std::vector<int>& nums) {
         }
         // swap elements in [l, r]
         std::copy(twins.begin()+l, twins.begin()+r+1, nums.begin()+l);
+        // don't call `swap(twins, nums);` here, it will overwrite work by other subroutine unless you create a new twins for every subroutine
     };
-    dac(0, nums.size()-1);
+    return dac(0, nums.size()-1);
 }
+
 
 // \Theta(nlogn)
 void Solution::bstSort(vector<int>& nums) {
-    // std::multiset maybe implemented with red-black tree
+    // `std::multiset` maybe implemented with red-black tree
     std::multiset<int> s(nums.begin(), nums.end());
     std::copy(s.begin(), s.end(), nums.begin());
 }
 
+
 // \Theta(n^2)
+/*
+    [l, r), i
+    [l, i] is sorted in ascending order
+    [i+1, r) is not sorted
+    the algorithm consists of two loops:
+        loop one: expand the sorted array to right by one at each iteration
+        loop two: make sure the left part is sorted
+*/
 void Solution::insertionSort(vector<int>& nums) {
-    /*
-        [l, r), i
-        [l, i] is sorted in ascending order
-        [i+1, r) is not sorted
-        the algorithm consists of two loops:
-            loop one: expand the sorted array to right by one at each iteration
-            loop two: make sure the left part is sorted
-    */
     int l = 0;
     int r = nums.size();
-    for (int i=l+1; i<r; i++) {
-        int p = nums[i];
+    for (int i=l; i<r; i++) {
+        int p = nums[i]; // we must save nums[i] for later assignment
         for (int j=l; j<i; j++) {
             if (p < nums[j]) {
                 // p should be placed at nums[j]
                 // but before that we need shift nums[j, i-1] to right by one
-                for (int k=i; k>j; k--) {
+                for (int k=i; k>j; k--) { // watch out, nums[i] has been changed
                     nums[k] = nums[k-1];
                 }
                 nums[j] = p;
@@ -313,6 +383,7 @@ void Solution::insertionSort(vector<int>& nums) {
     }
     return;
 }
+
 
 void sortArray_scaffold(string input, AlgorithmType type) {
     Solution ss;
@@ -325,14 +396,20 @@ void sortArray_scaffold(string input, AlgorithmType type) {
     }
 }
 
+
 void batch_test_scaffold(int array_scale, AlgorithmType type) {
     SPDLOG_INFO("Running {} tests", AlgorithmType_toString(type));
+    TIMER_START(batch_test_scaffold);
     std::random_device rd;
     std::mt19937 g(rd());
     Solution ss;
     vector<int> vi; vi.reserve(array_scale);
     for (int i=0; i<array_scale; i++) {
-        vi.push_back(rand());
+        if (type == AlgorithmType_countingSort) {
+            vi.push_back(rand()%100000);
+        } else {
+            vi.push_back(rand());
+        }
     }
     for (int i=0; i<100; ++i) {
         //SPDLOG_INFO("Running {} tests at {}", AlgorithmType_toString(type), i+1);
@@ -343,7 +420,10 @@ void batch_test_scaffold(int array_scale, AlgorithmType type) {
             SPDLOG_ERROR("Case(array_scale={}, array_size={}, algorithm={}) failed", array_scale, n, AlgorithmType_toString(type));
         }
     }
+    TIMER_STOP(batch_test_scaffold);
+    SPDLOG_INFO("{} tests use {} ms", AlgorithmType_toString(type), TIMER_MSEC(batch_test_scaffold));
 }
+
 
 void basic_test() {
     SPDLOG_INFO("Running sortArray tests:");
@@ -381,6 +461,7 @@ void basic_test() {
     SPDLOG_INFO("sortArray using {:.2f} milliseconds", TIMER_MSEC(sortArray));
 }
 
+
 int main(int argc, char* argv[]) {
     //basic_test();
 
@@ -388,20 +469,20 @@ int main(int argc, char* argv[]) {
     if (argc > 1) {
         array_size = std::atoi(argv[1]);
         if (array_size <= 0) {
-            SPDLOG_WARN("Usage: {} [arrary_size]", argv[0]);
-            SPDLOG_WARN("\tarrary_size must be positive, default to 100 if unspecified");
+            printf("Usage: %s [arrary_size]", argv[0]);
+            printf("\tarrary_size must be positive, default to 100 if unspecified");
             return -1;
         }
     }
 
     SPDLOG_WARN("Running batch tests(array_size={})", array_size);
     TIMER_START(sortArray_batch_test);
-    //batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_countingSort);
+    batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_countingSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_radixSort);
+    batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_insertionSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_mergeSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_quickSort);
     batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_heapSort);
-    //batch_test_scaffold(array_size, AlgorithmType::AlgorithmType_insertionSort);
     TIMER_STOP(sortArray_batch_test);
     SPDLOG_WARN("batch tests using {:.2f} milliseconds", TIMER_MSEC(sortArray_batch_test));
 }

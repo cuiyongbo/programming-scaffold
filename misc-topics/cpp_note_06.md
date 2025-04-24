@@ -1,7 +1,6 @@
-```
-Q: tell me how C++ lambda function is implemented under the hood?
+# tell me how C++ lambda function is implemented under the hood?
 
-In C++, lambda functions are implemented as instances of anonymous function objects (also known as closures). Under the hood, the compiler translates a lambda expression into a class with an overloaded `operator()`. This class can capture variables from its surrounding scope either by value or by reference. Here's a breakdown of how this works:
+In C++, lambda functions are implemented as instances of anonymous function objects (also known as closures [闭包]). Under the hood, the compiler translates a lambda expression into a class with an overloaded `operator()` [function call operator]. This class can capture variables from its surrounding scope either by value or by reference. Here's a breakdown of how this works:
 
 ### Example Lambda Function
 
@@ -113,7 +112,7 @@ In summary, C++ lambdas are syntactic sugar for creating anonymous function obje
 This allows lambdas to encapsulate their surrounding state and provide inline, concise function definitions.
 
 
-Q: can a lambda function be called in a recusive way? and why if not?
+# can a lambda function be called in a recusive way? and why if not?
 
 In C++ standard lambda syntax does not directly support self-referencing for recursion. To achieve recursion with lambdas, you need to handle the self-reference manually. There are a few common approaches to accomplish this:
 
@@ -192,12 +191,12 @@ int main() {
 ### Why Standard Lambdas Don't Directly Support Recursion
 
 Standard lambda syntax does not inherently provide a way for the lambda to reference itself by name because:
-1. **Uniqueness**: Each lambda has a unique, unnamed type that does not have a predefined name or identifier within its own scope.
+1. **Uniqueness**: Each lambda has a unique, unnamed type that does not have a predefined name or identifier within its own scope. [匿名类没有实现递归终止条件吗?]
 2. **Simplicity**: Lambdas are designed to be simple and concise, typically for use in small, non-recursive tasks or as short inline functions.
 
 By using the approaches described above, you can achieve recursion with lambdas effectively, allowing for self-referential behavior where necessary.
 
-Q: what's the difference between `std::function` and lambda function in C++?
+# what's the difference between `std::function` and lambda function in C++?
 
 In C++, `std::function` and lambda functions serve different purposes, and understanding their differences is key to using them effectively. Here is a detailed comparison of the two:
 
@@ -277,7 +276,7 @@ std::function<int(int)> func = [](int x) { return x * 2; };
 
 Choosing between a lambda and `std::function` depends on the specific use case: prefer lambdas for performance-sensitive, type-specific, and inline cases, and use `std::function` when flexibility, type erasure, or polymorphism is needed.
 
-Q: what is type erasure about?
+# what is type erasure about?
 
 Type erasure is a programming technique used to abstract away specific types and provide a uniform interface. This allows code to handle objects of different types in a consistent manner without knowing or depending on the concrete types at compile time. Type erasure is particularly useful in designing libraries or APIs that need to work with a wide range of types while providing a single, generic interface.
 
@@ -389,7 +388,7 @@ The type-erased `Function` class can store any callable object and provide a uni
 
 Type erasure is a powerful technique that enhances the flexibility and expressiveness of C++ by enabling uniform treatment of different types through a common interface.
 
-Q: in c++, how does a lambda object capture multiple variables?
+# in c++, how does a lambda object capture multiple variables?
 
 In C++, a lambda function can capture variables from its enclosing scope in several ways: by value, by reference, or by a combination of both. The capture list, which appears between the square brackets `[]` at the start of the lambda definition, determines how variables are captured.
 
@@ -520,7 +519,7 @@ int main() {
 
 By using these capture modes, C++ allows lambdas to flexibly and efficiently capture the necessary variables from surrounding scopes, making them powerful and versatile tools for handling local computations and callbacks.
 
-Q: in c++, how does a lambda object capture multiple variables in the compiler-generated class under the hood?
+# in c++, how does a lambda object capture multiple variables in the compiler-generated class under the hood?
 
 When you create a lambda in C++, the compiler generates a class that holds captured variables and provides an overloaded `operator()` to define the function call mechanism. Let's explore an example and explain how the compiler handles capturing multiple variables.
 
@@ -658,7 +657,7 @@ When C++ compiles a lambda expression that captures multiple variables, it gener
 
 By understanding this compiler-generated structure, you can better appreciate how lambdas capture and manage variables internally, providing powerful yet intuitive mechanisms for carrying scope context within local function objects.
 
-Q: what if there are many objects to be captured?
+# what if there are many objects to be captured?
 
 When a lambda captures many objects, the compiler-generated class will have member variables for each captured object. This might lead to a more complex class structure but follows the same principles outlined previously. The size of the lambda object will increase correspondingly, as it needs to store all the captured values or references.
 
@@ -801,5 +800,3 @@ int main() {
 ### Summary
 
 When a lambda captures multiple variables, the compiler-generated class will contain a member variable for each captured object. Although the complexity increases with more captured objects, the core principles remain constant — capturing either by value or reference, initializing via the constructor, and using the overloaded `operator()`. Careful consideration of capture methods and encapsulation strategies can help manage large captures efficiently.
-
-```

@@ -1,5 +1,4 @@
-```
-Q: what is the return type of `std::bind`?
+# what is the return type of `std::bind`?
 
 The return type of `std::bind` is a callable object (specifically, a function object or functor) that holds the bound function and its associated arguments. This object can be stored, passed around, and called later. The specific type is implementation-defined and can be quite complex. However, for practical purposes and type deduction, you can use `auto` or `std::function` to store the result of `std::bind`.
 
@@ -78,4 +77,203 @@ int main() {
 
 The return type of `std::bind` is a complex, implementation-defined type representing a callable object. To simplify handling of this type, you can use `auto` or `std::function`. This allows you to store, pass, and invoke the bound function object conveniently.
 
+
+# how to bind partial arguments of a function, not all of them, in c++ with std::bind?
+
+In C++, you can use `std::bind` from the `<functional>` header to bind one or more arguments of a function or callable object, but not necessarily all of them. This allows you to create a functor (or callable object) with a predefined subset of arguments while leaving other arguments to be specified later.
+
+Here is a step-by-step guide on how to use `std::bind` to bind partial arguments of a function:
+
+### Example with a Free Function
+
+Let's say you have the following function:
+
+```cpp
+#include <iostream>
+#include <functional>
+
+void exampleFunction(int a, double b, std::string c) {
+    std::cout << "a: " << a << ", b: " << b << ", c: " << c << '\n';
+}
 ```
+
+You can bind the first and the third argument, leaving the second argument free to be supplied later:
+
+```cpp
+#include <iostream>
+#include <functional>
+
+void exampleFunction(int a, double b, std::string c) {
+    std::cout << "a: " << a << ", b: " << b << ", c: " << c << '\n';
+}
+
+int main() {
+    using namespace std::placeholders;
+
+    // Bind first argument to 42, and third argument to "example".
+    // The underscore _2 means the second argument is left to be specified later.
+    auto boundFunction = std::bind(exampleFunction, 42, _1, "example");
+
+    // Now call the bound function, providing the second argument
+    boundFunction(3.14);
+
+    return 0;
+}
+```
+
+### Example with a Member Function
+
+For member functions, you also need to bind the object, either an object instance or a pointer to an object. Let's say you have this class:
+
+```cpp
+class Example {
+public:
+    void exampleMethod(int a, double b) {
+        std::cout << "a: " << a << ", b: " << b << '\n';
+    }
+};
+```
+
+You can bind the first argument and leave the second argument free:
+
+```cpp
+#include <iostream>
+#include <functional>
+
+class Example {
+public:
+    void exampleMethod(int a, double b) {
+        std::cout << "a: " << a << ", b: " << b << '\n';
+    }
+};
+
+int main() {
+    using namespace std::placeholders;
+
+    Example exampleObj;
+
+    // Bind the object and the first argument to 42.
+    // The underscore _1 means the second argument is left to be specified later.
+    auto boundMethod = std::bind(&Example::exampleMethod, &exampleObj, 42, _1);
+
+    // Now call the bound method, providing the second argument
+    boundMethod(3.14);
+
+    return 0;
+}
+```
+
+### Placeholders
+
+- `std::placeholders::_1`, `std::placeholders::_2`, etc., are placeholders for the arguments that are not bound.
+- These placeholders allow you to specify which arguments will be provided later when the partially bound function is called.
+
+### Summary
+
+- **Header:** Include the `<functional>` header.
+- **Namespace:** Use `std::placeholders` for the placeholders.
+- **Bind Partial Arguments:** Use `std::bind` to bind the arguments, specifying placeholders for arguments to be provided later.
+
+By using `std::bind` and placeholders, you can create versatile, partially bound functions in C++ that are flexible and convenient for various applications.
+
+# what does `std::placeholders::_1` mean? does it mean assign the first argument of `boundMethod` to `Example::exampleMethod`'s second argument in above example?
+
+Yes, `std::placeholders::_1` is a placeholder that represents the first argument passed to the bound function object when it is called. It allows you to specify that this first argument should be mapped to a particular position in the original function's parameter list. In the example with `Example::exampleMethod`, `std::placeholders::_1` is used to indicate that when the bound function `boundMethod` is called, its first argument will be passed as the second argument to `Example::exampleMethod`.
+
+Let's break it down step-by-step:
+
+```cpp
+class Example {
+public:
+    void exampleMethod(int a, double b) {
+        std::cout << "a: " << a << ", b: " << b << '\n';
+    }
+};
+
+int main() {
+    using namespace std::placeholders;
+
+    Example exampleObj;
+
+    // Bind the object and the first argument to 42.
+    // std::placeholders::_1 means the second argument is left to be specified later.
+    auto boundMethod = std::bind(&Example::exampleMethod, &exampleObj, 42, _1);
+
+    // Now call the bound method, providing the second argument
+    boundMethod(3.14);
+
+    return 0;
+}
+```
+
+another example:
+
+```cpp
+#include <iostream>
+#include <functional>
+
+void exampleFunction(int a, double b, std::string c) {
+    std::cout << "a: " << a << ", b: " << b << ", c: " << c << '\n';
+}
+
+int main() {
+    using namespace std::placeholders;
+
+    auto boundFunction = std::bind(exampleFunction, 42, _1, "example");
+
+    // Now call the bound function, providing the second argument
+    boundFunction(3.14);
+
+    //std::function<void(std::string)> boundFunction1 = std::bind(exampleFunction, 42, 3.14, _1);
+    auto boundFunction1 = std::bind(exampleFunction, 42, 3.14, _1);
+    boundFunction1("hello world");
+
+    //std::function<void(int)> boundFunction2 = std::bind(exampleFunction, _1, 3.14, "bilibil");
+    auto boundFunction2 = std::bind(exampleFunction, _1, 3.14, "bilibil");
+    boundFunction2(34);
+
+    auto boundFunction3 = std::bind(exampleFunction, _2, _1, "bilibil");
+    boundFunction3(3.1415926, 65);
+
+    return 0;
+}
+
+/*
+# g++ scaffold.cpp -std=c++11
+# ./a.out 
+a: 42, b: 3.14, c: example
+a: 42, b: 3.14, c: hello world
+a: 34, b: 3.14, c: bilibil
+a: 65, b: 3.14159, c: bilibil
+*/
+```
+
+### Explanation
+
+#### `std::placeholders::_1`
+
+- `std::placeholders::_1` is a placeholder indicating a future argument.
+- When `boundMethod` is called, the first argument provided to it will be assigned to wherever `_1` is placed in the original function's parameters.
+
+#### Binding the Function
+
+- `std::bind(&Example::exampleMethod, &exampleObj, 42, _1)`:
+  - `&Example::exampleMethod`: The member function to bind.
+  - `&exampleObj`: The object on which to call the member function.
+  - `42`: The constant value for the first argument `a` of `exampleMethod`.
+  - `_1`: A placeholder indicating the first argument to `boundMethod` will be passed as the second argument `b` to `exampleMethod`.
+
+#### Calling `boundMethod`
+
+- Calling `boundMethod(3.14)` translates to calling `exampleObj.exampleMethod(42, 3.14)`:
+  - `42` is passed as the first argument `a`.
+  - `3.14` (the first argument to `boundMethod`) is passed as the second argument `b`.
+
+### Summary
+
+So, in your case:
+
+- `std::placeholders::_1` means the first argument passed to `boundMethod` will be forwarded as the second argument to `Example::exampleMethod`.
+- It effectively maps the first argument provided at the call site of `boundMethod` to the second parameter (`b`) of `exampleMethod`.
+
+This mechanism provides flexibility to create partially applied functions, remap argument positions, and defer the specification of certain arguments until the actual call to the bound function object.
