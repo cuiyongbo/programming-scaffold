@@ -71,6 +71,28 @@ std::priority_queue<std::pair<dist_t, labeltype >> result; // min-heap, 小根�
 - 精细的锁粒度保护, 避免卡并发 (保护 max_level, cur_element_count, label_lookup, neighbor_list 精确到节点粒度)
 - 支持 embedding 量化(float16, int16, int8等, 在线 query_vec 使用对称量化以加速检索; 构建候选向量使用非对称量化, 精度更高), 指令集加速 (AVX512, AVX, SSE, etc.)
 - 补充打点指标: 候选量, 内存占用, 节点的邻居数量分布, 检索遍历的候选数, 过滤掉的候选数, 流式更新情况(添加/更新/删除数量速率, 更新失败), embedding 模值分布
+- THP 设置
+
+THP 策略:
+
+```bash
+# cat /sys/kernel/mm/transparent_hugepage/enabled
+always [madvise] never
+# https://man7.org/linux/man-pages/man2/madvise.2.html
+```
+
+如何分配释放:
+
+```cpp
+// allocate THP
+static size_t huge_page_size = 4096 * 1024;  // 4MB
+static size_t common_page_size = getpagesize(); // getconf PAGESIZE, usually 4096 -> 4KB
+alloc_size = pgnum * huge_page_size; // 按 page_size 向上取整
+auto mmap_p = static_cast<char*>(mmap(NULL, alloc_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0));
+int madvret = madvise(arr, alloc_size, MADV_HUGEPAGE);
+// free THP
+munmap(arr, mem_size);
+```
 
 ### Int8 量化
 
