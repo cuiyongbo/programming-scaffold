@@ -15,20 +15,20 @@ public:
 };
 
 
-int Solution::threePartsEqualSumCount(vector<int>& arr) {
 /*
-    Given an array of integers, return the number of solutions with which we can partition the array into three non-empty parts with equal sums.
-    for example,
-        input: [0, 0, 0, 0]
-        output: 3
+Given an array of integers, return the number of solutions with which we can partition the array into three non-empty parts with equal sums.
+Example:
+    input: [0, 0, 0, 0]
+    output: 3
 */
+int Solution::threePartsEqualSumCount(vector<int>& arr) {
     int total = std::accumulate(arr.begin(), arr.end(), 0);
     int target = total/3;
     if (target*3 != total) {
         return 0;
     }
     int sz = arr.size();
-    // dp[i] means the number of subarray[j:sz], i<=j<sz, whose sum is equal to target
+    // dp[i] means the number of subarray[j:sz] whose sum is equal to target, i<=j<sz, in array[i:sz]
     vector<int> dp(sz, 0); 
     int count = 0;
     int cur_sum = 0; // suffix sum
@@ -51,11 +51,11 @@ int Solution::threePartsEqualSumCount(vector<int>& arr) {
 }
 
 
-bool Solution::canThreePartsEqualSum(vector<int>& arr) {
 /*
-    Given an array of integers arr, return true if we can partition the array into three non-empty parts with equal sums.
-    Formally, we can partition the array if we can find indexes i + 1 < j with (arr[0] + arr[1] + ... + arr[i] == arr[i + 1] + arr[i + 2] + ... + arr[j - 1] == arr[j] + arr[j + 1] + ... + arr[arr.length - 1])
+Given an array of integers arr, return true if we can partition the array into three non-empty parts with equal sums.
+Formally, we can partition the array if we can find indexes i + 1 < j with (arr[0] + arr[1] + ... + arr[i] == arr[i + 1] + arr[i + 2] + ... + arr[j - 1] == arr[j] + arr[j + 1] + ... + arr[arr.length - 1])
 */
+bool Solution::canThreePartsEqualSum(vector<int>& arr) {
     int total = std::accumulate(arr.begin(), arr.end(), 0);
     int sub = total/3;
     if (sub*3 != total) {
@@ -78,20 +78,21 @@ bool Solution::canThreePartsEqualSum(vector<int>& arr) {
             break;
         }
     }
+    // there is at least one element between i and j,
+    // and the sum of left and right parition is equal to sub
     return j-i>1 && left==sub && right==sub;
 }
 
 
 
-int Solution::maxSubArray(vector<int>& nums) {
 /*
-    Find the contiguous subarray within an array (containing at least one number) which has the largest sum.
-    For example, given the array [-2,1,-3,4,-1,2,1,-5,4],
-    the contiguous subarray [4,-1,2,1] has the largest sum = 6.
+Find the contiguous subarray within an array (containing at least one number) which has the largest sum.
+For example, given the array [-2,1,-3,4,-1,2,1,-5,4],
+the contiguous subarray [4,-1,2,1] has the largest sum = 6.
 */
-    // dp[i] means the largest sum of the contiguous subarray ending with nums[i]
-    // dp[i] = max(dp[i-1]+nums[i], nums[i])
-
+int Solution::maxSubArray(vector<int>& nums) {
+// dp[i] means the largest sum of the contiguous subarray ending with nums[i]
+// dp[i] = max(dp[i-1]+nums[i], nums[i])
 { // navie solution
     int ans = nums[0];
     int sz = nums.size();
@@ -118,16 +119,13 @@ int Solution::maxSubArray(vector<int>& nums) {
 }
 
 
-int Solution::maxProfit_121(vector<int>& prices) {
 /*
-    Say you have an array for which the i-th element is the price of a given stock on day i.
-    If you were only permitted to complete at most one transaction (i.e., buy one and sell 
-    one share of the stock), design an algorithm to find the maximum profit.
+Say you have an array for which the i-th element is the price of a given stock on day i.
+If you were only permitted to complete at most one transaction (i.e., buy one and sell one share of the stock), design an algorithm to find the maximum profit.
 */
-
+int Solution::maxProfit_121(vector<int>& prices) {
 // dp[i] means maxProfit_121 when selling stock no later than i-th day
-// dp[i] = max(dp[i-1], prices[i]-purchase_price), purchase_price = min(prices[k]), 0<=k<i
-
+// dp[i] = max(dp[i-1], prices[i]-buy), buy = min(prices[k]), 0<=k<i
 if (0) {
     int n = prices.size();
     vector<int> dp(n, 0);
@@ -153,61 +151,61 @@ if (0) {
 }
 
 
-int Solution::maxProfit_309(vector<int>& prices) {
 /*
-    Say you have an array for which the ith element is the price of a given stock on day i.
+Say you have an array for which the ith element is the price of a given stock on day i.
 
-    Design an algorithm to find the maximum profit. You may complete as many transactions 
-    as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
+Design an algorithm to find the maximum profit. You may complete as many transactions 
+as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
 
-        You may not engage in multiple transactions at the same day (i.e., you must sell the stock before you buy again).
-        After you sell your stock, you cannot buy stock on next day. (i.e., cooldown 1 day)
+    You may not engage in multiple transactions at the same day (i.e., you must sell the stock before you buy again).
+    After you sell your stock, you cannot buy stock on next day. (i.e., cooldown 1 day)
 */
+int Solution::maxProfit_309(vector<int>& prices) {
 
-{
+{ // naive solution
     if (prices.empty()) {
         return 0;
     }
     int n = prices.size();
     // Initialize the DP arrays
-    vector<int> hold(n, 0), sold(n, 0), cooldown(n, 0);
-    // hold[i] means maxProfit_309 if you buy the stock on day i
-    // sold[i] means maxProfit_309 if you sell the stock on day i
-    // cooldown[i] means maxProfit_309 if you are in a cooldown period on day i (you sold the stock the day before or haven't done any transaction)
+    vector<int> buy(n, 0), sell(n, 0), cooldown(n, 0);
+    // buy[i] means maxProfit_309 if you buy the stock on day i
+    // sell[i] means maxProfit_309 if you sell the stock on day i
+    // cooldown[i] means maxProfit_309 if you are in a cooldown period on day i (you sell the stock the day before or haven't done any transaction)
     // trivial cases:
-    hold[0] = -prices[0]; // We've bought on the first day
-    sold[0] = 0;          // Cannot sell on the first day without buying
-    cooldown[0] = 0;      // No cooldown on the first day
+    buy[0] = -prices[0]; // We bought a stock on the first day
+    sell[0] = 0;          // Cannot sell on the first day without buying
+    cooldown[0] = 0;      // No cooldown on the first day either
     // state transitions
-    for (int i = 1; i < n; ++i) {
+    for (int i=1; i<n; ++i) {
         // you can buy the stock on day i if you were in a cooldown period or you were already holding the stock
-        hold[i] = max(hold[i-1], cooldown[i-1] - prices[i]);
+        buy[i] = max(buy[i-1], cooldown[i-1] - prices[i]);
         // you can sell the stock on day i if you were holding the stock the day before
-        sold[i] = hold[i-1] + prices[i];
-        // you can be in a cooldown period on day i if you were in a cooldown period or you just sold the stock the day before
-        cooldown[i] = max(cooldown[i-1], sold[i-1]);
+        sell[i] = buy[i-1] + prices[i];
+        // you can be in a cooldown period on day i if you were in a cooldown period or you just sell the stock the day before
+        cooldown[i] = max(cooldown[i-1], sell[i-1]);
     }
-    // The result is the maximum profit on the last day being in sold or cooldown states
-    return max(sold[n-1], cooldown[n-1]);
+    // The result is the maximum profit on the last day being in sell or cooldown states
+    return max(sell[n-1], cooldown[n-1]);
 }
 
 { // optimize space usage
-    // sold[i] means maxProfit_309 when sold 
-    // hold[i] = max(hold[i-1], rest[i-1] - prices[i])
-    // sold[i] = hold[i-1] + prices[i]
-    // rest[i] = max(rest[i-1], sold[i-1])
-    // init: rest[0]=sold[0]=0, hold[0]=-inf
+    // sell[i] means maxProfit_309 when sell 
+    // buy[i] = max(buy[i-1], rest[i-1] - prices[i])
+    // sell[i] = buy[i-1] + prices[i]
+    // rest[i] = max(rest[i-1], sell[i-1])
+    // init: rest[0]=sell[0]=0, buy[0]=-inf
 
-    int sold = 0;
+    int sell = 0;
     int rest = 0;
-    int hold = -prices[0];
+    int buy = -prices[0];
     for (auto p: prices) {
-        int ps=sold, pr=rest, ph=hold;
-        sold = ph + p;
-        hold = max(ph, pr-p);
+        int ps=sell, pr=rest, ph=buy;
+        sell = ph + p;
+        buy = max(ph, pr-p);
         rest = max(pr, ps);
     }
-    return max(sold, rest);
+    return max(sell, rest);
 }
 
 }
@@ -305,6 +303,10 @@ int main() {
     threePartsEqualSumCount_scaffold("[0,2,1,-6,6,7,9,-1,2,0,1]", 0);
     threePartsEqualSumCount_scaffold("[3,3,6,5,-2,2,5,1,-9,4]", 1);
     threePartsEqualSumCount_scaffold("[18,12,-18,18,-19,-1,10,10]", 1);
+    threePartsEqualSumCount_scaffold("[1,1,1]", 1);
+    threePartsEqualSumCount_scaffold("[1,1,1,1,1,1]", 1);
+    threePartsEqualSumCount_scaffold("[1,1,1,1,1,1,1,1,1]", 1);
+    threePartsEqualSumCount_scaffold("[1,1,1,1,1,1,1,1,1,1,1,1]", 1);
     TIMER_STOP(threePartsEqualSumCount);
     SPDLOG_WARN("threePartsEqualSumCount tests use {} ms", TIMER_MSEC(threePartsEqualSumCount));
 }
