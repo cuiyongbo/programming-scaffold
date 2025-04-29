@@ -21,32 +21,32 @@ private:
     }
 };
 
-vector<vector<string>> Solution::partition(string s) {
-/*
-    Given a string s, partition s such that every substring of the partition is a palindrome. Return all possible palindrome partitioning of s.
-    For example, given an input "aab", one possible output would be [["aa","b"],["a","a","b"]]
-*/
 
-if (0) { // naive backtrace version
+/*
+Given a string s, partition s such that every substring of the partition is a palindrome. Return all possible palindrome partitioning of s.
+For example, given an input "aab", one possible output would be [["aa","b"],["a","a","b"]]
+*/
+vector<vector<string>> Solution::partition(string s) {
+
+{
     int sz = s.size();
     vector<vector<string>> ans;
     vector<string> candidate;
-    function<void(int)> dfs = [&] (int u) {
+    function<void(int)> backtrace = [&] (int u) {
         if (u == sz) {
             ans.push_back(candidate);
             return;
         }
         for (int i=u; i<sz; i++) {
-            auto v = s.substr(u, i-u+1);
-            if (!is_palindrome(v)) {
-                continue;
+            auto sub = s.substr(u, i-u+1);
+            if (is_palindrome(sub)) {
+                candidate.push_back(sub);
+                backtrace(i+1);
+                candidate.pop_back();
             }
-            candidate.push_back(v);
-            dfs(i+1);
-            candidate.pop_back();
         }
     };
-    dfs(0);
+    backtrace(0);
     return ans;
 }
 
@@ -93,12 +93,12 @@ if (0) { // naive backtrace version
 
 }
 
-vector<int> Solution::grayCode(int n) {
 /*
-    The gray code is a binary numeral system where two successive values differ in only one bit. A gray code sequence must begin with 0.
-    Given a non-negative integer n representing the total number of bits in the code, (the maximum would be `2^n - 1`) print the sequence of gray code.
-    Note: refer to <hacker's delight> ch13 for further info. 
+The gray code is a binary numeral system where two successive values differ in only one bit. A gray code sequence must begin with 0.
+Given a non-negative integer n representing the total number of bits in the code, (the maximum would be `2^n - 1`) print the sequence of gray code.
+Note: refer to <hacker's delight> ch13 for further info. 
 */
+vector<int> Solution::grayCode(int n) {
 
 { // dp solution with optimization of space usage
     vector<int> ans; ans.reserve(1<<n);
@@ -124,7 +124,7 @@ vector<int> Solution::grayCode(int n) {
     for (int i=1; i<=n; ++i) {
         dp[i] = dp[i-1];
         // dp[i-1] is already a subsequence where two successive values differ in only one bit
-        for (int j=dp[i-1].size()-1; j >= 0; --j) {
+        for (int j=dp[i-1].size()-1; j>=0; --j) {
             dp[i].push_back(dp[i-1][j] | (1<<(i-1)));
         }
     }

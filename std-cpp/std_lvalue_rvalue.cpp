@@ -108,7 +108,7 @@ fn_I(): xvalue
 
 
 /* 
-From chatGPT (回答不争取, 仅参考):
+From chatGPT (回答不一定正确, 仅参考):
 
 In C++, value categories are an important concept that determine how expressions can be used in code. There are three primary value categories:
 

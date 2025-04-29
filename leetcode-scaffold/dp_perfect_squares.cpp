@@ -10,13 +10,13 @@ public:
 };
 
 
-int Solution::numSquares(int n) {
 /*
-    Given a positive integer n, find the least number of perfect square numbers (for example, 1, 4, 9, 16, ...) which sum to n.
-    A perfect square is an integer that is the square of an integer. e.g. 1, 4, 9, and 16 are perfect squares while 3 and 11 are not.
+Given a positive integer n, find the least number of perfect square numbers (for example, 1, 4, 9, 16, ...) which sum to n.
+A perfect square is an integer that is the square of an integer. e.g. 1, 4, 9, and 16 are perfect squares while 3 and 11 are not.
 */
+int Solution::numSquares(int n) {
     // dp[i] means the least number of perfect square numbers which sum to i
-    // dp[i] = min{dp[i-j*j]} 1<=j*j<=i
+    // dp[i] = min{dp[i-j*j]} for j in [1, i] if j*j <=i
     vector<int> dp(n+1, INT32_MAX);
     dp[0] = 0; dp[1] = 1; // trivial cases
     for (int i=1; i<=n; i++) {
@@ -31,13 +31,15 @@ int Solution::numSquares(int n) {
 
 // how to reconstruct the sequence of perfect square numbers?
 vector<int> Solution::findPerfectSquareSequence(int n) {
+    // dp[i] means the PerfectSquareSequence for input i
+    // dp[i] = min{dp[i-j*j], j*j} for j in [1, i] if j*j<=i
     vector<vector<int>> dp(n+1);
     for (int i=1; i<=n; i++) {
         for (int j=1; j*j<=i; j++) {
             if (dp[i].empty()) {
                 dp[i] = dp[i-j*j];
                 dp[i].push_back(j*j);
-            } else if (dp[i].size() > dp[i-j*j].size()+1) {
+            } else if (dp[i].size() > dp[i-j*j].size()+1) { // a better sequence with less candiate
                 dp[i] = dp[i-j*j];
                 dp[i].push_back(j*j);
             } else if (dp[i].size() == dp[i-j*j].size()+1) {

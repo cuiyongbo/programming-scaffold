@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 62, 63, 64, 120, 174, 931, 1210, 1289 */
 
@@ -17,21 +16,20 @@ public:
     int minimumMoves(vector<vector<int>>& grid);
 };
 
-int Solution::uniquePaths(int m, int n) {
 /*
-    There is a robot on an m x n grid. The robot is initially located at the top-left corner (i.e., grid[0][0]). 
-    The robot tries to move to the bottom-right corner (i.e., grid[m - 1][n - 1]). The robot can only move either down or right at any point in time.
-    Given the two integers m and n, return the number of possible unique paths that the robot can take to reach the bottom-right corner.
+There is a robot on an m x n grid. The robot is initially located at the top-left corner (i.e., grid[0][0]). 
+The robot tries to move to the bottom-right corner (i.e., grid[m - 1][n - 1]). The robot can only move either down or right at any point in time.
+Given the two integers m and n, return the number of possible unique paths that the robot can take to reach the bottom-right corner.
 */
-    // dp[i][j] means the number of unique paths to (i, j)
-    // dp[i][j] = dp[i-1][j] + dp[i][j-1] // from left or upper
-
+int Solution::uniquePaths(int m, int n) {
+// dp[i][j] means the number of unique paths to (i, j)
+// dp[i][j] = dp[i-1][j] + dp[i][j-1] // from upper or left
 { // naive solution
     vector<vector<int>> dp(m, vector<int>(n, 0));
     dp[0][0] = 1; // trivcal cases
     for (int i=0; i<m; ++i) {
         for (int j=0; j<n; ++j) {
-            if (i > 0) { // from upside
+            if (i > 0) { // from upper
                 dp[i][j] += dp[i-1][j];
             }
             if (j > 0) { // from left
@@ -62,13 +60,13 @@ int Solution::uniquePaths(int m, int n) {
 
 }
 
-int Solution::uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
-/*
-    Follow up for “Unique Paths”:
-    Now consider if some obstacles are added to the grids. How many unique paths would there be?
-    An obstacle and empty space are marked as 1 and 0 respectively in the grid.
-*/
 
+/*
+Follow up for “Unique Paths”:
+Now consider if some obstacles are added to the grids. How many unique paths would there be?
+An obstacle and empty space are marked as 1 and 0 respectively in the grid.
+*/
+int Solution::uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
     // dp[i][j] means the number of unique paths to (i, j)
     // dp[i][j] += dp[i-1][j] if obstacleGrid[i-1][j]==0
     // dp[i][j] += dp[i][j-1] if obstacleGrid[i][j-1]==0
@@ -78,7 +76,7 @@ int Solution::uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
     dp[0][0] = 1; // initialization
     for (int i=0; i<m; ++i) {
         for (int j=0; j<n; ++j) {
-            if (i>0 && obstacleGrid[i-1][j]==0) { // from upside
+            if (i>0 && obstacleGrid[i-1][j]==0) { // from upper
                 dp[i][j] += dp[i-1][j];
             }
             if (j>0 && obstacleGrid[i][j-1]==0) { // from left
@@ -90,27 +88,26 @@ int Solution::uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
 }
 
 
-int Solution::minPathSum(vector<vector<int>>& grid) {
 /*
-    Given a m x n grid filled with non-negative numbers, find a path from top left to bottom right which minimizes the sum of all numbers along its path.
-    Note: You can only move either down or right at any point in time.
-    Example 1:
-        [[1,3,1],
-        [1,5,1],
-        [4,2,1]]
-    Given the above grid map, return 7. Because the path 1→3→1→1→1 minimizes the sum.
+Given a m x n grid filled with non-negative numbers, find a path from top-left to bottom-right which minimizes the sum of all numbers along its path.
+Note: You can only move either down or right at any point in time.
+Example 1:
+    [[1,3,1],
+    [1,5,1],
+    [4,2,1]]
+Given the above grid map, return 7. Because the path 1→3→1→1→1 minimizes the sum.
 */
-
-{ // dp solution
-    // dp[i][j] means minPathSum to (i, j)
-    // dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]);
+int Solution::minPathSum(vector<vector<int>>& grid) {
+// dp[i][j] means minPathSum to (i, j)
+// dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]);
+if (0) { // dp solution
     int m = grid.size();
     int n = grid[0].size();
     vector<vector<int>> dp(m, vector<int>(n, 0));
     for (int i=0; i<m; ++i) {
         for (int j=0; j<n; ++j) {
             int cost = INT32_MAX;
-            if (i > 0) { // from upside
+            if (i > 0) { // from upper
                 cost = min(cost, dp[i-1][j]);
             }
             if (j > 0) { // from left
@@ -123,8 +120,8 @@ int Solution::minPathSum(vector<vector<int>>& grid) {
 }
 
 { // solution using dijkstra algorithm
-    typedef pair<int, int> Coordinate; // row, column
-    typedef pair<Coordinate, int> element_type; // coor, path_cost
+    using Coordinate = std::pair<int, int>; // row, column
+    using element_type = pair<Coordinate, int>; // Coordinate, path_cost
     int rows = grid.size();
     int columns = grid[0].size();
     Coordinate start = make_pair(0, 0);
@@ -133,12 +130,12 @@ int Solution::minPathSum(vector<vector<int>>& grid) {
         {1, 0}, // go down
         {0, 1}, // go right
     };
-    map<Coordinate, int> visited; // coor, path_cost
-    visited[start] = grid[0][0];
+    std::map<Coordinate, int> visited; // coor, min_path_cost from start to coor
+    visited[start] = grid[0][0]; // why not set visited[start] to 0?
     auto cmp = [&] (const element_type& l, const element_type& r) {
         return l.second > r.second;
     };
-    std::priority_queue<element_type, vector<element_type>, decltype(cmp)> pq(cmp);
+    std::priority_queue<element_type, vector<element_type>, decltype(cmp)> pq(cmp); // min-heap
     pq.emplace(start, grid[0][0]);
     while (!pq.empty()) {
         auto t = pq.top(); pq.pop();
@@ -153,7 +150,9 @@ int Solution::minPathSum(vector<vector<int>>& grid) {
                 continue;
             }
             auto p = make_pair(nr, nc);
-            if (visited.count(p)==0 || (visited[p]>t.second+grid[nr][nc])) {
+            if (visited.count(p)==0 /*not visited*/
+                || (visited[p]>t.second+grid[nr][nc]) /*find a better path*/
+            ) {
                 visited[p] = t.second+grid[nr][nc];
                 pq.emplace(p, visited[p]);
             }
@@ -165,33 +164,36 @@ int Solution::minPathSum(vector<vector<int>>& grid) {
 }
 
 
-int Solution::minimumTotal(vector<vector<int>>& t) {
 /*
-    Given a triangle array, return the minimum path sum from top to bottom. For each step, you may move to an adjacent number of the row below. 
-    More formally, if you are on index i on the current row, you may move to either index i or index i+1 on the next row.
-    For example, given the following triangle: 
-    (r, c) -> (r+1, c), (r+1, c+1)
-    (r-1, c-1), (r-1, c) -> (r, c)
-        [
-               [2],
-              [3,4],
-             [6,5,7],
-            [4,1,8,3]
-        ]
-    The minimum path sum from top to bottom is 11 (i.e., 2 + 3 + 5 + 1 = 11).
+Given a triangle array, return the minimum path sum from top to bottom. For each step, you may move to an adjacent number of the row below. 
+More formally, if you are on index i on the current row, you may move to either index i or index i+1 on the next row.
+For example, given the following triangle: 
+(r, c) -> (r+1, c), (r+1, c+1)
+(r-1, c-1), (r-1, c) -> (r, c)
+[
+       [2],
+      [3,4],
+     [6,5,7],
+    [4,1,8,3]
+]
+The minimum path sum from top to bottom is 11 (i.e., 2 + 3 + 5 + 1 = 11).
 */
-    // dp[i][j] means minimumTotal to reach (i, j)
-    // dp[i][j] = min(dp[i-1][j-1], dp[i-1][j]) + t[i][j]
+int Solution::minimumTotal(vector<vector<int>>& t) {
+// dp[i][j] means minimumTotal to reach (i, j)
+// dp[i][j] = min(dp[i-1][j-1], dp[i-1][j]) + t[i][j]
+{
     int ans = INT32_MAX;
     int m = t.size();
     vector<vector<int>> dp(m, vector<int>(m, 0));
     for (int i=0; i<m; ++i) {
-        for (int j=0; j<=i; ++j) { // there are i element(s) in the (i-1)-th row
+        for (int j=0; j<=i; ++j) {
+            // Note that there are i element(s) in the (i-1)-th row
+            int last_row_size = i;
             int cost = INT32_MAX;
-            if (i>0 && j>0 && j-1<=i-1) { // (j-1<=i-1) ensure we won't be out of range when visiting previous row
+            if (i>0 && j>0 && j-1<=last_row_size-1) { // (j-1<=i-1) ensure we won't be out of range when visiting previous row
                 cost = min(cost, dp[i-1][j-1]);
             }
-            if (i>0 && j<=i-1) { // (j<=i-1) ensure we won't be out of range when visiting previous row
+            if (i>0 && j<=last_row_size-1) { // (j<=i-1) ensure we won't be out of range when visiting previous row
                 cost = min(cost, dp[i-1][j]);
             }
             dp[i][j] = cost==INT32_MAX ? t[i][j] : cost+t[i][j];
@@ -202,41 +204,51 @@ int Solution::minimumTotal(vector<vector<int>>& t) {
     }
     return ans;
 }
+}
 
-int Solution::minFallingSum_931(vector<vector<int>>& grid) {
+
 /*
-    Given an nxn array of integers matrix, return the minimum sum of any falling path through matrix.
+Given an nxn array of integers matrix, return the minimum sum of any falling path through matrix.
 
-    A falling path starts at any element in the first row and chooses the element in the next row that 
-    is either directly below or diagonally left/right. Specifically, the next element from position (row, col) 
-    will be (row + 1, col - 1), (row + 1, col), or (row + 1, col + 1).
+A falling path starts at any element in the first row and chooses the element in the next row that 
+is either directly below or diagonally left/right. Specifically, the next element from position (row, col) 
+will be (row + 1, col - 1), (row + 1, col), or (row + 1, col + 1).
 
-    Example 1:
-        Input: [[1,2,3],[4,5,6],[7,8,9]]
-        Output: 12
-        The possible falling paths are:
-            [1,4,7], [1,4,8], [1,5,7], [1,5,8], [1,5,9]
-            [2,4,7], [2,4,8], [2,5,7], [2,5,8], [2,5,9], [2,6,8], [2,6,9]
-            [3,5,7], [3,5,8], [3,5,9], [3,6,8], [3,6,9]
-        The falling path with the smallest sum is [1,4,7], so the answer is 12.
+as illustrated by the diagram:
+
+(r-1,c-1)(r-1,c)(r-1,c+1)
+           \|/
+   (r,c-1)(r,c)(r,c+1)
+           /|\
+(r+1,c-1)(r+1,c)(r+1,c+1)
+
+Example 1:
+    Input: [[1,2,3],[4,5,6],[7,8,9]]
+    Output: 12
+    The possible falling paths are:
+        [1,4,7], [1,4,8], [1,5,7], [1,5,8], [1,5,9]
+        [2,4,7], [2,4,8], [2,5,7], [2,5,8], [2,5,9], [2,6,8], [2,6,9]
+        [3,5,7], [3,5,8], [3,5,9], [3,6,8], [3,6,9]
+    The falling path with the smallest sum is [1,4,7], so the answer is 12.
 */
-
-    // dp[i][j] means minFallingSum to reach (i, j)
-    // dp[i][j] = min(dp[i-1][j-1], dp[i-1][j], dp[i-1][j+1]) + grid[i][j]
+int Solution::minFallingSum_931(vector<vector<int>>& grid) {
+// dp[i][j] means minFallingSum to reach (i, j)
+// dp[i][j] = min(dp[i-1][j-1], dp[i-1][j], dp[i-1][j+1]) + grid[i][j]
+if (0) {// naive solution
     int ans = INT32_MAX;
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<int>> dp(rows, vector<int>(columns, INT32_MAX));
-    for (int r=0; r<rows; ++r) {
+    for (int r=1; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
             int cost = INT32_MAX;
             if (r > 0) {
-                cost = min(cost, dp[r-1][c]); // up
+                cost = min(cost, dp[r-1][c]); // from upper
                 if (c>0) {
-                    cost = min(cost, dp[r-1][c-1]); // diagonally left
+                    cost = min(cost, dp[r-1][c-1]); // from diagonally left
                 }
                 if (c+1<columns) {
-                    cost = min(cost, dp[r-1][c+1]); // diagonally right
+                    cost = min(cost, dp[r-1][c+1]); // from diagonally right
                 }
             }
             dp[r][c] = (cost==INT32_MAX ? 0 : cost) + grid[r][c];
@@ -253,20 +265,52 @@ int Solution::minFallingSum_931(vector<vector<int>>& grid) {
     return ans;
 }
 
-int Solution::minFallingSum_1289(vector<vector<int>>& grid) {
+{ // refined solution
+    int ans = INT32_MAX;
+    int rows = grid.size();
+    int columns = grid[0].size();
+    vector<vector<int>> dp(rows, vector<int>(columns, INT32_MAX));
+    dp[0] = grid[0]; // initialization
+    for (int r=1; r<rows; ++r) {
+        for (int c=0; c<columns; ++c) {
+            int cost = INT32_MAX;
+            cost = min(cost, dp[r-1][c]); // from upper
+            if (c>0) {
+                cost = min(cost, dp[r-1][c-1]); // from diagonally left
+            }
+            if (c+1<columns) {
+                cost = min(cost, dp[r-1][c+1]); // from diagonally right
+            }
+            dp[r][c] = (cost==INT32_MAX ? 0 : cost) + grid[r][c];
+            // it would be more effient to check ans here
+            if (r == rows-1) {
+                ans = min(ans, dp[r][c]);
+            }
+        }
+    }
+    if (ans == INT32_MAX) { // there is only one row in grid
+        auto p = min_element(grid[0].begin(), grid[0].end());
+        return *p;
+    }
+    return ans;
+}
+}
+
+
 /*
-    Given an n x n integer matrix grid, return the minimum sum of a falling path with non-zero shifts.
-    A falling path with non-zero shifts is a choice of exactly one element from each row of grid such 
-    that no two elements chosen in adjacent rows are in the same column.
-    Example:
-        Input: arr = [[1,2,3],[4,5,6],[7,8,9]]
-        Output: 13
-        Explanation: The possible falling paths are:
-            [1,5,9], [1,5,7], [1,6,7], [1,6,8],
-            [2,4,8], [2,4,9], [2,6,7], [2,6,8],
-            [3,4,8], [3,4,9], [3,5,7], [3,5,9]
-        The falling path with the smallest sum is [1,5,7], so the answer is 13.
+Given an n x n integer matrix grid, return the minimum sum of a falling path with non-zero shifts.
+A falling path with non-zero shifts is a choice of exactly one element from each row of grid such 
+that no two elements chosen in adjacent rows are in the same column.
+Example:
+    Input: arr = [[1,2,3],[4,5,6],[7,8,9]]
+    Output: 13
+    Explanation: The possible falling paths are:
+        [1,5,9], [1,5,7], [1,6,7], [1,6,8],
+        [2,4,8], [2,4,9], [2,6,7], [2,6,8],
+        [3,4,8], [3,4,9], [3,5,7], [3,5,9]
+    The falling path with the smallest sum is [1,5,7], so the answer is 13.
 */
+int Solution::minFallingSum_1289(vector<vector<int>>& grid) {
     // dp[i][j] means minFallingSum to reach (i, j)
     // dp[i][j] = min{dp[i-1][k]} + grid[i][j] for k in [0, n] if k!=j
     int ans = INT32_MAX;
@@ -282,7 +326,7 @@ int Solution::minFallingSum_1289(vector<vector<int>>& grid) {
                         cost = min(cost, dp[r-1][k]);
                     }
                 }
-            } else {
+            } else { // for the first row
                 cost = 0;
             }
             dp[r][c] = cost + grid[r][c];
@@ -294,12 +338,12 @@ int Solution::minFallingSum_1289(vector<vector<int>>& grid) {
     return ans;
 }
 
+
 int Solution::minimumMoves(vector<vector<int>>& grid) {
 /*
-In an n*n grid, there is a snake that spans 2 cells and starts moving from the top left 
-corner at (0, 0) and (0, 1).
+In an n*n grid, there is a snake that spans 2 cells and starts moving from the top-left corner at (0, 0) and (0, 1).
 The grid has empty cells represented by 0 and blocked cells represented by 1.
-The snake wants to reach the lower right corner at (n-1, n-2) and (n-1, n-1).
+The snake wants to reach the bottom-right corner at (n-1, n-2) and (n-1, n-1).
 
 In one move the snake can:
 
@@ -366,15 +410,18 @@ Example:
         return t[0] == n-1 && t[1] == n-2 && t[2] == n-1 && t[3] == n-1;
     };
 
+    // perform bfs to find the minimum steps to reach the destination
     int steps = 0;
     set_right(0, 1);
     queue<vector<int>> q;
     q.push({0, 0, 0, 1}); // y1, x1, y2, x2
     while (!q.empty()) {
-        for (size_t i=q.size(); i != 0; i--) {
+        for (size_t k=q.size(); k != 0; k--) {
             auto t = q.front(); q.pop();
-            if (is_target(t)) return steps;
-
+            // reach the destination
+            if (is_target(t)) {
+                return steps;
+            }
             int y = t[2], x = t[3];
 
             // horizontal
@@ -429,37 +476,37 @@ Example:
 }
 
 
-int Solution::calculateMinimumHP(vector<vector<int>>& dungeon) {
 /*
-    The demons had captured the princess (P) and imprisoned her in the bottom-right corner of a dungeon. The dungeon consists of M x N rooms 
-    laid out in a 2D grid. Our valiant knight (K) was initially positioned in the top-left room and must fight his way through the dungeon to rescue the princess.
+The demons had captured the princess (P) and imprisoned her in the bottom-right corner of a dungeon. The dungeon consists of M x N rooms 
+laid out in a 2D grid. Our valiant knight (K) was initially positioned in the top-left room and must fight his way through the dungeon to rescue the princess.
 
-    The knight has an initial health point represented by a positive integer. If at any point his health point drops to 0 or below, he dies immediately.
-    Some of the rooms are guarded by demons, so the knight loses health (negative integers) upon entering these rooms; other rooms are either empty (0’s) or contain magic orbs that increase the knight’s health (positive integers).
+The knight has an initial health point represented by a positive integer. If at any point his health point drops to 0 or below, he dies immediately.
+Some of the rooms are guarded by demons, so the knight loses health (negative integers) upon entering these rooms; other rooms are either empty (0s) or contain magic orbs that increase the knight’s health (positive integers).
 
-    In order to reach the princess as quickly as possible, the knight decides to move only rightward or downward in each step.
+In order to reach the princess as quickly as possible, the knight decides to move only rightward or downward in each step.
 
-    Write a function to determine the knight’s minimum initial health so that he is able to rescue the princess.
+Write a function to determine the knight’s minimum initial health so that he is able to rescue the princess.
 
-    For example, given the dungeon below, the initial health of the knight must be at least 7 
-    if he follows the optimal path RIGHT-> RIGHT -> DOWN -> DOWN:
-        [
-            [-2 (K),-3,3],
-            [-5,-10,1],
-            [10,30,-5 (P)],
-        ]
+For example, given the dungeon below, the initial health of the knight must be at least 7 
+if he follows the optimal path RIGHT-> RIGHT -> DOWN -> DOWN:
+    [
+        [-2 (K),-3,3],
+        [-5,-10,1],
+        [10,30,-5 (P)],
+    ]
 */
-    // dp[i][j] means MinimumHP to get (m-1, n-1) from (i, j), assume (i, j) is the start point.
-    // dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1])-dungeon[i][j])
-    // we can build the answer from bottom to top: what is the MinimumHP to go through the sub-dungeon (i, j) to (m-1, n-1), then extend the solution from (m-1, n-1) to (0, 0)
-
+int Solution::calculateMinimumHP(vector<vector<int>>& dungeon) {
+// dp[i][j] means MinimumHP to get (m-1, n-1) from (i, j), assume (i, j) is the start point.
+// dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1])-dungeon[i][j])
+// we can build the answer from bottom to top: what is the MinimumHP to go through the sub-dungeon (i, j) to (m-1, n-1), then extend the solution from (m-1, n-1) to (0, 0)
 { // naive dp solution, brilliant
     int m = dungeon.size();
     int n = dungeon[0].size();
     vector<vector<int>> dp(m+1, vector<int>(n+1, INT32_MAX)); // we have to initialize dp with INT32_MAX
     // source: (0, 0)
     // destination: (m-1, n-1)
-    dp[m][n-1] = 1; dp[m-1][n] = 1; // initialization
+    // initialization: the knight starts from destination, and he must have 1 HP at least
+    dp[m][n-1] = 1; dp[m-1][n] = 1;
     for (int i=m-1; i>=0; --i) {
         for (int j=n-1; j>=0; --j) {
             dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1])-dungeon[i][j]);
@@ -573,6 +620,7 @@ int main() {
     SPDLOG_WARN("Running uniquePaths tests:");
     TIMER_START(uniquePaths);
     uniquePaths_scaffold(3, 7, 28);
+    uniquePaths_scaffold(3, 2, 3);
     TIMER_STOP(uniquePaths);
     SPDLOG_WARN("uniquePaths tests use {} ms", TIMER_MSEC(uniquePaths));
 
@@ -582,7 +630,6 @@ int main() {
     uniquePathsWithObstacles_scaffold("[[0,1],[0,0]]", 1);
     TIMER_STOP(uniquePathsWithObstacles);
     SPDLOG_WARN("uniquePathsWithObstacles tests use {} ms", TIMER_MSEC(uniquePathsWithObstacles));
-    util::Log(logESSENTIAL) << "uniquePathsWithObstacles using " << TIMER_MSEC(uniquePathsWithObstacles) << " milliseconds";
 
     SPDLOG_WARN("Running minPathSum tests:");
     TIMER_START(minPathSum);

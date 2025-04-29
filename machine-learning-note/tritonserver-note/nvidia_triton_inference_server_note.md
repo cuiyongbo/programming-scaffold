@@ -520,6 +520,73 @@ compared to model ensemble, Business Logic Scripting (BLS for short) allows you 
 BLS model has bond instances and you need to code a `mode.py` to tell triton how to perform inference.
 
 
+## how to trace
+
+- Doc: [Triton Server Trace](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/trace.html#triton-server-trace)
+    - Trace Settings
+    - Json Trace Output Format: 格式和 [chrome:://tracing](https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/preview?tab=t.0#heading=h.yr4qxyxotyw) 的不一样, 没法用 chrome 做可视化
+        - [Trace Summary Tool](https://github.com/triton-inference-server/server/blob/main/qa/common/trace_summary.py)
+
+- start tritonserver with trace enabled
+
+```bash
+tritonserver --model-store=/model-store --model-control-mode=explicit --load-model=bge_large_zh_ensemble --trace-config triton,file=trace.json --trace-config triton,log-frequency=100 --trace-config rate=10 --trace-config count=100 --trace-config level=TIMESTAMPS
+
+# --trace-config triton,file=trace.json 设置输出文件路径, 名称
+# --trace-config triton,log-frequency=100 # 每个 trace 文件保存多少个请求. 采样文件依次为 trace.json.0, trace.json.1, ...
+# --trace-config rate=10 请求采样频率, 即每10个请求采样一次
+# --trace-config count=100  采样的请求个数, 即一共采集100个请求
+# --trace-config level=TIMESTAMPS 记录每个执行过程中各阶段的开始时间
+```
+- send requests to tritonserver
+- analyze trace output
+
+```bash
+# python3 trace_summary.py trace.json
+File: trace.json
+Summary for bge_large_zh_ensemble (1): trace count = 100
+GRPC infer request (avg): 80537.15184us
+    Send (avg): 57.49997us # 响应发送时间
+    Handler (avg): 80600.24069us # Scheduling + H2D + GPU Computer + D2H
+Summary for python_bge_large_zh_tokenizer (1): trace count = 100
+    Handler (avg): 2126.41405us
+        Overhead (avg): 7.46674us
+        Queue (avg): 943.41705us
+        Compute (avg): 1175.53026us
+            Input (avg): 19.2043us
+            Infer (avg): 1124.1058us
+            Output (avg): 32.22016us
+Summary for bge_large_zh_trt (1): trace count = 100
+    Handler (avg): 78473.13275us
+        Overhead (avg): 179.18158us    # 其他开销
+        Queue (avg): 51152.74785us     # 请求排队时间
+        Compute (avg): 27141.20332us
+            Input (avg): 41.27841us    # H2D
+            Infer (avg): 27031.41824us # GPU 计算时间
+            Output (avg): 68.50667us   # D2H
+Data Flow:
+    ==========================================================
+    Name:   bge_large_zh_ensemble
+    Version:1
+    ==========================================================
+        ==================================================
+        Name:   python_bge_large_zh_tokenizer
+        Version:1
+        ==================================================
+        ==================================================
+        Name:   bge_large_zh_trt
+        Version:1
+        ==================================================
+```
+
+- or you may profile tritonserver with [nsys commands](https://docs.nvidia.com/nsight-systems/UserGuide/index.html#example-interactive-cli-command-sequences)
+```bash
+nsys launch --cuda-memory-usage=true tritonserver --model-store=/model-store --model-control-mode=explicit --load-model=bge_large_zh_ensemble
+nsys start # start profiling
+nsys stop  # end profiling
+nsys shutdown -kill sigkill # exit the whole profile session
+```
+
 ## FAQs
 
 - [how to install tritonclient?](https://github.com/triton-inference-server/client)
