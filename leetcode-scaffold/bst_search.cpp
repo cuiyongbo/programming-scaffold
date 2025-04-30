@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 700, 701, 230, 99, 108, 501, 450 */
-
 class Solution {
 public:
     TreeNode* searchBST(TreeNode* root, int val);
@@ -19,9 +17,9 @@ public:
 
 
 /*
-    Given the root node of a binary search tree (BST) and a value. 
-    You need to find the node in the BST whose value equals the given value. 
-    Return the subtree rooted with that node. If such node doesn’t exist, you should return NULL.
+Given the root node of a binary search tree (BST) and a value. 
+You need to find the node in the BST whose value equals the given value. 
+Return the subtree rooted with that node. If such node doesn’t exist, you should return NULL.
 */
 TreeNode* Solution::searchBST(TreeNode* root, int val) {
     while (root != nullptr) {
@@ -38,12 +36,36 @@ TreeNode* Solution::searchBST(TreeNode* root, int val) {
 
 
 /*
-    Given the root node of a binary search tree (BST) and a value to be inserted into the tree, 
-    insert the value into the BST. Return the root node of the BST after the insertion. 
-    It is guaranteed that the new value does not exist in the original BST.
-    Note that there may exist multiple valid ways for the insertion, as long as the tree remains a BST after insertion. You can return any of them.
+Given the root node of a binary search tree (BST) and a value to be inserted into the tree, 
+insert the value into the BST. Return the root node of the BST after the insertion. 
+It is guaranteed that the new value does not exist in the original BST.
+Note that there may exist multiple valid ways for the insertion, as long as the tree remains a BST after insertion. You can return any of them.
 */
 TreeNode* Solution::insertIntoBST(TreeNode* root, int val) {
+{
+    TreeNode* x = root;
+    TreeNode* px = nullptr;
+    while (x != nullptr) {
+        px = x;
+        if (x->val < val) {
+            x = x->right;
+        } else {
+            x = x->left;
+        }
+    }
+    TreeNode* node = new TreeNode(val);
+    if (px == nullptr) {
+        return node;
+    } else {
+        if (px->val > val) {
+            px->left = node;
+        } else {
+            px->right = node;
+        }
+        return root;
+    }
+}
+
     TreeNode* x = root;
     TreeNode* px = nullptr;
     while (x != nullptr) {
@@ -69,9 +91,9 @@ TreeNode* Solution::insertIntoBST(TreeNode* root, int val) {
 
 
 /*
-    Given a binary search tree, write a function to find the kth smallest element in it.
-    Note that You may assume k is always valid, 1 ≤ k ≤ BST’s total elements.
-    Hint: The answer is the value of kth node when performing inoder traversal
+Given a binary search tree, write a function to find the kth smallest element in it.
+Note that You may assume k is always valid, 1 ≤ k ≤ BST’s total elements.
+Hint: The answer is the value of kth node when performing inoder traversal
 */
 int Solution::kthSmallest(TreeNode* root, int k) {
 { // recursive solution
@@ -82,9 +104,10 @@ int Solution::kthSmallest(TreeNode* root, int k) {
             return;
         }
         inorder_traversal(node->left);
-        if (++idx == k) { // you must increase idx when traversing root node
+        idx++; // you must increase idx when traversing root node
+        if (idx == k) {
             ans = node->val;
-            return; // no need to traverse further nodes
+            return; // no need to traverse more nodes
         }
         inorder_traversal(node->right);
     };
@@ -117,13 +140,13 @@ int Solution::kthSmallest(TreeNode* root, int k) {
 
 
 /*
-    Given a binary search tree, write a function to find the kth largest element in it.
-    Note that You may assume k is always valid, 1 ≤ k ≤ BST’s total elements.
+Given a binary search tree, write a function to find the kth largest element in it.
+Note that You may assume k is always valid, 1 ≤ k ≤ BST’s total elements.
 */
 int Solution::kthLargest(TreeNode* root, int k) {
     // what if we need to find the kth largest element in the tree?
-    // we can get a sequence in ascending order when we traverse the tree in left->root->right order
-    // then we can get a sequence in descending order when we traverse the tree in right->root->left order
+    // we can get a sequence in ascending order when we traverse the tree in `left->root->right` order
+    // then we can get a sequence in descending order when we traverse the tree in `right->root->left` order
     int ans = 0;
     int idx = 0;
     std::function<void(TreeNode*)> dfs = [&] (TreeNode* node) {
@@ -131,9 +154,10 @@ int Solution::kthLargest(TreeNode* root, int k) {
             return;
         }
         dfs(node->right);
-        if (++idx == k) {
+        idx++; // you must increase idx when traversing root node
+        if (idx == k) {
             ans = node->val;
-            return;
+            return; // no need to traverse more nodes
         }
         dfs(node->left);
     };
@@ -141,15 +165,16 @@ int Solution::kthLargest(TreeNode* root, int k) {
     return ans;
 }
 
+
 /*
-    Two elements of a binary search tree (BST) are swapped by mistake. Recover the tree without changing its structure.
-    Example 1: 
-        Input: [1,3,null,null,2]
-        Output: [3,1,null,null,2]
-    Example 2: 
-        Input: [3,1,4,null,null,2]
-        Output: [2,1,4,null,null,3]
-    Hint: perform an inorder traversal, then sort the array, and record two elements that have exchanged positions
+Two elements of a binary search tree (BST) are swapped by mistake. Recover the tree without changing its structure.
+Example 1: 
+    Input: [1,3,null,null,2]
+    Output: [3,1,null,null,2]
+Example 2: 
+    Input: [3,1,4,null,null,2]
+    Output: [2,1,4,null,null,3]
+Hint: perform an inorder traversal, then sort the array, and record two elements that have exchanged positions
 */
 void Solution::recoverTree(TreeNode* root) {
     TreeNode* p1 = nullptr;
@@ -161,11 +186,11 @@ void Solution::recoverTree(TreeNode* root) {
         }
         dfs(node->left);
         if (predecessor != nullptr && predecessor->val > node->val) {
-            if (p1 == nullptr) {
+            if (p1 == nullptr) { // p1 may be more than one step far from p2
                 p1 = predecessor;
                 p2 = node;
             } else {
-                p2 = node;
+                p2 = node; // record the final p2
             }
         }
         predecessor = node;
@@ -179,17 +204,18 @@ void Solution::recoverTree(TreeNode* root) {
 
 
 /*
-    Given an array where elements are sorted in ascending order, convert it to a height balanced BST.
-    For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.
+Given an array where elements are sorted in ascending order, convert it to a height balanced BST.
+For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.
 */
 TreeNode* Solution::sortedArrayToBST(vector<int>& nums) {
-    // l, r are inclusive
+    //r is not inclusive
     std::function<TreeNode*(int, int)> dfs = [&] (int l, int r) {
         if (l > r) { // trivial case
             return (TreeNode*)nullptr;
         }
-        int m = l + (r-l)/2;
+        int m = (l+r)/2;
         TreeNode* node = new TreeNode(nums[m]);
+        // split nums[l:r] into nums[l:m-1] and nums[m+1:r]
         node->left = dfs(l, m-1);
         node->right = dfs(m+1, r);
         return node;
@@ -199,12 +225,12 @@ TreeNode* Solution::sortedArrayToBST(vector<int>& nums) {
 
 
 /*
-    Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
+Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
 */
 vector<int> Solution::findMode(TreeNode* root) {
 
 if (0) { // naive method
-    map<int, int> mp; // node, frequency
+    map<int, int> mp; // node value, frequency
     int max_frequency = 0;
     std::function<void(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node==nullptr) {
@@ -282,6 +308,37 @@ if (0) { // naive method
 */
 TreeNode* Solution::deleteNode(TreeNode* root, int key) {
 
+if (0) { // simplified solution. the result tree may be not height-balanced even if it is still a BST
+    if (root == nullptr) {
+        return nullptr;
+    } else if (root->val < key) {
+        root->right = deleteNode(root->right, key);
+        return root;
+    } else if (root->val > key) {
+        root->left = deleteNode(root->left, key);
+        return root;
+    } else /*if (root->val == key)*/ {
+        // we need replace root
+        // case 1: there is one null subtree at least, return the non-null subtree if there is one
+        if (root->left == nullptr || root->right == nullptr) {
+            return root->left == nullptr ? root->right : root->left;
+        }
+        // case 2: both subtrees are not null
+        // find the successor of root->right
+        TreeNode* node = root->right;
+        while (node->left != nullptr) {
+            node = node->left;
+        }
+        assert(node->left == nullptr);
+        // set node->left point to the left subtree of root
+        node->left = root->left;
+        // replace root with root->right
+        root = root->right;
+        return root;
+    }
+}
+
+// naive solution
 {
     // 1. find the node to be deleted
     TreeNode* x = root;

@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 139, 140 */
 class Solution {
@@ -11,15 +10,13 @@ public:
 };
 
 
-bool Solution::wordBreak_139(string input, vector<string>& wordDict) {
 /*
-    Given a non-empty string s and a dictionary wordDict containing a list of non-empty words, 
-    determine if s can be segmented into a space-separated sequence of one or more dictionary words. 
-    You may assume the dictionary does not contain duplicate words.
+Given a non-empty string s and a dictionary wordDict containing a list of non-empty words, 
+determine if s can be segmented into a space-separated sequence of one or more dictionary words. 
+You may assume the dictionary does not contain duplicate words.
 */
-
-    // dp[i] means input[:i] is in wordDict
-    // ans = OR(wordBreak(input[:i]) && wordBreak(input[i:])), 0<i<input.size
+bool Solution::wordBreak_139(string input, vector<string>& wordDict) {
+    // ans = OR(wordBreak(input[:i]) && wordBreak(input[i:])), 0<i<input.size()
     map<string, bool> sub_solution;
     sub_solution[""] = true;
     for (auto& p: wordDict) {
@@ -31,6 +28,7 @@ bool Solution::wordBreak_139(string input, vector<string>& wordDict) {
         }
         sub_solution[u] = false;
         for (int i=1; i<(int)u.size(); i++) {
+            // split u at index i
             auto l = u.substr(0, i);
             auto r = u.substr(i);
             if (dfs(l) && dfs(r)) {
@@ -44,17 +42,17 @@ bool Solution::wordBreak_139(string input, vector<string>& wordDict) {
 }
 
 
-vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
 /*
-    Given a non-empty string s and a dictionary wordDict containing a list of non-empty words, 
-    add spaces in s to construct a sentence where each word is a valid dictionary word. 
-    You may assume the dictionary does not contain duplicate words. Return all such possible sentences.
+Given a non-empty string s and a dictionary wordDict containing a list of non-empty words, 
+add spaces in s to construct a sentence where each word is a valid dictionary word. 
+You may assume the dictionary does not contain duplicate words. Return all such possible sentences.
 */
+vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
 
 {
     set<string> dict_set(wordDict.begin(), wordDict.end()); dict_set.insert("");
-    typedef vector<vector<string>> solution_type;
-    typedef pair<bool, solution_type> result_type;
+    using  solution_type = vector<vector<string>>;
+    using result_type = pair<bool, solution_type>;
     map<string, result_type> sub_solution;
     sub_solution[""] = make_pair(true, solution_type(1, vector<string>(1, "")));
     function<result_type(string&)> dfs = [&] (string& u) {
@@ -64,7 +62,7 @@ vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
         sub_solution[u] = make_pair(false, solution_type());
         for (int i=1; i<=(int)u.size(); ++i) {
             string ul = u.substr(0, i);
-            if (dict_set.count(ul) == 0) {
+            if (dict_set.count(ul) == 0) { // prune useless branches
                 continue;
             }
             string ur = u.substr(i);
@@ -84,19 +82,18 @@ vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
     };
 
     auto res = dfs(input);
-
     vector<string> ans;
     if (res.first) {
         for (auto& words: res.second) {
             string candidate;
             for (auto& w: words) {
-                if (w.empty()) {
+                if (w.empty()) { // skip empty string
                     continue;
                 }
                 candidate.append(w);
                 candidate.push_back(' ');
             }
-            candidate.pop_back();
+            candidate.pop_back(); // erase the last whitespace
             //std::cout << candidate << std::endl;
             ans.push_back(candidate);
         }

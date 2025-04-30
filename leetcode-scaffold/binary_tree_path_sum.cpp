@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /*leetcode: 129, 257, 112, 113, 437, 124, 543, 687*/
-
 class Solution {
 public:
     int sumNumbers(TreeNode* root);
@@ -18,35 +16,36 @@ public:
 };
 
 
-int Solution::sumNumbers(TreeNode* root) {
 /*
-    Given a binary tree containing digits from 0-9 only, each root-to-leaf path could represent a number.
-    An example is the root-to-leaf path 1->2->3 which represents the number 123. Find the total sum of all root-to-leaf numbers.
-    Note: A leaf is a node with no children.
+Given a binary tree containing digits from 0-9 only, each root-to-leaf path could represent a number.
+An example is the root-to-leaf path 1->2->3 which represents the number 123. Find the total sum of all root-to-leaf numbers.
+Note: A leaf is a node with no children.
 */
-    // return root-to-leaf path sum for tree rooted at node, traverse tree in pre-order
-    std::function <int(TreeNode*, int)> dfs = [&](TreeNode* node, int curSum) {
+int Solution::sumNumbers(TreeNode* root) {
+    int ans = 0;
+    // traverse the tree rooted at node in pre-order way
+    function<void(TreeNode*, int)> dfs = [&] (TreeNode* node, int cur_sum) {
         if (node == nullptr) {
-            return 0;
+            return;
         }
-        curSum = curSum * 10 + node->val;
+        cur_sum = cur_sum*10 + node->val;
         if (node->is_leaf()) {
-            return curSum;
-        } else {
-            return dfs(node->left, curSum) // left root-to-leaf path
-                    + dfs(node->right, curSum); // right root-to-leaf path
+            ans += cur_sum;
         }
+        dfs(node->left, cur_sum);
+        dfs(node->right, cur_sum);
     };
-    return dfs(root, 0);
+    dfs(root, 0);
+    return ans;
 }
 
 
-std::vector<std::string> Solution::binaryTreePaths(TreeNode* root) {
 /*
-    Given a binary tree, return all root-to-leaf paths.
-    Note: A leaf is a node with no children.
-    for example, given an input [1,2,3,null,5], return {["1->2->5", "1->3"]}.
+Given a binary tree, return all root-to-leaf paths.
+Note: A leaf is a node with no children.
+for example, given an input [1,2,3,null,5], return {["1->2->5", "1->3"]}.
 */
+std::vector<std::string> Solution::binaryTreePaths(TreeNode* root) {
     std::vector<std::string> ans;
     auto make_path = [&] (const std::vector<TreeNode*>& buffer) {
         std::string path;
@@ -59,7 +58,7 @@ std::vector<std::string> Solution::binaryTreePaths(TreeNode* root) {
         ans.push_back(path);
     };
     std::vector<TreeNode*> buffer;
-    // traverse the tree in pre-order
+    // traverse the tree in pre-order way
     std::function<void(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node == nullptr) {
             return;
@@ -78,14 +77,14 @@ std::vector<std::string> Solution::binaryTreePaths(TreeNode* root) {
 }
 
 
-bool Solution::hasPathSum(TreeNode* root, int sum) {
 /*
-    Given a binary tree and a sum, determine if the tree has a root-to-leaf path 
-    such that adding up all the values along the path equals the given sum.
-    Hint: preorder traversal
+Given a binary tree and a sum, determine if the tree has a root-to-leaf path 
+such that adding up all the values along the path equals the given sum.
+Hint: preorder traversal
 */
-    // traverse the tree in pre-order
-    if (root == nullptr) { // trivial path
+bool Solution::hasPathSum(TreeNode* root, int sum) {
+    // traverse the tree in pre-order way
+    if (root == nullptr) { // trivial case
         return false;
     }
     // test root
@@ -98,11 +97,11 @@ bool Solution::hasPathSum(TreeNode* root, int sum) {
 }
 
 
-std::vector<std::vector<int>> Solution::pathSum(TreeNode* root, int sum) {
 /*
-    Given a binary tree and a sum, find all root-to-leaf paths where each path's sum equals the given sum. 
-    Hint: dfs with backtrace
+Given a binary tree and a sum, find all root-to-leaf paths where each path's sum equals the given sum. 
+Hint: dfs with backtrace
 */
+std::vector<std::vector<int>> Solution::pathSum(TreeNode* root, int sum) {
     std::vector<int> path;
     std::vector<std::vector<int>> ans;
     std::function<void(TreeNode*, int)> dfs = [&] (TreeNode* node, int cur) {
@@ -110,15 +109,16 @@ std::vector<std::vector<int>> Solution::pathSum(TreeNode* root, int sum) {
             return;
         }
         path.push_back(node->val);
+        cur += node->val;
         // test whether the root meets the condition
         if (node->is_leaf()) {
-            if (cur+node->val == sum) {
+            if (cur == sum) {
                 ans.push_back(path);
             }
         }
         // test whether the subtrees meet the condition
-        dfs(node->left, cur+node->val);
-        dfs(node->right, cur+node->val);
+        dfs(node->left, cur);
+        dfs(node->right, cur);
         path.pop_back();
         return;
     };
@@ -127,13 +127,13 @@ std::vector<std::vector<int>> Solution::pathSum(TreeNode* root, int sum) {
 }
 
 
-int Solution::pathSum_437(TreeNode* root, int sum) {
 /*
-    You are given a binary tree in which each node contains an integer value. Find the number of paths that sum to a given value.
-    The path does not need to start or end at the root or a leaf, but it must go downwards (traveling only from parent nodes to child nodes).
+You are given a binary tree in which each node contains an integer value. Find the number of paths that sum to a given value.
+The path does not need to start or end at the root or a leaf, but it must go downwards (traveling only from parent nodes to child nodes).
 */
-    // return the number of paths starting from node and sum to the K
-    // traverse the tree in pre-order
+int Solution::pathSum_437(TreeNode* root, int sum) {
+    // return the number of paths starting from node, where the sum of nodes is equal to the K
+    // traverse the tree in pre-order way
     std::function<int(TreeNode*, int)> dfs = [&] (TreeNode* node, int K) {
         if (node == nullptr) {
             return 0;
@@ -155,23 +155,24 @@ int Solution::pathSum_437(TreeNode* root, int sum) {
     return ans;
 }
 
-int Solution::maxPathSum(TreeNode* root) {
-/*
-    Given a non-empty binary tree, find the maximum path sum.
-    For this problem, a path is defined as any sequence of nodes from some
-    starting node to any node in the tree along the parent-child connections.
-    The path must contain at least one node and does not need to go through the root.
-    for example, given an input [1,2,3], return 6
 
-    dfs(node) return max path sum:
-        1. node must be used
-        2. contain at most one child (parent-child relation constraint).
+/*
+Given a non-empty binary tree, find the maximum path sum.
+For this problem, a path is defined as any sequence of nodes from some
+starting node to any node in the tree along the parent-child connections.
+The path must contain at least one node and does not need to go through the root.
+for example, given an input [1,2,3], return 6
+
+dfs(node) return max path sum:
+    1. node must be used
+    2. contain at most one child (parent-child relation constraint).
 */
+int Solution::maxPathSum(TreeNode* root) {
     int ans = INT32_MIN;
     // return the maxPathSum for tree rooted at node, using at most one child subtree
-    std::function <int (TreeNode*)> dfs = [&] (TreeNode* node) { // postorder traversal
+    std::function <int (TreeNode*)> dfs = [&] (TreeNode* node) { // post-order traversal
         if (node == nullptr) {
-            return INT32_MIN;
+            return INT32_MIN; // Note that 0 cannot be used as INVALID VALUE
         }
         int l = dfs(node->left);
         int r = dfs(node->right);
@@ -186,17 +187,17 @@ int Solution::maxPathSum(TreeNode* root) {
 }
 
 
-int Solution::diameterOfBinaryTree(TreeNode* root) {
 /*
-    Given a binary tree, you need to compute the length of the diameter of the tree.
-    The diameter of a binary tree is the number of edges of the longest path between any two
-    nodes in a tree. This path may or may not pass through the root.
+Given a binary tree, you need to compute the length of the diameter of the tree.
+The diameter of a binary tree is the number of edges of the longest path between any two
+nodes in a tree. This path may or may not pass through the root.
 
-    dfs(node) return the node count of a longest path:
-        path must contain node
-        only one child can be used
+dfs(node) return the node count of a longest path:
+    path must contain node
+    only one child can be used
 */
-    int ans = 0;
+int Solution::diameterOfBinaryTree(TreeNode* root) {
+    int ans = 0; // then number of edges in the parent-child path
     // return the number of nodes in the longest unidirectional path starting with node
     std::function <int(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node==nullptr) {
@@ -212,18 +213,18 @@ int Solution::diameterOfBinaryTree(TreeNode* root) {
 }
 
 
-int Solution::longestUnivaluePath(TreeNode* root) {
 /*
-    Given a binary tree, find the length of the longest path where each node in the path has the same value.
-    This path may or may not pass through the root.
+Given a binary tree, find the length of the longest path where each node in the path has the same value.
+This path may or may not pass through the root.
 
-    The length of a path between two nodes is represented by the number of edges between two nodes.
+The length of a path between two nodes is represented by the number of edges between two nodes.
 
-    dfs(node) returns the number of nodes along the longest univalue path:
-        1. must contain node
-        2. at most one child subtree can be used
+dfs(node) returns the number of nodes along the longest univalue path:
+    1. must contain node
+    2. at most one child subtree can be used
 */
-    int ans = 0;
+int Solution::longestUnivaluePath(TreeNode* root) {
+    int ans = 0; // then number of edges in the parent-child path
     // return the number of nodes alone the longest uni-value path starting with node
     std::function<int(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node == nullptr) {
@@ -282,7 +283,7 @@ void pathSum_437_scaffold(std::string input, int sum, int expectedResult) {
     if (actual == expectedResult) {
         SPDLOG_INFO("Case ({}, {}, expectedResult={}) passed", input, sum, expectedResult);
     } else {
-        SPDLOG_ERROR("Case ({}, {}, expectedResult={}) failed, actual:", input, sum, expectedResult);
+        SPDLOG_ERROR("Case ({}, {}, expectedResult={}) failed, actual: {}", input, sum, expectedResult, actual);
     }
 }
 

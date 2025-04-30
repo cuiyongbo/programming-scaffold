@@ -10,14 +10,15 @@ public:
     int minDepth(TreeNode* root);
 };
 
-bool Solution::isBalanced(TreeNode* root) {
-/*
-    Given a binary tree, determine if it is height-balanced.
-    A height-balanced binary tree is defined as: a binary tree in which the left and right subtrees of every node differ in height by no more than 1.
-    Note that the **height** of a node in a tree is the number of edges on the longest simple downward path from the node to a leaf, and **the height of a tree is the height of its root.**
-*/
 
-{ // more compact solution, p.first is true if the subtree rooted at node is height-balanced, otherwise false
+/*
+Given a binary tree, determine if it is height-balanced.
+A height-balanced binary tree is defined as: a binary tree in which the left and right subtrees of every node differ in height by no more than 1.
+Note that the **height** of a node in a tree is the number of edges on the longest simple downward path from the node to a leaf, and **the height of a tree is the height of its root.**
+*/
+bool Solution::isBalanced(TreeNode* root) {
+
+if (0) { // more compact solution, p.first is true if the subtree rooted at node is height-balanced, otherwise false
     std::function<std::pair<bool, int>(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node == nullptr) {
             return make_pair(true, 0);
@@ -33,7 +34,7 @@ bool Solution::isBalanced(TreeNode* root) {
     return dfs(root).first;
 }
 
-{ // naive solutoin, preorder traversal
+{ // naive solutoin
     if (root == nullptr) {
         return true;
     } else {
@@ -42,6 +43,7 @@ bool Solution::isBalanced(TreeNode* root) {
         if (std::abs(l-r) > 1) {
             return false;
         } else {
+            // preoder traversal
             return isBalanced(root->left) && isBalanced(root->right);
         }
     }
@@ -49,18 +51,20 @@ bool Solution::isBalanced(TreeNode* root) {
 
 }
 
-int Solution::maxDepth(TreeNode* root) {
-/*
-    Given a binary tree, find its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
-    Note: A leaf is a node with no children.
-*/
 
-if (1) { // recursive solution, preorder traversal
+/*
+Given a binary tree, find its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
+Note: A leaf is a node with no children.
+*/
+int Solution::maxDepth(TreeNode* root) {
+
+if (0) {
     if (root == nullptr) {
         return 0;
     } else {
-        return std::max(maxDepth(root->left),
-                    maxDepth(root->right)) + 1;
+        auto l = maxDepth(root->left);
+        auto r = maxDepth(root->right);
+        return max(l, r) + 1;
     }
 }
 
@@ -70,6 +74,7 @@ if (1) { // recursive solution, preorder traversal
     if (root != nullptr) {
         q.push(root);
     }
+    // stop at the last leaf
     while (!q.empty()) {
         for (int k=q.size(); k!=0; --k) {
             auto t = q.front(); q.pop();
@@ -87,11 +92,12 @@ if (1) { // recursive solution, preorder traversal
 
 }
 
-int Solution::minDepth(TreeNode* root) {
+
 /*
-    The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.
-    Hint: find the earliest leaf node.
+The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.
+Hint: find the earliest leaf node.
 */
+int Solution::minDepth(TreeNode* root) {
 
 { // iterative solution
     int steps = 0;
@@ -102,6 +108,7 @@ int Solution::minDepth(TreeNode* root) {
     while (!q.empty()) {
         for (int k=q.size(); k!=0; k--) {
             auto t = q.front(); q.pop();
+            // stop at the first leaf
             if (t->left==nullptr && t->right==nullptr) {
                 return steps+1;
             }
@@ -117,7 +124,7 @@ int Solution::minDepth(TreeNode* root) {
     return steps;
 }
 
-if (0) { // recursive version, preorder traversal
+{ // recursive version, preorder traversal
     int ans = INT32_MAX;
     std::function<void(TreeNode*, int)> dfs = [&] (TreeNode* node, int cur) {
         if (node != nullptr) {
@@ -134,6 +141,7 @@ if (0) { // recursive version, preorder traversal
 
 }
 
+
 void maxDepth_scaffold(string input1, string input2) {
     TreeNode* root = stringToTreeNode(input1);
     auto expected = std::stoi(input2);
@@ -146,6 +154,7 @@ void maxDepth_scaffold(string input1, string input2) {
         SPDLOG_ERROR("Case({}, expected={}) failed, actual: {}", input1, input2, ans);
     }
 }
+
 
 void minDepth_scaffold(string input1, string input2) {
     TreeNode* root = stringToTreeNode(input1);
@@ -160,6 +169,7 @@ void minDepth_scaffold(string input1, string input2) {
     }
 }
 
+
 void isBalanced_scaffold(string input1, bool expected) {
     TreeNode* root = stringToTreeNode(input1);
     Solution ss;
@@ -170,6 +180,7 @@ void isBalanced_scaffold(string input1, bool expected) {
         SPDLOG_ERROR("Case({}, expected={}) failed, actual: {}", input1, expected, ans);
     }
 }
+
 
 int main() {
     SPDLOG_WARN("Running maxDepth tests:");

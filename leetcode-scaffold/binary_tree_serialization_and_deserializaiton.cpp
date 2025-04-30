@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /*
 leetcode 297
@@ -66,9 +65,8 @@ void BinaryTreeTextCodec_scaffold(string input, string expectedResult) {
         return;
     }
     string s = codec.serialize(actual);
-    util::Log(logESSENTIAL) << s;
     if(s != input) {
-        SPDLOG_ERROR("BinaryTreeTextCodec::serialize failed");
+        SPDLOG_ERROR("BinaryTreeTextCodec::serialize failed, expectedResult={}, actual={}", expectedResult, s);
         return;
     }
     SPDLOG_INFO("BinaryTreeTextCodec tests ({}) passed", input);
@@ -122,7 +120,7 @@ TreeNode* BSTCodec::deserialize(string data) {
 }
 
 TreeNode* BSTCodec::deserialize_workhorse(string& str, int& pos, int curMin, int curMax) {
-    if(pos >= str.size()) {
+    if(pos >= (int)str.size()) {
         return nullptr;
     }
     int val = *reinterpret_cast<const int*>(str.data() + pos);

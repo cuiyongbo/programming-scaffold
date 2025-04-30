@@ -1,25 +1,24 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 235, 236, 865 */ 
-
 class Solution {
 public:
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q);
+    int getDistance(TreeNode* root, TreeNode* p, TreeNode* q);
     TreeNode* BST_lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q);
     TreeNode* subtreeWithAllDeepest(TreeNode* root);
-    int getDistance(TreeNode* root, TreeNode* p, TreeNode* q);
 };
 
-int Solution::getDistance(TreeNode* root, TreeNode* p, TreeNode* q) {
+
 /*
-    Extension from lowestCommonAncestor question:
-    given a binary tree, and two nodes p and q in the tree, find the distance between p and q.
-    the distance is defined as the edges in the path that connects p and q.
-    for example, given a tree root=[0,1,null,2,3], p=2, q=3, the path connected p and q is [2,1,3] so the distance is 2
+Extension from lowestCommonAncestor question:
+given a binary tree, and two nodes p and q in the tree, find the distance between p and q.
+the distance is defined as the edges in the path that connects p and q.
+for example, given a tree root=[0,1,null,2,3], p=2, q=3, the path connected p and q is [2,1,3] so the distance is 2
 */
+int Solution::getDistance(TreeNode* root, TreeNode* p, TreeNode* q) {
     // 1. first find the lca of p and q
     TreeNode* lca = lowestCommonAncestor(root, p, q);
     if (lca == nullptr) {
@@ -53,23 +52,21 @@ int Solution::getDistance(TreeNode* root, TreeNode* p, TreeNode* q) {
 }
 
 
-TreeNode* Solution::lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
 /*
-    Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
-    According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between 
-    two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow 
-    a node to be a descendant of itself).”
-    Note:
-        All of the nodes' values will be unique.
-        p and q are different and both values will exist in the binary tree.
+Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+Note:
+    All of the nodes' values will be unique.
+    p and q are different and both values will exist in the binary tree.
 */
-    // brilliant
+TreeNode* Solution::lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
     if (root == nullptr || root == p || root == q) { // trivial cases
         return root;
     }
+    // traverse root in post-order way
     TreeNode* l = lowestCommonAncestor(root->left, p, q);
     TreeNode* r = lowestCommonAncestor(root->right, p, q);
-    if (l != nullptr && r != nullptr) { // p, q reside in different subtrees
+    if (l != nullptr && r != nullptr) { // p, q reside in different subtrees of root
         return root;
     } else { // p, q reside in the same subtree
         return l != nullptr ? l : r;
@@ -77,16 +74,15 @@ TreeNode* Solution::lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* 
 }
 
 
-TreeNode* Solution::BST_lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
 /*
-    Given a binary search tree (BST), find the lowest common ancestor (LCA) of two given nodes in the BST.
-    Constraints:
-        All of the nodes' values will be unique.
-        p and q are different and both values will exist in the BST.
-    Hint: min(p, q) <= lca <= max(p, q)
+Given a binary search tree (BST), find the lowest common ancestor (LCA) of two given nodes in the BST.
+Constraints:
+    All of the nodes' values will be unique.
+    p and q are different and both values will exist in the BST.
+Hint: min(p, q) <= lca <= max(p, q)
 */
-
-{ // iterative solution
+TreeNode* Solution::BST_lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+if(0) { // iterative solution
     TreeNode* x = root;
     int a = std::min(p->val, q->val);
     int b = std::max(p->val, q->val);
@@ -121,20 +117,21 @@ TreeNode* Solution::BST_lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNo
 
 }
 
-TreeNode* Solution::subtreeWithAllDeepest(TreeNode* root) {
+
 /*
-    Given a binary tree rooted at root, the depth of each node is the shortest distance to the root.
-    A node is deepest if it has the largest depth possible among any node in the entire tree.
-    The subtree of a node is that node, plus the set of all descendants of that node.
-    Return the node with the largest depth such that it contains all the deepest nodes in its subtree.
+Given a binary tree rooted at root, the depth of each node is the shortest distance to the root.
+A node is deepest if it has the largest depth possible among any node in the entire tree.
+The subtree of a node is that node, plus the set of all descendants of that node.
+Return the node with the largest depth such that it contains all the deepest nodes in its subtree. (the lowest common ancestor for all the deepest nodes)
 */
+TreeNode* Solution::subtreeWithAllDeepest(TreeNode* root) {
     using element_t = std::pair<TreeNode*, int>; // node, depth
-    // return the intermediate answer and the largest depth of leaves of subtree rooted at node
+    // return the intermediate answer and the depth of the deepest node of subtree rooted at node
     std::function<element_t(TreeNode*, int)> dfs = [&] (TreeNode* node, int depth) {
         if (node == nullptr) {
             return std::make_pair(node, depth);
         }
-        // post-order traversal
+        // perform post-order traversal
         auto l = dfs(node->left, depth+1);
         auto r = dfs(node->right, depth+1);
         if (l.second == r.second) { // left, right subtrees got the same max depth, take node as intermediate node
@@ -146,13 +143,14 @@ TreeNode* Solution::subtreeWithAllDeepest(TreeNode* root) {
     return dfs(root, 0).first;
 }
 
+
 void lowestCommonAncestor_scaffold() {
     std::string input = "[1,2,3,4,5,6,7,8]";
     TreeNode* root = stringToTreeNode(input);
     std::unique_ptr<TreeNode> doorkeeper (root);
 
     Solution ss;
-    util::Log(logINFO) << "lowestCommonAncestor_tester: "; 
+    SPDLOG_INFO("running lowestCommonAncestor_tester:");
     auto lowestCommonAncestor_tester = [&](TreeNode* p, TreeNode* q, TreeNode* expected) {
         TreeNode* ans = ss.lowestCommonAncestor(root, p, q);
         if (ans == expected) {
@@ -166,7 +164,7 @@ void lowestCommonAncestor_scaffold() {
     lowestCommonAncestor_tester(root->left->left->left, root->left->right, root->left);
     lowestCommonAncestor_tester(root->left->left->left, root->right->left, root);
 
-    util::Log(logINFO) << "getDistance_tester: "; 
+    SPDLOG_INFO("running getDistance_tester:");
     auto getDistance_tester = [&](TreeNode* p, TreeNode* q, int expected) {
         int ans = ss.getDistance(root, p, q);
         if (ans == expected) {
@@ -215,7 +213,6 @@ void subtreeWithAllDeepest_scaffold(std::string input, int expectedResult) {
 }
 
 int main() {
-
     SPDLOG_WARN("Running lowestCommonAncestor tests:");
     TIMER_START(lowestCommonAncestor);
     lowestCommonAncestor_scaffold();

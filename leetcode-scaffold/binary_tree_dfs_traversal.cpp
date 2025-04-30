@@ -1,7 +1,34 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
+
+
+enum BinaryTreeTraversalType {
+    BinaryTreeTraversalType_preorder, // root, left, right
+    BinaryTreeTraversalType_inorder, // left, root, right
+    BinaryTreeTraversalType_postorder, // left, right, root
+};
+
+
+const char* BinaryTreeTraversalType_toString(BinaryTreeTraversalType type) {
+    const char* str = nullptr;
+    switch (type) {
+    case BinaryTreeTraversalType::BinaryTreeTraversalType_preorder:
+        str = "preorder";
+        break;
+    case BinaryTreeTraversalType::BinaryTreeTraversalType_inorder:
+        str = "inorder";
+        break;
+    case BinaryTreeTraversalType::BinaryTreeTraversalType_postorder:
+        str = "postorder";
+        break;
+    default:
+        str = "unknown";
+        break;
+    }
+    return str;
+}
+
 
 /* leetcode 94, 144, 145, 872, 987 */
 class Solution {
@@ -58,10 +85,11 @@ std::vector<int> Solution::postOrderTraversal_recursion(TreeNode* root) {
     return ans;
 }
 
+
 // traversal order: left -> root -> right
 std::vector<int> Solution::inOrderTraversal_iteration(TreeNode* root) {
     std::vector<int> ans;
-    std::stack<TreeNode*> st;
+    std::stack<TreeNode*> st; // first-in, last-out
     TreeNode* p = root;
     while (p != nullptr || !st.empty()) {
         while (p != nullptr) {
@@ -69,7 +97,7 @@ std::vector<int> Solution::inOrderTraversal_iteration(TreeNode* root) {
             p = p->left; // left
         }
         auto t = st.top(); st.pop();
-        // t->left == nullptr
+        assert(t->left == nullptr);
         ans.push_back(t->val); // root
         p = t->right; // right
     }
@@ -79,7 +107,7 @@ std::vector<int> Solution::inOrderTraversal_iteration(TreeNode* root) {
 // traversal order: root -> left -> right
 std::vector<int> Solution::preOrderTraversal_iteration(TreeNode* root) {
     std::vector<int> ans;
-    std::stack<TreeNode*> st;
+    std::stack<TreeNode*> st; //last-in, first-out
     if (root != nullptr) {
         st.push(root);
     }
@@ -98,8 +126,8 @@ std::vector<int> Solution::preOrderTraversal_iteration(TreeNode* root) {
     return ans;    
 }
 
-// Literally, left->right->root is the inversion of root->right->left
 std::vector<int> Solution::postOrderTraversal_iteration(TreeNode* root) {
+    // Hint: left->right->root is the inversion of root->right->left
     std::vector<int> ans;
     std::stack<TreeNode*> st;
     if (root != nullptr) {
@@ -122,7 +150,7 @@ std::vector<int> Solution::postOrderTraversal_iteration(TreeNode* root) {
     return ans;
 }
 
-bool Solution::leafSimilar(TreeNode* root1, TreeNode* root2) {
+
 /*
     Consider all the leaves of a binary tree, from left to right order, the values of leaves form a leaf value sequence.
     For example, for a tree with node [3,5,1,6,2,9,8,null,null,7,4], the leaf value sequence is (6, 7, 4, 9, 8).
@@ -130,6 +158,7 @@ bool Solution::leafSimilar(TreeNode* root1, TreeNode* root2) {
 
     Hint: perform a preorder/inorder/postorder traversal to get the leaf value sequence
 */
+bool Solution::leafSimilar(TreeNode* root1, TreeNode* root2) {
     std::function<void(TreeNode*, std::vector<int>&)> dfs = [&] (TreeNode* node, std::vector<int>& seq) {
         if (node != nullptr) {
             if (node->left == nullptr && node->right == nullptr) {
@@ -145,7 +174,7 @@ bool Solution::leafSimilar(TreeNode* root1, TreeNode* root2) {
     return seq1 == seq2;
 }
 
-std::vector<std::vector<int>> Solution::verticalTraversal(TreeNode* root) {
+
 /*
 Given the root of a binary tree, calculate the vertical order traversal of the binary tree.
 For each node at position (row, col), its left and right children will be at positions (row + 1, col - 1) and (row + 1, col + 1) respectively. The root of the tree is at (0, 0).
@@ -156,6 +185,25 @@ Example 1:
     Input: root = [1,2,3,4,5,6,7]
     Output: [[4],[2],[1,5,6],[3],[7]]
 */
+std::vector<std::vector<int>> Solution::verticalTraversal(TreeNode* root) {
+{ // naive solution
+    map<int, vector<int>> mp;
+    function<void(TreeNode*, int, int)> dfs = [&] (TreeNode* node, int r, int c) {
+        if (node == nullptr) {
+            return;
+        }
+        mp[c].push_back(node->val);
+        dfs(node->left, r+1, c-1);
+        dfs(node->right, r+1, c+1);
+    };
+    dfs(root, 0, 0);
+    vector<vector<int>> ans;
+    for (auto& p: mp) {
+        std::sort(p.second.begin(), p.second.end());
+        ans.push_back(p.second);
+    }
+    return ans;
+}
 
 {
     struct element_t {
@@ -229,30 +277,6 @@ Example 1:
 
 }
 
-enum BinaryTreeTraversalType {
-    BinaryTreeTraversalType_preorder, // root, left, right
-    BinaryTreeTraversalType_inorder, // left, root, right
-    BinaryTreeTraversalType_postorder, // left, right, root
-};
-
-const char* BinaryTreeTraversalType_toString(BinaryTreeTraversalType type) {
-    const char* str = nullptr;
-    switch (type) {
-    case BinaryTreeTraversalType::BinaryTreeTraversalType_preorder:
-        str = "preorder";
-        break;
-    case BinaryTreeTraversalType::BinaryTreeTraversalType_inorder:
-        str = "inorder";
-        break;
-    case BinaryTreeTraversalType::BinaryTreeTraversalType_postorder:
-        str = "postorder";
-        break;
-    default:
-        str = "unknown";
-        break;
-    }
-    return str;
-}
 
 void treeTraversal_scaffold(int test_array_scale, BinaryTreeTraversalType type) {
     Solution ss;
@@ -325,8 +349,6 @@ void verticalTraversal_scaffold(std::string input1, std::string input2) {
 
 
 int main(int argc, char* argv[]) {
-    util::LogPolicy::GetInstance().Unmute();
-
     SPDLOG_WARN("Running leafSimilar tests:");
     TIMER_START(leafSimilar);
     leafSimilar_scaffold("[1]", "[1]", true);

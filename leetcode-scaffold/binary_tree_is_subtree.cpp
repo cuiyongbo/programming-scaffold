@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 100, 101, 572 */
 class Solution {
@@ -11,13 +10,13 @@ public:
     bool isSymmetric(TreeNode* root);
 };
 
-bool Solution::isSameTree(TreeNode* l, TreeNode* r) {
 /*
-    Given two binary trees, write a function to check if they are the same or not.
-    Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
+Given two binary trees, write a function to check if they are the same or not.
+Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
 */
+bool Solution::isSameTree(TreeNode* l, TreeNode* r) {
 
-{ // recursive solution
+{ // recursive solution, traverse both trees in pre-order way
     if (l==nullptr && r==nullptr) { // trivial case
         return true;
     } else if (l==nullptr || r==nullptr) { // trivial case
@@ -52,18 +51,19 @@ bool Solution::isSameTree(TreeNode* l, TreeNode* r) {
 
 }
 
-bool Solution::isSubtree(TreeNode* s, TreeNode* t)  {
-/*
-    Given two non-empty binary trees s and t, check whether tree t 
-    has exactly the same structure and node values with a subtree of s. 
-    A subtree of s is a tree consists of a node in s and all of this node's descendants. 
-    The tree s could also be considered as a subtree of itself.
-*/
 
-if (0) { // recursive solution
+/*
+Given two non-empty binary trees s and t, check whether tree t 
+has exactly the same structure and node values with a subtree of s. 
+A subtree of s is a tree consists of a node in s and all of this node's descendants. 
+The tree s could also be considered as a subtree of itself.
+*/
+bool Solution::isSubtree(TreeNode* s, TreeNode* t)  {
+
+{ // recursive solution, traverse s in pre-order way
     return isSameTree(s, t) ||
-            (s!=nullptr && isSameTree(s->left, t)) ||
-            (s!=nullptr && isSameTree(s->right, t));
+            (s!=nullptr && isSubtree(s->left, t)) || 
+            (s!=nullptr && isSubtree(s->right, t));
 }
 
 { // iterative solution
@@ -84,12 +84,11 @@ if (0) { // recursive solution
 }
 
 
-bool Solution::isSymmetric(TreeNode* root) {
 /*
-    Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
-    For example, this binary tree [1,2,2,3,4,4,3] is symmetric.
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+For example, this binary tree [1,2,2,3,4,4,3] is symmetric.
 */
-
+bool Solution::isSymmetric(TreeNode* root) {
 if (1) { // recursive solution
     function<bool(TreeNode*, TreeNode*)> dfs = [&] (TreeNode* l, TreeNode* r) {
         if (l==nullptr && r==nullptr) {

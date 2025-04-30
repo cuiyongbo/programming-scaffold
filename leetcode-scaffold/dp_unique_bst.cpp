@@ -9,17 +9,17 @@ public:
 };
 
 
-int Solution::numTrees(int n) {
 /*
-    Given n, how many structurally unique BST’s (binary search trees) that store values 1 … n?
+Given n, how many structurally unique BST’s (binary search trees) that store values 1 … n?
 */
+int Solution::numTrees(int n) {
     // dp[i] means number of structurally unique BSTs that store values 1 ... i.
     // dp[i] = sum(dp[j]*dp[i-j-1]), 0<=j<i // left, root, right
     vector<int> dp(n+1, 0);
-    dp[0] = 1; // trivial case
+    dp[0] = 1; // trivial case, an empty tree
     for (int i=1; i<=n; ++i) {
         for (int j=0; j<i; ++j) {
-            dp[i] += dp[j] * dp[i-j-1]; // [left(0,j-1), root(j), right(j+1, i)]
+            dp[i] += dp[j] * 1 * dp[i-j-1]; // [left(0,j-1), root(j), right(j+1, i)]
         }
     }
     return dp[n];

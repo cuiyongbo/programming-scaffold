@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5.0)
 project(scaffold VERSION 0.1.0)
 
 # message(STATUS "PROJECT_NAME: ${PROJECT_NAME}")
@@ -260,9 +260,9 @@ add_executable(dp_perfect_squares dp_perfect_squares.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_perfect_squares PUBLIC cxx_auto_type)
 target_link_libraries(dp_perfect_squares spdlog::spdlog_header_only)
 
-add_executable(dp_word_break dp_word_break.cpp ${PUB_UTIL_FILES})
-target_compile_features(dp_word_break PUBLIC cxx_auto_type)
-target_link_libraries(dp_word_break spdlog::spdlog_header_only)
+add_executable(backtrace_word_break backtrace_word_break.cpp ${PUB_UTIL_FILES})
+target_compile_features(backtrace_word_break PUBLIC cxx_auto_type)
+target_link_libraries(backtrace_word_break spdlog::spdlog_header_only)
 
 add_executable(dp_longest_increasing_subsequence dp_longest_increasing_subsequence.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_longest_increasing_subsequence PUBLIC cxx_auto_type)

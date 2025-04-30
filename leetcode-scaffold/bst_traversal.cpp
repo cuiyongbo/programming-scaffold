@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 98, 530 */
-
 class Solution {
 public:
     bool isValidBST(TreeNode* root);
@@ -13,12 +11,12 @@ public:
 
 
 /*
-    Given a binary tree, determine if it is a valid binary search tree (BST).
-    Assume a BST is defined as follows:
-        The left subtree of a node contains only nodes with keys less than the node’s key.
-        The right subtree of a node contains only nodes with keys greater than the node’s key.
-        Both the left and right subtrees must also be binary search trees.
-    Hint: if the bst is valid, then the inorder traversal sequence would be sorted in ascending order
+Given a binary tree, determine if it is a valid binary search tree (BST).
+Assume a BST is defined as follows:
+    The left subtree of a node contains only nodes with keys less than the node’s key.
+    The right subtree of a node contains only nodes with keys greater than the node’s key.
+    Both the left and right subtrees must also be binary search trees.
+Hint: if the bst is valid, then the inorder traversal sequence would be sorted in ascending order
 */
 bool Solution::isValidBST(TreeNode* root) {
     TreeNode* predecessor = nullptr;
@@ -40,8 +38,8 @@ bool Solution::isValidBST(TreeNode* root) {
 
 
 /*
-    Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
-    Hint: perform an inorder traversal to find the difference between current node and its predecessor.
+Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
+Hint: perform an inorder traversal to find the difference between current node and its predecessor.
 */
 int Solution::getMinimumDifference(TreeNode* root) {
     int ans = INT32_MAX;

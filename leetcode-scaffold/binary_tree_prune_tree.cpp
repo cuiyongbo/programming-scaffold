@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /*leetcode: 814, 669, 1325*/
-
 class Solution {
 public:
     TreeNode* pruneTree(TreeNode* root);
@@ -12,17 +10,18 @@ public:
     TreeNode* removeLeafNodes(TreeNode* root, int target);
 };
 
-TreeNode* Solution::pruneTree(TreeNode* root) {
+
 /*
-    We are given the head node root of a binary tree, where additionally every node's value is either a 0 or a 1. Return the same tree where every subtree (of the given tree) not containing a 1 has been removed. (Recall that the subtree of a node X is X, plus every node that is a descendant of X.)
-    Hint: prune all subtrees which containes only 0
-    Example:
-        Input: [1,null,0,0,1]
-        Output: [1,null,0,null,1]
+We are given the head node root of a binary tree, where additionally every node's value is either a 0 or a 1. Return the same tree where every subtree (of the given tree) not containing a 1 has been removed. (Recall that the subtree of a node X is X, plus every node that is a descendant of X.)
+Hint: prune all nodes whose value is 0
+Example:
+    Input: [1,null,0,0,1]
+    Output: [1,null,0,null,1]
 */
-    // return the tree root at node with 0 nodes removed
-    // traverse the tree in post-order
-{    
+TreeNode* Solution::pruneTree(TreeNode* root) {
+// return the tree root at node with 0 nodes removed
+// traverse the tree in post-order way
+{
     std::function<TreeNode*(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node == nullptr) {
             return node;
@@ -71,19 +70,19 @@ if (0) { // iterative solution
 }
 
 
-TreeNode* Solution::trimBST(TreeNode* root, int L, int R) {
 /*
-    Given the root of a binary search tree and the lowest and highest boundaries as low and high, 
-    trim the tree so that all its elements lies in [low, high].
-    You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
+Given the root of a binary search tree and the lowest and highest boundaries as low and high, 
+trim the tree so that all its elements lies in [low, high].
+You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
 */
+TreeNode* Solution::trimBST(TreeNode* root, int L, int R) {
     if (root == nullptr) { // trivial case
         return nullptr;
     } else if (root->val > R) {
         return trimBST(root->left, L, R);
     } else if (root->val < L) {
         return trimBST(root->right, L, R);
-    } else { // postorder traversal
+    } else { // post-order traversal
         root->left = trimBST(root->left, L, R);
         root->right = trimBST(root->right, L, R);
         return root;
@@ -91,7 +90,6 @@ TreeNode* Solution::trimBST(TreeNode* root, int L, int R) {
 }
 
 
-TreeNode* Solution::removeLeafNodes(TreeNode* root, int target) {
 /*
     Given a binary tree root and an integer target, delete all the *leaf nodes* with value target.
     Note that once you delete a leaf node with value target, if it's parent node becomes a leaf 
@@ -100,6 +98,7 @@ TreeNode* Solution::removeLeafNodes(TreeNode* root, int target) {
         Input: root = [1,2,3,2,null,2,4], target = 2
         Output: [1,null,3,null,4]
 */
+TreeNode* Solution::removeLeafNodes(TreeNode* root, int target) {
     if (root == nullptr) { // trivial case
         return root;
     } else { // post-order traversal
