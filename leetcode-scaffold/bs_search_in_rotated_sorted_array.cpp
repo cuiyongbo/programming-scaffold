@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 33, 81, 153, 154, 162, 852 */
 class Solution {
@@ -15,13 +14,13 @@ public:
 
 
 /*
-    Suppose an array sorted in ascending order is rotated at some pivot unknown to you. (i.e., [0,1,2,4,5,6,7] might become [4,5,6,7,0,1,2]).
-    You are given a target value to search. If found in the array return its index, otherwise return -1.
-    You may assume no duplicate exists in the array. Your algorithm's runtime complexity must be in the order of O(log n).
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you. (i.e., [0,1,2,4,5,6,7] might become [4,5,6,7,0,1,2]).
+You are given a target value to search. If found in the array return its index, otherwise return -1.
+You may assume no duplicate exists in the array. Your algorithm's runtime complexity must be in the order of O(log n).
 */
 int Solution::search_33(std::vector<int>& nums, int target) {
 
-{
+{ // recursive version
     // l, r are inclusive
     std::function<int(int, int)> dac = [&] (int l, int r) {
         if (l > r) { // trivial case
@@ -35,11 +34,12 @@ int Solution::search_33(std::vector<int>& nums, int target) {
         if (nums[l] < nums[r]) {
             if (nums[m] < target) { // target must reside in right part if it exists
                 l = m+1;
-            } else { // target must reside in left part if it exists
+            } else { // otherwise left
                 r = m-1;
             }
             return dac(l, r);
         } else { // target may reside in either part, so we search both of them
+            // since nums[m] != target, we exclude nums[m] from further search
             int i = dac(l, m-1);
             if (i == -1) {
                 i = dac(m+1, r);
@@ -50,9 +50,7 @@ int Solution::search_33(std::vector<int>& nums, int target) {
     return dac(0, nums.size()-1);
 }
 
-
-// iterative version
-{
+{ // iterative version
     stack<pair<int, int>> st;
     st.emplace(0, nums.size()-1);
     while (!st.empty()) {
@@ -84,14 +82,14 @@ int Solution::search_33(std::vector<int>& nums, int target) {
 
 
 /*
-    Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
-    (i.e., [0,0,1,2,2,5,6] might become [2,5,6,0,0,1,2]). You are given a target value to search. 
-    If found in the array return true, otherwise return false.
-    The array may contain duplicates. Your algorithm's runtime complexity must be in the order of O(log n).
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+(i.e., [0,0,1,2,2,5,6] might become [2,5,6,0,0,1,2]). You are given a target value to search. 
+If found in the array return true, otherwise return false.
+The array may contain duplicates. Your algorithm's runtime complexity must be in the order of O(log n).
 */
 bool Solution::search_81(std::vector<int>& nums, int target) {
 
-{
+{ // recursive version
     std::function<bool(int, int)> dac = [&] (int l, int r) {
         if (l > r) { // trivial case
             return false;
@@ -116,8 +114,7 @@ bool Solution::search_81(std::vector<int>& nums, int target) {
     return dac(0, nums.size()-1);
 }
 
-// iterative version
-{
+{ // iterative version
     stack<pair<int, int>> st;
     st.emplace(0, nums.size()-1);
     while (!st.empty()) {
@@ -149,12 +146,12 @@ bool Solution::search_81(std::vector<int>& nums, int target) {
 
 
 /*
-    Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
-    (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). Find the minimum element. You may assume no duplicate exists in the array.
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+(i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). Find the minimum element. You may assume no duplicate exists in the array.
 */
 int Solution::findMin(std::vector<int>& nums) {
 
-{
+{ // recursive version
     // l, r are inclusive
     std::function<int(int, int)> dac = [&] (int l, int r) {
         if (l==r) { // trivial case
@@ -165,14 +162,14 @@ int Solution::findMin(std::vector<int>& nums) {
             return nums[l];
         } else {
             int m = (l+r)/2;
+            // split nums[l:r] by nums[m]
             return std::min(dac(l, m), dac(m+1, r));
         }
     };
     return dac(0, nums.size()-1);
 }
 
-// iterative version
-{
+{ // iterative version
     int ans = INT32_MAX;
     stack<pair<int, int>> st;
     st.emplace(0, nums.size()-1);
@@ -212,8 +209,7 @@ int Solution::findMin(std::vector<int>& nums) {
 */
 int Solution::findPeakElement(std::vector<int>& nums) {
 
-// trick version
-{
+{ // trick version
     if (nums.empty()) {
         return -1;
     }
@@ -274,10 +270,10 @@ int Solution::findPeakElement(std::vector<int>& nums) {
 
 
 /*
-    Let’s call an array A a mountain if the following properties hold:
-        A.length >= 3
-        There exists some **0 < i < A.length-1** such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length-1]
-    Given an array that is definitely a mountain, return such index.
+Let’s call an array A a mountain if the following properties hold:
+    A.length >= 3
+    There exists some **0 < i < A.length-1** such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length-1]
+Given an array that is definitely a mountain, return such index.
 */
 int Solution::peakIndexInMountainArray(std::vector<int>& nums) {
 

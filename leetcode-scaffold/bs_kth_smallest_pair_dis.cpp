@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 719, 786 */
-
 class Solution {
 public:
     int smallestDistancePair(std::vector<int>& nums, int k);
@@ -12,13 +10,13 @@ public:
 };
 
 
-int Solution::smallestDistancePair(std::vector<int>& nums, int k) {
 /*
-    Given an integer array, return the k-th smallest distance among all the pairs. The distance of a pair (A, B) is defined as the absolute difference between A and B.
-    Constraints:
-        n == nums.length
-        1 <= k <= n * (n - 1) / 2
+Given an integer array, return the k-th smallest distance among all the pairs. The distance of a pair (A, B) is defined as the absolute difference between A and B.
+Constraints:
+    n == nums.length
+    1 <= k <= n * (n - 1) / 2
 */
+int Solution::smallestDistancePair(std::vector<int>& nums, int k) {
 
 if (0) { // naive solution, O(n^2)
     map<int, int> mp; // distance, pair_num
@@ -57,7 +55,7 @@ if (0) { // naive solution, O(n^2)
                     r = m;
                 }
             }
-            ans += l-i-1;
+            ans += (l-i-1); // the number of elements is (l-i), and the number of pairs is (l-i-1)
         }
         return ans;
     };
@@ -80,16 +78,16 @@ if (0) { // naive solution, O(n^2)
 }
 
 
-std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int k) {
 /*
-    A **sorted** list A contains 1, plus some number of primes. Then for every p < q in the list, we consider the fraction p/q.
-    What is the K-th smallest fraction considered?  Return your answer as an array of ints, where answer[0] = p and answer[1] = q. 
+A **sorted** list A contains 1, plus some number of primes. Then for every p < q in the list, we consider the fraction p/q.
+What is the K-th smallest fraction considered?  Return your answer as an array of ints, where answer[0] = p and answer[1] = q. 
 
-    Examples:
-        Input: A = [1, 2, 3, 5], K = 3
-        Output: [2, 5]
-        Explanation: The fractions to be considered in sorted order are: 1/5, 1/3, 2/5, 1/2, 3/5, 2/3. The third fraction is 2/5.
+Examples:
+    Input: A = [1, 2, 3, 5], K = 3
+    Output: [2, 5]
+    Explanation: The fractions to be considered in sorted order are: 1/5, 1/3, 2/5, 1/2, 3/5, 2/3. The third fraction is 2/5.
 */
+std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int k) {
 
 { // naive version
     int sz = nums.size();
@@ -108,12 +106,13 @@ std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int 
                     r=j;
                 }
             }
+            assert(nums[i]/double(nums[l]) < m);
             //printf("i: %d, l: %d, sz: %d, m: %f\n", i, l, sz, m);
             if (l != sz && nums[i] > max_f*nums[l]) {
                 max_f = double(nums[i])/nums[l];
                 ret[0] = nums[i]; ret[1] = nums[l];
             }
-            ans += (sz-l);
+            ans += (sz-l); // note that nums[i] is not included in nums[l:sz], so the number of pairs is (sz-l)
         }
         return ans;
     };

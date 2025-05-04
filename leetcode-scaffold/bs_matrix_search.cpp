@@ -1,10 +1,9 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
+
 
 /* leetcode: 4, 74, 378, 668, 215 */
-
 class Solution {
 public:
     int findKthLargest(std::vector<int>& nums, int k);
@@ -14,18 +13,19 @@ public:
     double findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2);
 };
 
-int Solution::findKthLargest(std::vector<int>& nums, int k) {
+
 /*
-    Given an integer array nums and an integer k, return the kth largest element in the array.
-    Note that it is the kth largest element in the sorted order, not the kth distinct element.
-    Example 1:
-        Input: nums = [3,2,1,5,6,4], k = 2
-        Output: 5
-    Example 2:
-        Input: nums = [3,2,3,1,2,4,5,5,6], k = 4
-        Output: 4
-    Hint: you may use quicksort like algorithm to sort the array partially, then fetch the kth element
+Given an integer array (unsorted) nums and an integer k, return the kth largest element in the array.
+Note that it is the kth largest element in the sorted order, not the kth distinct element.
+Example 1:
+    Input: nums = [3,2,1,5,6,4], k = 2
+    Output: 5
+Example 2:
+    Input: nums = [3,2,3,1,2,4,5,5,6], k = 4
+    Output: 4
+Hint: you may use quicksort like algorithm to sort the array partially, then fetch the kth element
 */
+int Solution::findKthLargest(std::vector<int>& nums, int k) {
 
 if (0) { // std solution
     std::nth_element(nums.begin(), nums.begin()+k-1, nums.end(), std::greater<int>());
@@ -92,13 +92,14 @@ if (0) { // std solution
 
 }
 
-bool Solution::searchMatrix(std::vector<std::vector<int>>& matrix, int target) {
+
 /*
-    Write an efficient algorithm that searches for a value in an m x n matrix. 
-    This matrix has the following properties:
-        Integers in each row are sorted from left to right.
-        The first integer of each row is greater than the last integer of the previous row.
+Write an efficient algorithm that searches for a value in an m x n matrix.
+This matrix has the following properties:
+    Integers in each row are sorted from left to right.
+    The first integer of each row is greater than the last integer of the previous row. (矩阵元素全局有序, 使用普通的二分查找算法)
 */
+bool Solution::searchMatrix(std::vector<std::vector<int>>& matrix, int target) {
     int rows = matrix.size();
     int columns = matrix[0].size();
     int l = 0;
@@ -109,9 +110,9 @@ bool Solution::searchMatrix(std::vector<std::vector<int>>& matrix, int target) {
         int a = matrix[m/columns][m%columns];
         if (a == target) {
             return true;
-        } else if (a<target) {
+        } else if (a<target) { // go to right
             l = m+1;
-        } else {
+        } else { // go to left
             r = m-1;
         }
     }
@@ -119,18 +120,18 @@ bool Solution::searchMatrix(std::vector<std::vector<int>>& matrix, int target) {
 }
 
 
-double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2) {
 /*
-    There are two sorted arrays nums1 and nums2 of size m and n respectively.
-    Find the median of the two sorted arrays. **The overall run time complexity should be O(log (m+n)).**
+There are two sorted arrays nums1 and nums2 of size m and n respectively.
+Find the median of the two sorted arrays. **The overall run time complexity should be O(log (m+n)).**
 
-    Solution 1: first merge two arrays then find the median, however, the run time complexity would be O(m+n)
-    Solution 2: use binary search to find the indices in both arrays, so that there would be ceil((n1+n2)/2) elements
-    in the virtual left subarray split by the indices
+Solution 1: first merge two arrays then find the median, however, the run time complexity would be O(m+n)
+Solution 2: use binary search to find the indices in both arrays, so that there would be ceil((n1+n2)/2) elements
+in the virtual left subarray split by the indices
 */
+double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2) {
 
 { // naive solution
-    vector<int> target_positions;
+    vector<int> target_positions; // Note that target_positions are 1-index position(s)
     int total_count = nums1.size() + nums2.size();
     if (total_count % 2 == 0) {
         int k = total_count/2;
@@ -208,16 +209,15 @@ double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int
 
 }
 
-int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
 /*
-    Given a n x n matrix where each of the rows and columns are sorted in ascending order, find the kth smallest element in the matrix.
-    Constraints:
-        n == matrix.length == matrix[i].length
-        All the rows and columns of matrix are guaranteed to be sorted in non-decreasing order.
-        1 <= k <= n^2
-    Hint: using a min-heap/max-heap to keep the first k elements in the matrix
+Given a n x n matrix where each of the rows and columns are sorted in ascending order, find the kth smallest element in the matrix.
+Constraints:
+    n == matrix.length == matrix[i].length
+    All the rows and columns of matrix are guaranteed to be sorted in non-decreasing order.
+    1 <= k <= n^2
+Hint: using a min-heap/max-heap to keep the first k elements in the matrix
 */
-
+int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
 {
     int rows = matrix.size();
     int columns = matrix[0].size();
@@ -295,7 +295,7 @@ int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
     for (int i=k; i!=0&&!pq.empty(); --i) {
         auto t = pq.top(); pq.pop();
         ans = matrix[t.first][t.second];
-        if (t.second+1 < matrix[t.first].size()) {
+        if (t.second+1 < (int)matrix[t.first].size()) {
             pq.emplace(t.first, t.second+1);
         }
     }
@@ -308,7 +308,7 @@ int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
     std::priority_queue<int, vector<int>, std::less<int>> pq;
     for (int i=0; i<m; i++) {
         for (int j=0; j<n; j++) {
-            if (pq.size() < k) {
+            if ((int)pq.size() < k) {
                 pq.push(matrix[i][j]);
             } else {
                 if (matrix[i][j] < pq.top()) {
@@ -322,7 +322,7 @@ int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
 
 }
 
-int Solution::findKthNumber(int rows, int columns, int k) {
+
 /*
 Nearly everyone has used the Multiplication Table. The multiplication table of size mxn is an integer matrix mat where mat[i][j] == i*j (1-indexed).
 Given three integers m, n, and k, return the kth smallest element in the mxn multiplication table.
@@ -338,14 +338,16 @@ Hint:
  1. solution as kthSmallest; 
  2. find the smallest element x in [1, m*n+1], such that there are k elements that are no larger than x
 */
-    int l = 1;
+int Solution::findKthNumber(int rows, int columns, int k) {
+    int l = 1; // l is inclusive
     int r = rows*columns+1; // r is not inclusive
     while (l<r) {
-        int total_count = 0;
         int m = (l+r)/2;
+        int total_count = 0;
         for (int i=1; i<=rows; i++) {
-            total_count += std::min(m/i, columns);
+            total_count += std::min(m/i, columns); // there are `columns` candidates at most
         }
+        // perform lower_bound search
         if (total_count < k) {
             l = m+1;
         } else {
@@ -417,8 +419,6 @@ void findKthLargest_scaffold(string input1, int input2, int expectedResult) {
 
 
 int main() {
-    util::LogPolicy::GetInstance().Unmute();
-
     SPDLOG_WARN("Running searchMatrix tests:");
     TIMER_START(searchMatrix);
     searchMatrix_scaffold("[[1,3,5,7], [10, 11, 16, 20], [23, 30, 34, 50]]", 23, true);

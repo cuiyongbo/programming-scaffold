@@ -53,26 +53,28 @@ int main(int argc, char* argv[]) {
 void binarySearchTester(int arraySize) {
     auto worker = [&] (const vector<int>& input, int key) {
         bool found = false;
-        int l = 0;
+        int l = 0; // l is inclusive
         int r = input.size() - 1; // r is inclusive
         while (l <= r) {
             int m = (l+r)/2;
-            if (input[m] == key) {
+            if (input[m] == key) { // found key
                 found = true;
                 break;
-            } else if (input[m] < key) {
+            } else if (input[m] < key) { // key must be in right partition if it exists in input
                 l = m+1;
-            } else {
+            } else { // otherwise in left partition
                 r = m-1;
             }
         }
         bool expectedResult = std::binary_search(input.begin(), input.end(), key);
         if (found != expectedResult) {
-            printf("binarySearchTester failed, arraySize: %d, expected result: %d, acutal result: %d\n", arraySize, expectedResult, found);
+            SPDLOG_ERROR("binarySearchTester failed, arraySize: {}, expected result: {}, acutal result: {}", arraySize, expectedResult, found);
             abort();
         }
     };
 
+    SPDLOG_WARN("Running binarySearchTester tests");
+    TIMER_START(binarySearchTester);
     vector<int> input;
     generateTestArray(input, arraySize, false, true);
     for (int i = 0; i < LOOP_COUNT; ++i) {
@@ -86,12 +88,15 @@ void binarySearchTester(int arraySize) {
         worker(input, input[ri]);
         worker(input, rand());
     }
+    TIMER_STOP(binarySearchTester);
+    SPDLOG_WARN("binarySearchTester tests use {} ms", TIMER_MSEC(binarySearchTester));
 }
+
 
 // return the first element that is greater or equal to key, array must be sorted in advance
 void lowerBoundSearchTester(int arraySize) {
     auto worker = [&](const vector<int>& input, int key) {
-        int l = 0;
+        int l = 0; // l is inclusive
         int r = input.size(); // r is not inclusive
         while (l < r) {
             int m = (l+r)/2;
@@ -104,11 +109,13 @@ void lowerBoundSearchTester(int arraySize) {
         auto it = std::lower_bound(input.begin(), input.end(), key);
         int expectedResult = std::distance(input.begin(), it);
         if (l != expectedResult) {
-            printf("lowerBoundSearchTester failed, arraySize: %d, key: %d, expected result: %d, acutal result: %d, %d\n", arraySize, key, expectedResult, l, r);
+            SPDLOG_ERROR("lowerBoundSearchTester failed, arraySize: {}, key: {}, expected result: {}, acutal result: {}, {}\n", arraySize, key, expectedResult, l, r);
             abort();
         }
     };
 
+    SPDLOG_WARN("Running lowerBoundSearchTester tests");
+    TIMER_START(lowerBoundSearchTester);
     vector<int> input;
     generateTestArray(input, arraySize, false, true);
     for(int i=0; i<LOOP_COUNT; ++i) {
@@ -122,12 +129,15 @@ void lowerBoundSearchTester(int arraySize) {
         worker(input, input[ri]);
         worker(input, rand());
     }
+    TIMER_STOP(lowerBoundSearchTester);
+    SPDLOG_WARN("lowerBoundSearchTester tests use {} ms", TIMER_MSEC(lowerBoundSearchTester));
 }
+
 
 // return the first element that is greater than key, array must be sorted in advance
 void upperBoundSearchTester(int arraySize) {
     auto worker = [&](const vector<int>& input, int key) {
-        int l=0;
+        int l=0; // l is inclusive
         int r = input.size(); // r is not inclusive
         while (l < r) {
             int m = (l+r)/2;
@@ -140,10 +150,13 @@ void upperBoundSearchTester(int arraySize) {
         auto it = std::upper_bound(input.begin(), input.end(), key);
         int expectedResult = std::distance(input.begin(), it);
         if (l != expectedResult) {
-            printf("upperBoundSearchTester failed, arraySize: %d, key: %d, expected result: %d, acutal result: %d, %d\n", arraySize, key, expectedResult, l, r);
+            SPDLOG_ERROR("upperBoundSearchTester failed, arraySize: {}, key: {}, expected result: {}, acutal result: {}, {}\n", arraySize, key, expectedResult, l, r);
             abort();
         }
     };
+
+    SPDLOG_WARN("Running upperBoundSearchTester tests");
+    TIMER_START(upperBoundSearchTester);
     vector<int> input;
     generateTestArray(input, arraySize, false, true);
     for(int i=0; i<LOOP_COUNT; ++i) {
@@ -157,4 +170,6 @@ void upperBoundSearchTester(int arraySize) {
         worker(input, input[ri]);
         worker(input, rand());
     }
+    TIMER_STOP(upperBoundSearchTester);
+    SPDLOG_WARN("upperBoundSearchTester tests use {} ms", TIMER_MSEC(upperBoundSearchTester));
 }
