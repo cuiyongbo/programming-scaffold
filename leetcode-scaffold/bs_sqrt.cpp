@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 69, 875, 1011 */
-
 class Solution {
 public:
     int mySqrt(int a);
@@ -14,16 +12,32 @@ public:
 
 
 /*
-    Implement ``int sqrt(int x)``. Compute and return the square root of x. x is guaranteed to be a non-negative integer.
-    since the return type is an integer, the decimal digits are truncated and only the integer part of the result is returned.
-    Hint: perform lower_bound search to find the first integer k such than k*k >= x
+Implement ``int sqrt(int x)``. Compute and return the square root of x. x is guaranteed to be a non-negative integer.
+since the return type is an integer, the decimal digits are truncated and only the integer part of the result is returned.
+Hint: perform lower_bound search to find the first integer k such than k*k >= x
 */
 int Solution::mySqrt(int x) {
+if (0) {
+    long l = 0;
+    long r = x;
+    while (l <= r) {
+        long m = (l+r)/2;
+        if (m*m == x) {
+            return m;
+        } else if (m*m < x) {
+            l = m+1;
+        } else {
+            r = m-1;
+        }
+    }
+    return (l*l > x) ? (l-1) : l;
+}
+
     assert(x>=0);
     // perform lower_bound search to find the least integer k that satisfy k*k >=x
     // to prevent intermediates from range overflow, we have to use long type for l, r, m
-    long l=0;
-    long r=x+1; // r is not inclusive
+    long l = 0; // l is inclusive
+    long r = long(x)+1; // r is not inclusive
     while (l < r) {
         long m = (l+r)/2;
         if (m*m < x) {
@@ -38,8 +52,9 @@ int Solution::mySqrt(int x) {
 
 /*
     Koko loves to eat bananas. There are N piles of bananas, the i-th pile has piles[i] bananas. The guards have gone and will come back in H hours.
-    Koko can decide her bananas-per-hour eating speed of K. Each hour she chooses some pile of bananas, and eats K bananas from that pile. If the pile has less than K bananas, she eats all of them instead, and won’t eat any more bananas during this hour.
-    Koko likes to eat slowly, but still wants to finish eating all the bananas before the guards come back. Return the minimum integer K such that she can eat all the bananas within H hours. you may assume that piles.length<=H.
+    Koko can decide her bananas-per-hour eating speed of K. Each hour she chooses some pile of bananas, and eats K bananas from that pile. If the pile has less than K bananas, she eats all of them instead, and won’t eat any more bananas during this hour. (each hour Koko can eat K bananas at most, and one pile at most)
+    Koko likes to eat slowly, but still wants to finish eating all the bananas before the guards come back. Return the minimum integer K such that she can eat all the bananas within H hours.
+    you may assume that piles.length<=H.
 */
 int Solution::minEatingSpeed(std::vector<int>& piles, int H) {
     //Hint: perform lower_bound search to find the minimum K which satisfies the requirement
@@ -47,18 +62,18 @@ int Solution::minEatingSpeed(std::vector<int>& piles, int H) {
     auto can_koko_finish_eating = [&] (int speed) {
         int hours = 0;
         for (auto p: piles) {
-            hours += (p+speed-1)/speed;
+            hours += (p+speed-1)/speed; // how many hours does it take to eat up piles[i] with eating speed of speed
             if (hours > H) {
                 return false;
             }
         }
         return true;
     };
-    int l = 1;
+    int l = 1; // l is inclusive
     int r = *(std::max_element(piles.begin(), piles.end())) + 1; // r is not inclusive
     while (l < r) {
         int m = (l+r)/2;
-        if (!can_koko_finish_eating(m)) { // increase eating speed if koko can't finish eating in H hours
+        if (!can_koko_finish_eating(m)) { // increase eating speed if koko can't eat up all bananas in H hours
             l = m+1;
         } else {
             r = m;
@@ -81,9 +96,11 @@ int Solution::shipWithinDays(std::vector<int>& weights, int D) {
     // use lower_bound search to find the least weight capacity of the ship that satisfies the condition
     auto can_finish_order = [&] (int capacity) {
         int days = 0;
-        for (int i=0; i<weights.size();) {
+        int sz = weights.size();
+        for (int i=0; i<sz;) {
+            // how many packages can we load in one day
             int sum = 0;
-            while (i<weights.size() && sum+weights[i]<=capacity) {
+            while (i<sz && sum+weights[i]<=capacity) {
                 sum += weights[i];
                 i++;
             }
@@ -94,9 +111,9 @@ int Solution::shipWithinDays(std::vector<int>& weights, int D) {
         }
         return true;
     };
-    int l = *(std::max_element(weights.begin(), weights.end()));
-    //int r = std::accumulate(weights.begin(), weights.end(), 1);
-    int r = l*D + 1; // nice catcha
+    int l = *(std::max_element(weights.begin(), weights.end())); // we cann't split one package
+    int r = std::accumulate(weights.begin(), weights.end(), 1); // load all packages in one day
+    //int r = l*D + 1; // it is not right, for example given weights=[10,10,10], D=1
     while (l < r) {
         int m = (l+r)/2;
         if (!can_finish_order(m)) {
@@ -176,6 +193,8 @@ int main() {
     shipWithinDays_scaffold("[3,2,2,4,1,4]", 3, 6);
     shipWithinDays_scaffold("[1,2,3,1,1]", 4, 3);
     shipWithinDays_scaffold("[1,2,3,4,5,6,7,8,9,10]", 10, 10);
+    shipWithinDays_scaffold("[10,10]", 1, 20);
+    shipWithinDays_scaffold("[10,10,10]", 1, 30);
     TIMER_STOP(shipWithinDays);
     SPDLOG_WARN("shipWithinDays tests use {} ms",  TIMER_MSEC(shipWithinDays));
 }

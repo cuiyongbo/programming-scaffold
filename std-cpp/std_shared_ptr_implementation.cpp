@@ -37,12 +37,17 @@ using std::endl;
 
 /*
 key points:
-    1. separate reference_count object from resource to be managed
-    2. acquire ownership of new resource, you need initialize the ownership
-    3. to acquire ownership from another shared_ptr, first release current ownership, then update reference_count
-    4. after releasing ownership you need release the resource if reference_count reaches 0
-    5. the reference_count `m_count` has to be of pointer type because the reference changes must be 
-        transported to the original instance which can't be achieved using non-pointer type
+
+1. separate reference_count object from resource to be managed
+5. the reference_count has to be of pointer type because the reference changes must be transported to the original instance which can't be achieved using non-pointer type
+2. acquire ownership of new resource, you need initialize the ownership
+3. to acquire ownership from another shared_ptr, first release current ownership(if reference_count reaches 0, we need to destroy managed resource), then update new reference_count
+4. after releasing ownership you need release the resource if reference_count reaches 0
+
+thread-safety constraint:
+
+1. All member functions (including copy constructor and copy assignment) can be called by multiple threads on different shared_ptr objects without additional synchronization even if these objects are copies and share ownership of the same object.
+2. If multiple threads of execution access the same shared_ptr object without synchronization and any of those accesses uses a non-const member function of shared_ptr then a data race will occur; the std::atomic<shared_ptr> can be used to prevent the data race.
 */
 
 class shared_ptr_count {
@@ -93,6 +98,7 @@ private:
     long* m_count;
 };
 
+
 template <typename T> 
 class naive_shared_ptr {
 public:
@@ -101,12 +107,27 @@ public:
         m_ref_count(nullptr) {
     }
 
-    naive_shared_ptr(T* ptr):
-        naive_shared_ptr() {
+    naive_shared_ptr(T* ptr) {
         if (ptr != nullptr) {
             m_ptr = ptr;
             m_ref_count = new int64_t(1);
         } 
+    }
+
+    naive_shared_ptr(const naive_shared_ptr& rhs):
+        m_ptr(rhs.m_ptr),
+        m_ref_count(rhs.m_ref_count) {
+        *m_ref_count = *m_ref_count + 1;
+    }
+
+    naive_shared_ptr& operator=(const naive_shared_ptr& rhs) {
+        if (m_ptr != rhs.m_ptr) {
+            reset(); // Note that release owned resource first
+            m_ref_count = rhs.m_ref_count;
+            *m_ref_count = *m_ref_count + 1;
+            m_ptr = rhs.m_ptr;
+        }
+        return *this;
     }
 
     ~naive_shared_ptr() {
@@ -147,27 +168,12 @@ public:
     }
 
     void reset(T* rhs) {
+        // avoid self-assignment
         if (rhs != m_ptr) {
-            reset();
+            reset(); // Note that release owned resource first
             m_ref_count = new int64_t(1);
             m_ptr = rhs;
         }
-    }
-
-    naive_shared_ptr(const naive_shared_ptr& rhs):
-        m_ptr(rhs.m_ptr),
-        m_ref_count(rhs.m_ref_count) {
-        *m_ref_count = *m_ref_count + 1;
-    }
-
-    naive_shared_ptr* operator=(const naive_shared_ptr& rhs) {
-        if (m_ptr != rhs.m_ptr) {
-            reset();
-            m_ref_count = rhs.m_ref_count;
-            *m_ref_count = *m_ref_count + 1;
-            m_ptr = rhs.m_ptr;
-        }
-        return *this;
     }
 
     void swap(naive_shared_ptr& rhs) {

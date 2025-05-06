@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 34, 35, 704, 981 */
-
 class Solution {
 public:
     int searchInsert(vector<int>& nums, int target);
@@ -18,8 +16,8 @@ private:
 
 
 /*
-    Given a sorted (in ascending order) integer array nums of n elements and a target value, 
-    write a function to search target in nums. If target exists, then return its index, otherwise return -1.
+Given a sorted (in ascending order) integer array nums of n elements and a target value,
+write a function to search target in nums. If target exists, then return its index, otherwise return -1.
 */
 int Solution::binary_search(vector<int>& nums, int target) {
     // l, r are inclusive
@@ -40,7 +38,7 @@ int Solution::binary_search(vector<int>& nums, int target) {
 
 
 int Solution::lower_bound(vector<int>& nums, int target) {
-    int l = 0;
+    int l = 0; // l is inclusive
     int r = nums.size(); // r is not inclusive
     while (l < r) {
         int m = (l+r)/2;
@@ -56,7 +54,7 @@ int Solution::lower_bound(vector<int>& nums, int target) {
 
 
 int Solution::upper_bound(vector<int>& nums, int target) {
-    int l = 0;
+    int l = 0; // l is inclusive
     int r = nums.size(); // r is not inclusive
     while (l < r) {
         int m = (l+r)/2;
@@ -72,9 +70,9 @@ int Solution::upper_bound(vector<int>& nums, int target) {
 
 
 /*
-    Given a sorted array and a target value, return the index if the target is found. 
-    If not, return the index where it would be if it were inserted in order.
-    Hint: perform the lower_bound/upper_bound search.
+Given a sorted array and a target value, return the index if the target is found.
+If not, return the index where it would be if it were inserted in order.
+Hint: perform the lower_bound/upper_bound search.
 */
 int Solution::searchInsert(vector<int>& nums, int target) {
     if (0) { // std solution
@@ -86,9 +84,9 @@ int Solution::searchInsert(vector<int>& nums, int target) {
 
 
 /*
-    Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value.
-    Your algorithm’s runtime complexity must be in the order of O(log n). If the target is not found in the array, return [-1, -1].
-    Hint: perform lower_bound to find the left boundray, and upper_bound for right boundary (not inclusive).
+Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value.
+Your algorithm’s runtime complexity must be in the order of O(log n). If the target is not found in the array, return [-1, -1].
+Hint: perform lower_bound to find the left boundray, and upper_bound for right boundary (not inclusive).
 */
 vector<int> Solution::searchRange(vector<int>& nums, int target) {
     if (0) { // std solution
@@ -159,7 +157,7 @@ struct time_map_key_t {
         this->key = k;
         this->timestamp = ts;
     }
-    bool operator<(const time_map_key_t& other) const {
+    bool operator<(const time_map_key_t& other) const { // it must be decorated with const
         if (this->key < other.key) {
             return true;
         } else if (this->key == other.key) {
@@ -172,7 +170,7 @@ struct time_map_key_t {
 
 class TimeMap {
 /*
-    Create a timebased key-value store class TimeMap, that supports two operations.
+    Create a time-based key-value store class TimeMap, that supports two operations.
 
     1. set(string key, string value, int timestamp)
         Stores the key and value, along with the given timestamp.
@@ -215,6 +213,39 @@ void TimeMap::set(string key, string val, int timestamp) {
 
 
 string TimeMap::get(string key, int timestamp) {
+if (0) {
+    // upper_bound is much more concise
+    if (m_data_store.empty()) {
+        return "";
+    }
+    time_map_key_t k(key, timestamp);
+    auto it = m_data_store.lower_bound(k);
+    if (it != m_data_store.end()) {
+        SPDLOG_INFO("key={}, timestamp={}, it:({}, {}), value: {}", key, timestamp, it->first.key, it->first.timestamp, it->second);
+        if (it->first.key == key && it->first.timestamp == timestamp) {
+            return it->second;
+        } else if (it == m_data_store.begin()) {
+            return "";
+        } else {
+            auto p = std::prev(it);
+            if (p->first.key == key) {
+                return p->second;
+            } else {
+                return "";
+            }
+        }
+    } else {
+        auto p = std::prev(it);
+        if (p->first.key == key) {
+            return p->second;
+        } else {
+            return "";
+        }
+    }
+    return "";
+}
+
+{
     string ans = "";
     time_map_key_t k(key, timestamp);
     // find the first iterator with map_key larger than <key, timestamp>
@@ -226,6 +257,8 @@ string TimeMap::get(string key, int timestamp) {
         }
     }
     return ans;
+}
+
 }
 
 
@@ -253,7 +286,6 @@ void TimeMap_scaffold(string operations, string args, string expectedOutputs) {
 
 
 int main() {
-
     SPDLOG_WARN("Running searchInsert tests:");
     TIMER_START(searchInsert);
     searchInsert_scaffold("[1]", 2, 1);
