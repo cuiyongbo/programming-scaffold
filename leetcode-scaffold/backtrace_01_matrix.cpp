@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 542, 675, 934 */
-
 class Solution {
 public:
     vector<vector<int>> updateMatrix(vector<vector<int>>& matrix);
@@ -14,15 +12,16 @@ public:
 
 
 /*
-    Given a matrix consists of 0 and 1, find the distance of the nearest 0 for each cell. The distance between two adjacent cells is 1.
-    Note:
-        The number of elements of the given matrix will not exceed 10,000.
-        There are at least one 0 in the given matrix.
-        The cells are adjacent in only four directions: up, down, left and right.
+Given a matrix consists of 0 and 1, find the distance of the nearest 0 for each cell. The distance between two adjacent cells is 1.
+Note:
+    The number of elements of the given matrix will not exceed 10,000.
+    There are at least one 0 in the given matrix.
+    The cells are adjacent in only four directions: up, down, left and right.
 */
 vector<vector<int>> Solution::updateMatrix(vector<vector<int>>& matrix) {
 
 { // refined solution using bfs
+    // start from all 0s and perform bfs search to find all 1s
     int rows = matrix.size();
     int columns = matrix[0].size();
     vector<vector<int>> ans = matrix;
@@ -133,33 +132,34 @@ vector<vector<int>> Solution::updateMatrix(vector<vector<int>>& matrix) {
 
 
 /*
-    You are asked to cut off trees in a forest for a golf event. The forest is represented as a non-negative 2D map, in this map:
-        * 0 represents the obstacle can’t be reached.
-        * 1 represents the grass can be walked through.
-        * A number greater than 1 represents a tree in a cell that can be walked through, and this number is the tree's height.
-    **You are asked to cut off all the trees in this forest in the order of tree’s height – always cut off the tree with lowest height first.**
-    And after cutting, the original place has the tree will become a grass (value 1).
+You are asked to cut off trees in a forest for a golf event. The forest is represented as a non-negative 2D map, in this map:
+    * 0 represents the obstacle can’t be reached.
+    * 1 represents the grass can be walked through.
+    * A number greater than 1 represents a tree in a cell that can be walked through, and this number is the tree's height.
+**You are asked to cut off all the trees in this forest in the order of tree’s height – always cut off the tree with lowest height first.**
+And after cutting, the original place has the tree will become a grass (value 1).
 
-    You will start from the point (0, 0) and you should output the minimum steps you need to walk to cut off all the trees. 
-    If you can’t cut off all the trees, return -1 in that situation.
+You will start from the point (0, 0) and you should output the minimum steps you need to walk to cut off all the trees. 
+If you can’t cut off all the trees, return -1 in that situation.
 
-    You are guaranteed that no two trees have the same height and there is at least one tree needs to be cut off.
-    Hint: 
-        1. fetch all the tree to be cut down, ordered by tree's height in ascending order (use priority_queue, or std::sort)
-        2. find the minimus path between tree1 ans tree2 using bfs, and accumulate length of all paths
+You are guaranteed that no two trees have the same height and there is at least one tree needs to be cut off.
+Hint: 
+    1. fetch all the tree to be cut down, ordered by tree's height in ascending order (use priority_queue, or std::sort)
+    2. find the minimus path between tree1 ans tree2 using bfs, and accumulate length of all paths
 */
 int Solution::cutOffTree(vector<vector<int>>& forest) {
 
-{ 
+{
     using element_t = std::pair<int, int>;
     auto cmp_by_height = [&] (element_t l, element_t r) {
         return forest[l.first][l.second] > forest[r.first][r.second];
     };
-    std::priority_queue<element_t, vector<element_t>, decltype(cmp_by_height)> trees(cmp_by_height); // minheap
+    // later we can pop tree by height in ascending order
+    std::priority_queue<element_t, vector<element_t>, decltype(cmp_by_height)> trees(cmp_by_height); // min-heap
     int rows = forest.size();
     int columns = forest[0].size();
     for (int i=0; i<rows; i++) {
-        for (int j=0; j<rows; j++) {
+        for (int j=0; j<columns; j++) {
             if (forest[i][j] > 1) {
                 trees.emplace(i, j);
             }
@@ -167,6 +167,7 @@ int Solution::cutOffTree(vector<vector<int>>& forest) {
     }
 
     // 2 times faster than `proiority_queue` implementation, but with about 10 times more memory usage
+    // a dijkstra algorithm implementation may be a overkill for this simple test dataset
     auto calculate_route_path = [&](element_t start, element_t end) {
         vector<vector<int>> dist_table (rows, vector<int>(columns, INT32_MAX));
         dist_table[start.first][start.second] = 0; // initialize start point
@@ -210,8 +211,7 @@ int Solution::cutOffTree(vector<vector<int>>& forest) {
     return total_steps;
 }
 
-
-{  // refined solution
+{  // refined solution with dijkstra algorithm
     using element_t = std::pair<int, int>;
     auto cmp = [&] (const element_t& l, const element_t& r) {
         return forest[l.first][l.second] > forest[r.first][r.second];
@@ -226,7 +226,7 @@ int Solution::cutOffTree(vector<vector<int>>& forest) {
             }
         }
     }
-
+    // dijkstra algorithm
     auto calculate_route_path = [&] (element_t start, element_t end) {
         vector<vector<int>> dist_table(rows, vector<int>(columns, INT32_MAX));
         dist_table[start.first][start.second] = 0;
@@ -236,7 +236,7 @@ int Solution::cutOffTree(vector<vector<int>>& forest) {
         std::priority_queue<element_t, vector<element_t>, decltype(cmp_by_dist)> pq(cmp_by_dist); pq.push(start);
         while (!pq.empty()) {
             auto t = pq.top(); pq.pop();
-            if (t == end) {
+            if (t == end) { // reach the end, stop here
                 return dist_table[t.first][t.second];
             }
             for (auto d: directions) {
@@ -328,13 +328,13 @@ int Solution::cutOffTree(vector<vector<int>>& forest) {
 
 
 /*
-    In a given 2D binary array A, there are two islands.  
-    (An island is a 4-directionally connected group of 1s not connected to any other 1s.)
-    Now, we may change 0s to 1s so as to connect the two islands together to form 1 island.
-    Return the smallest number of 0s that must be flipped. (It is guaranteed that the answer is at least 1.)
-    Hint:
-        1. find 1-nodes corresponding one island
-        2. starting from these nodes, continue bfs traversal until find a 1-node corresponding to the other island
+In a given 2D binary array A, there are two islands.  
+(An island is a 4-directionally connected group of 1s not connected to any other 1s.)
+Now, we may change 0s to 1s so as to connect the two islands together to form 1 island.
+Return the smallest number of 0s that must be flipped. (It is guaranteed that the answer is at least 1.)
+Hint:
+    1. find 1-nodes corresponding one island
+    2. starting from these nodes, perform bfs traversal to find a 1-node corresponding to the other island
 */
 int Solution::shortestBridge(vector<vector<int>>& A) {
 
@@ -342,7 +342,6 @@ int Solution::shortestBridge(vector<vector<int>>& A) {
     using element_t = std::pair<int, int>;
     int rows = A.size();
     int columns = A[0].size();
-    
     std::queue<element_t> qu;
     std::set<element_t> visited;
     std::function<void(element_t)> find_one_island = [&] (element_t u) {
@@ -354,7 +353,7 @@ int Solution::shortestBridge(vector<vector<int>>& A) {
             if (r<0||r>=rows||c<0||c>=columns) {
                 continue;
             }
-            if (A[r][c] == 0) {
+            if (A[r][c] == 0) { // skip 0s
                 continue;
             }
             auto p = std::make_pair(r, c);
@@ -364,7 +363,7 @@ int Solution::shortestBridge(vector<vector<int>>& A) {
             find_one_island(p);
         }
     };
-
+    // 1. find one island
     for (int i=0; i<rows; i++) {
         for (int j=0; j<columns; j++) {
             if (A[i][j] == 1) {
@@ -372,11 +371,11 @@ int Solution::shortestBridge(vector<vector<int>>& A) {
                 break;
             }
         }
-        if (!qu.empty()) {
+        if (!qu.empty()) { // exit the outer loop
             break;
         }
     }
-
+    // 2. perform bfs to find another island
     int steps = 0;
     while (!qu.empty()) {
         for (int k=qu.size(); k!=0; k--) {
@@ -389,7 +388,7 @@ int Solution::shortestBridge(vector<vector<int>>& A) {
                 }
                 auto p = std::make_pair(r, c);
                 if (visited.count(p) == 0) {
-                    if (A[r][c] == 1) {
+                    if (A[r][c] == 1) { // find the other island
                         return steps;
                     }
                     qu.push(p);
@@ -401,7 +400,6 @@ int Solution::shortestBridge(vector<vector<int>>& A) {
     }
     return steps;
 }
-
 
 {
     int rows = A.size();
@@ -471,7 +469,7 @@ void updateMatrix_scaffold(string input, string expectedResult) {
     if (actual == expected) {
         SPDLOG_INFO("Case({}, expectedResult: {}) passed", input, expectedResult);
     } else {
-        SPDLOG_ERROR("Case({}, expectedResult: {}) failed, actual result:", input, expectedResult);
+        SPDLOG_ERROR("Case({}, expectedResult: {}) failed, actual=", input, expectedResult);
         for (const auto& row: actual) {
             SPDLOG_ERROR(numberVectorToString<int>(row));
         }
@@ -485,7 +483,7 @@ void cutOffTree_scaffold(string input, int expectedResult) {
     if (actual == expectedResult) {
         SPDLOG_INFO("Case({}, expectedResult: {}) passed", input, expectedResult);
     } else {
-        SPDLOG_ERROR("Case({}, expectedResult: {}) failed, actual result: {}", input, expectedResult, actual);
+        SPDLOG_ERROR("Case({}, expectedResult: {}) failed, actual={}", input, expectedResult, actual);
     }
 }
 
@@ -496,7 +494,7 @@ void shortestBridge_scaffold(string input, int expectedResult) {
     if (actual == expectedResult) {
         SPDLOG_INFO("Case({}, expectedResult: {}) passed", input, expectedResult);
     } else {
-        SPDLOG_ERROR("Case({}, expectedResult: {}) failed, actual result: {}", input, expectedResult, actual);
+        SPDLOG_ERROR("Case({}, expectedResult: {}) failed, actual={}", input, expectedResult, actual);
     }
 }
 

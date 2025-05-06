@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 17, 39, 40, 216, 77, 78, 90 */
-
 class Solution {
 public:
     vector<string> letterCombinations(string digits);
@@ -18,8 +16,8 @@ public:
 
 
 /*
-    Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent.
-    A mapping of digit to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent.
+A mapping of digit to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
 */
 vector<string> Solution::letterCombinations(string digits) {
     vector<vector<char>> d(10);
@@ -36,11 +34,12 @@ vector<string> Solution::letterCombinations(string digits) {
     string candidate;
     vector<string> ans;
     function<void(int)> backtrace = [&] (int pos) {
-        if (pos == digits.size()) {
+        if (pos == digits.size()) { // termination
             ans.push_back(candidate);
             return;
         }
         for (auto c: d[digits[pos]-'0']) {
+            // perform backtrace
             candidate.push_back(c);
             backtrace(pos+1); // go to the next position
             candidate.pop_back();
@@ -52,26 +51,51 @@ vector<string> Solution::letterCombinations(string digits) {
 
 
 /*
-    Given a set of candidate numbers **without duplicates** and a target number, find all unique combinations in candidates where the candidate numbers sums to target.
-    For example, given inputs: candidates = [2,3,6,7], target = 7, A solution would be [[7],[2,2,3]]
+Given a set of candidate numbers **without duplicates** and a target number, find all unique combinations in candidates where the candidate numbers sums to target.
+For example, given inputs: candidates = [2,3,6,7], target = 7, A solution would be [[7],[2,2,3]]
 
-    Note:
-        The same repeated number may be chosen from candidate unlimited number of times. 
-        All numbers (including target) will be positive integers.
-        The solution set must not contain duplicate combinations.
+Note:
+    The same repeated number may be chosen from candidate unlimited number of times. 
+    All numbers (including target) will be positive integers.
+    The solution set must not contain duplicate combinations.
 */
 vector<vector<int>> Solution::combinationSum_39(vector<int>& candidates, int target) {
+
+if(0) {
+    // sort candidates to perform optimization later
+    std::sort(candidates.begin(), candidates.end(), std::less<int>());
+    vector<int> buffer;
+    vector<vector<int>> ans;
+    int sz = candidates.size();
+    function<void(int, int)> backtrace = [&] (int u, int sum) {
+        if (sum == target) {
+            ans.push_back(buffer);
+            return;
+        }
+        for (int i=u; i<sz; i++) {
+            if (sum+candidates[i] > target) { // it is safe to stop here since later candidates are larger
+                break;
+            }
+            buffer.push_back(candidates[i]);
+            backtrace(i, sum+candidates[i]);
+            buffer.pop_back();
+        }
+    };
+    backtrace(0, 0);
+    return ans;
+}
+
+{
     vector<int> buffer;
     vector<vector<int>> ans;
     int sz = candidates.size();
     function<void(int, int)> backtrace = [&] (int cur, int cur_sum) {
-        // prune invalid branches
-        if (cur_sum == target) {
+        if (cur_sum == target) { // termination
             ans.push_back(buffer);
             return;
         }
         for (int i=cur; i<sz; ++i) {
-            if (cur_sum+candidates[i] > target) {
+            if (cur_sum+candidates[i] > target) { // prune invalid branches
                 continue;
             }
             buffer.push_back(candidates[i]);
@@ -83,18 +107,19 @@ vector<vector<int>> Solution::combinationSum_39(vector<int>& candidates, int tar
     return ans;
 }
 
+}
+
 
 /*
-    Given an array of numbers which may **contain duplicates** and a target number, find all unique combinations in the array where the candidate numbers sums to target. 
-    Note:
-        Each number in the array may be only used once in the combination.
-        All numbers (including target) will be positive integers.
-        The solution set must not contain duplicate combinations.
+Given an array of numbers which may **contain duplicates** and a target number, find all unique combinations in the array where the candidate numbers sums to target. 
+Note:
+    Each number in the array may be only used once in the combination.
+    All numbers (including target) will be positive integers.
+    The solution set must not contain duplicate combinations.
 */
 vector<vector<int>> Solution::combinationSum_40(vector<int>& candidates, int target) {
-    // preprocess
+    // preprocess: sort candidates in advance so that we can perform some optimization
     sort(candidates.begin(), candidates.end());
-
     vector<int> buffer;
     vector<vector<int>> ans;
     int sz = candidates.size();
@@ -124,23 +149,25 @@ vector<vector<int>> Solution::combinationSum_40(vector<int>& candidates, int tar
 
 
 /*
-    Find all possible combinations of k numbers that add up to a number n , given that only numbers from 1 to 9 can be used and each number is used at most once..
-    Ensure that numbers within the set are sorted in ascending order.
-    for example,
-        Input: k = 3, n = 9
-        Output: [[1,2,6], [1,3,5], [2,3,4]]
+Find all possible combinations of k numbers that add up to a number n , given that only numbers from 1 to 9 can be used and each number is used at most once..
+Ensure that numbers within the set are sorted in ascending order.
+for example,
+    Input: k = 3, n = 9
+    Output: [[1,2,6], [1,3,5], [2,3,4]]
 */
 vector<vector<int>> Solution::combinationSum_216(int k, int n) {
     vector<int> candidates;
     vector<vector<int>> ans;
     function<void(int, int)> backtrace = [&] (int u, int sum) {
-        if (candidates.size() == k && sum == n) {
-            ans.push_back(candidates);
+        if (sum >= n || k == (int)candidates.size()) {
+            if (sum == n && k == (int)candidates.size()) {
+                ans.push_back(candidates);
+            }
             return;
         }
         for (int i=u; i<10; ++i) {
             // prune invalid branches
-            if (sum+i > n || candidates.size() > k) {
+            if (sum+i > n) {
                 break; // yes, we can stop here since the next element would be larger than `i`
             }
             candidates.push_back(i);
@@ -155,19 +182,19 @@ vector<vector<int>> Solution::combinationSum_216(int k, int n) {
 
 
 /*
-    Given two integers n and k, return all possible combinations of k numbers out of 1 … n.
-    For example, If n=4 and k=2, a solution is [[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]
-    note that [1,2] and [2,1] are the same in combination theory
+Given two integers n and k, return all possible combinations of k numbers out of 1 … n.
+For example, If n=4 and k=2, a solution is [[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]
+note that [1,2] and [2,1] are the same in combination theory
 */
 vector<vector<int>> Solution::combine(int n, int k) {
     vector<int> candidate;
     vector<vector<int>> ans;
-    function<void(int)> backtrace = [&] (int pos) {
-        if (k == candidate.size()) {
+    function<void(int)> backtrace = [&] (int u) {
+        if (k == candidate.size()) { // recursion would stop here
             ans.push_back(candidate);
             return;
         }
-        for (int i=pos; i<=n; i++) {
+        for (int i=u; i<=n; i++) {
             candidate.push_back(i);
             backtrace(i+1); // exclude digits from [1, i]
             candidate.pop_back();
@@ -214,30 +241,30 @@ vector<vector<int>> Solution::subsets_78(vector<int>& nums) {
 
 
 /* 
-    Same as subsets_78, except that the input array **may contain duplicates**.
-    Note: the solution must contain no duplicate.
-    Example:
-        Input: [1,2,2]
-        Output:
-        [
-            [2],
-            [1],
-            [1,2,2],
-            [2,2],
-            [1,2],
-            []
-        ]
+Same as subsets_78, except that the input array **may contain duplicates**.
+Note: the solution must contain no duplicate.
+Example:
+    Input: [1,2,2]
+    Output:
+    [
+        [2],
+        [1],
+        [1,2,2],
+        [2,2],
+        [1,2],
+        []
+    ]
 */
 vector<vector<int>> Solution::subsets_90(vector<int>& nums) {
     // preprocess `nums` so the elements in each subset are in non-descending order
     std::sort(nums.begin(), nums.end(), std::less<int>());
     vector<int> candidate; candidate.reserve(nums.size());
     vector<vector<int>> ans;
-    std::function<void(int)> backtrace = [&] (int pos) {
+    std::function<void(int)> backtrace = [&] (int u) {
         ans.push_back(candidate);
-        for (int i=pos; i<nums.size(); i++) {
+        for (int i=u; i<nums.size(); i++) {
             // skip duplicates at each depth
-            if (i>pos && nums[i]==nums[i-1]) {
+            if (i>u && nums[i]==nums[i-1]) {
                 continue;
             }
             candidate.push_back(nums[i]);

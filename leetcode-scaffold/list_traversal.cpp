@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 2, 445, 206, 24, 160, 203, 82, 83, 86, 19, 25 */
-
 class Solution {
 public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2);
@@ -19,6 +17,7 @@ public:
     ListNode* partition(ListNode* head, int x);
     ListNode* removeNthFromEnd(ListNode* head, int n);
 };
+
 
 ListNode* Solution::reverseList(ListNode* head) {
 {
@@ -36,7 +35,6 @@ ListNode* Solution::reverseList(ListNode* head) {
 }
 
 
-ListNode* Solution::reverseKGroup(ListNode* head, int k) {
 /*
 Given the head of a linked list, reverse the nodes of the list by k nodes at a time, and return the modified list.
 k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
@@ -48,6 +46,7 @@ Examples:
     Input: head = [1,2,3,4,5], k = 3
     Output: [3,2,1,4,5]
 */
+ListNode* Solution::reverseKGroup(ListNode* head, int k) {
 
 {
     ListNode dummy;
@@ -62,7 +61,7 @@ Examples:
         if ((int)st.size() == k) {
             while (!st.empty()) {
                 auto node = st.top(); st.pop();
-                p->next = node; p = p->next; // push_backss
+                p->next = node; p = p->next; // push_backs
             }
         }
         head = tmp;
@@ -78,26 +77,26 @@ Examples:
 }
 
 
-ListNode* Solution::swapPairs(ListNode* head) {
 /*
-    Given a linked list, swap every two adjacent nodes and return its head.
-    You may not modify the values in the list's nodes, only nodes itself may be changed.
+Given a linked list, swap every two adjacent nodes and return its head.
+You may not modify the values in the list's nodes, only nodes itself may be changed.
 */
+ListNode* Solution::swapPairs(ListNode* head) {
     return reverseKGroup(head, 2);
 }
 
 
-ListNode* Solution::removeNthFromEnd(ListNode* head, int n) {
 /*
 Given the head of a linked list, remove the nth node from the end of the list and return its head.
 Examples:
-    Input: head = [1,2,3,4,5], n = 2
-    Output: [1,2,3,5]
-    Input: head = [1], n = 1
-    Output: []
-    Input: head = [1,2], n = 1
-    Output: [1]
+Input: head = [1,2,3,4,5], n = 2
+Output: [1,2,3,5]
+Input: head = [1], n = 1
+Output: []
+Input: head = [1,2], n = 1
+Output: [1]
 */
+ListNode* Solution::removeNthFromEnd(ListNode* head, int n) {
     std::stack<ListNode*> st;
     while (head != nullptr) {
         ListNode* tmp = head->next;
@@ -120,7 +119,6 @@ Examples:
 }
 
 
-ListNode* Solution::partition(ListNode* head, int x) {
 /*
 Given the head of a linked list and a value x, partition it such that all nodes less than x come before nodes greater than or equal to x.
 You should preserve the original relative order of the nodes in each of the two partitions.
@@ -130,6 +128,7 @@ Examples:
     Input: head = [2,1], x = 2
     Output: [1,2]
 */
+ListNode* Solution::partition(ListNode* head, int x) {
     ListNode dummy1, dummy2;
     ListNode* p1 = &dummy1;
     ListNode* p2 = &dummy2;
@@ -142,14 +141,13 @@ Examples:
         }
         head = tmp;
     }
-    p1->next = dummy2.next;
+    p1->next = dummy2.next; // connect two sublists
     return dummy1.next;
 }
 
 
-ListNode* Solution::deleteDuplicates_082(ListNode* head) {
 /*
-Given the head of a sorted linked list, delete all nodes that have duplicate numbers, leaving only distinct numbers from the original list. Return the linked list sorted as well.
+Given the head of a *sorted* linked list, delete all nodes that have duplicate numbers, leaving only distinct numbers from the original list. Return the linked list sorted as well.
 Examples:
     Input: head = [1,1,2]
     Output: [2]
@@ -157,7 +155,10 @@ Examples:
     Output: [2]
     Input: head = [1,2,3,3,4,4,5]
     Output: [1,2,5]
+    Input: head = [1,1]
+    Output: []
 */
+ListNode* Solution::deleteDuplicates_082(ListNode* head) {
     std::stack<std::pair<ListNode*, int>> st;
     while (head != nullptr) {
         ListNode* tmp = head->next; head->next = nullptr;
@@ -181,7 +182,7 @@ Examples:
     return dummy.next;
 }
 
-ListNode* Solution::deleteDuplicates_083(ListNode* head) {
+
 /*
 Given the head of a sorted linked list, delete all duplicates such that each element appears only once. Return the linked list sorted as well.
 Examples:
@@ -190,6 +191,25 @@ Examples:
     Input: head = [1,1,2,3,3]
     Output: [1,2,3]
 */
+ListNode* Solution::deleteDuplicates_083(ListNode* head) {
+{
+    ListNode dummy;
+    ListNode* p = &dummy;
+    while (head != nullptr) {
+        ListNode* tmp = head->next; head->next = nullptr;
+        if  (p == &dummy) {
+            p->next = head; p = p->next;
+        } else if (p->val != head->val) {
+            p->next = head; p = p->next;
+        } else /*if (p->val == head->val)*/ {
+            // do nothing
+        }
+        head = tmp;
+    }
+    return dummy.next;
+}
+
+{
     std::stack<std::pair<ListNode*, int>> st;
     while (head != nullptr) {
         ListNode* tmp = head->next; head->next = nullptr;
@@ -211,7 +231,8 @@ Examples:
     return dummy.next;
 }
 
-ListNode* Solution::removeElements(ListNode* head, int val) {
+}
+
 /*
 Given the head of a linked list and an integer val, remove all the nodes of the linked list that has Node.val == val, and return the new head.
 Examples:
@@ -224,47 +245,34 @@ Examples:
     Input: head = [7,7,7,7], val = 7
     Output: []
 */
-
-{
+ListNode* Solution::removeElements(ListNode* head, int val) {
     ListNode dummy;
     ListNode* p = &dummy;
     while (head != nullptr) {
         ListNode* tmp = head->next; head->next = nullptr;
         if (head->val != val) {
+            // append valid nodes to the tail of a new list
             p->next = head; p = p->next; // push_back
         }
+        // don't forget to update head for next iteration
         head = tmp;
     }
     return dummy.next;
 }
 
-    ListNode dummy;
-    ListNode* p = &dummy;
-    while (head != nullptr) {
-        if (head->val == val) {
-            head = head->next;
-            continue;
-        }
-        ListNode* tmp = head->next; head->next = nullptr;
-        p->next = head; p = p->next;
-        head = tmp;
-    }
-    return dummy.next;
-}
 
-ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
 /*
-    You are given two non-empty linked lists representing two *non-negative* integers. 
-    The digits are stored in *LSB-first* order and each of their nodes contain a single digit. 
-    Add the two numbers and return it as a linked list.
-    You may assume the two numbers do not contain any leading zero, except the number 0 itself.
-    Example:
-        Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
-        Output: 7 -> 0 -> 8
-        Explanation: 342 + 465 = 807.
+You are given two non-empty linked lists representing two *non-negative* integers. 
+The digits are stored in *LSB-first* order and each of their nodes contain a single digit. 
+Add the two numbers and return it as a linked list.
+You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+Example:
+    Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
+    Output: 7 -> 0 -> 8
+    Explanation: 342 + 465 = 807.
 */
+ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
 
-{
     int carry = 0;
     ListNode dummy(-1);
     ListNode* p = &dummy;
@@ -279,8 +287,9 @@ ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
         if (p2 != nullptr) {
             val += p2->val;
             p2 = p2->next;
-        }       
+        }
         val += carry;
+        // re-calculate carry
         if (val >= 10) {
             val -= 10;
             carry = 1;
@@ -293,19 +302,17 @@ ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
     return dummy.next;
 }
 
-}
 
-
-ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
 /*
-    You are given two non-empty linked lists representing two *non-negative* integers. 
-    The digits are stored in *MSB-first* order and each of their nodes contain a single digit. 
-    Add the two numbers and return it as a linked list.
-    You may assume the two numbers do not contain any leading zero, except the number 0 itself.
-    Example:
-        Input: (7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
-        Output: 7 -> 8 -> 0 -> 7
+You are given two non-empty linked lists representing two *non-negative* integers. 
+The digits are stored in *MSB-first* order and each of their nodes contain a single digit. 
+Add the two numbers and return it as a linked list.
+You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+Example:
+    Input: (7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
+    Output: 7 -> 8 -> 0 -> 7
 */
+ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
 
 {
     std::stack<int> st1;
@@ -335,6 +342,7 @@ ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
             val += st2.top(); st2.pop();
         }    
         val += carry;
+        // re-calculate carry
         if (val >= 10) {
             val -= 10;
             carry = 1;
@@ -350,7 +358,6 @@ ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
 }
 
 
-ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
 /*
     Write a program to find the node at which the intersection of two singly linked lists begins.
     Hint: 
@@ -367,8 +374,9 @@ ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
 
     Input: intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
     Output: Reference of the node with value = 8
-    Input Explanation: The intersected node's value is 8 (note that this must not be 0 if the two lists intersect). From the head of A,
-    it reads as [4,1,8,4,5]. From the head of B, it reads as [5,0,1,8,4,5]. There are 2 nodes before the intersected node in A; There are 3 nodes before the intersected node in B.
+    Input Explanation: The intersected node's value is 8 (note that this must not be 0 if the two lists intersect). 
+    From the head of A, it reads as [4,1,8,4,5]. From the head of B, it reads as [5,0,1,8,4,5]. 
+    There are 2 nodes before the intersected node in A; There are 3 nodes before the intersected node in B.
 
              4+------> 1+---+
                             |
@@ -402,10 +410,9 @@ ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
     You may assume there are no cycles anywhere in the entire linked structure.
     Your code should preferably run in O(n) time and use only O(1) memory.
 */
-
-    // 1. iterate over one list, and save nodes into a set, test node existence against the set when iterating the other list, failed to meet the requirement of the running time and space complexity
-
-    // 2. you can image there is a virtual null node connecting the two lists, then iterate over them as usual
+ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
+// 1. iterate over one list, and save nodes into a set, test node existence against the set when iterating the other list. however, it failed to meet the requirement of the running time and space complexity
+// 2. you can image there is a virtual null node connecting the two lists, then iterate over them as usual
 {
     ListNode* p1 = l1;
     ListNode* p2 = l2;
