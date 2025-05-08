@@ -29,9 +29,10 @@ bool Solution::wordBreak_139(string input, vector<string>& wordDict) {
         sub_solution[u] = false;
         for (int i=1; i<(int)u.size(); i++) {
             // split u at index i
-            auto l = u.substr(0, i);
-            auto r = u.substr(i);
-            if (dfs(l) && dfs(r)) {
+            auto lu = u.substr(0, i);
+            auto ru = u.substr(i);
+            // and test if lu and ru can be segmented into a space-separated sequence of one more dictionary word
+            if (dfs(lu) && dfs(ru)) {
                 sub_solution[u] = true;
                 return true;
             }
@@ -48,59 +49,49 @@ add spaces in s to construct a sentence where each word is a valid dictionary wo
 You may assume the dictionary does not contain duplicate words. Return all such possible sentences.
 */
 vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
-
-{
-    set<string> dict_set(wordDict.begin(), wordDict.end()); dict_set.insert("");
-    using  solution_type = vector<vector<string>>;
-    using result_type = pair<bool, solution_type>;
-    map<string, result_type> sub_solution;
-    sub_solution[""] = make_pair(true, solution_type(1, vector<string>(1, "")));
-    function<result_type(string&)> dfs = [&] (string& u) {
-        if (sub_solution.count(u) == 1) { // memoization
+    set<string> word_set (wordDict.begin(), wordDict.end());
+    using string_1d_vec_t = vector<string>;
+    using string_2d_vec_t = vector<string_1d_vec_t>;
+    map<string, string_2d_vec_t> sub_solution;
+    function<string_2d_vec_t(string)> dfs = [&] (string u) {
+        if (sub_solution.count(u)) { // memoization
             return sub_solution[u];
         }
-        sub_solution[u] = make_pair(false, solution_type());
-        for (int i=1; i<=(int)u.size(); ++i) {
-            string ul = u.substr(0, i);
-            if (dict_set.count(ul) == 0) { // prune useless branches
-                continue;
-            }
-            string ur = u.substr(i);
-            auto rr = dfs(ur);
-            if (rr.first) {
-                //cout << "[" << ul << ", " << ur << "]" << endl;
-                sub_solution[u].first = true;
-                for (auto& r: rr.second) {
-                    vector<string> candidate;
-                    candidate.insert(candidate.end(), ul);
-                    candidate.insert(candidate.end(), r.begin(), r.end());
-                    sub_solution[u].second.push_back(candidate);
+        string_2d_vec_t ans;
+        if (word_set.count(u)) { // test if u is in word_set
+            ans.push_back({u});
+        }
+        for (int i=1; i<(int)u.size(); i++) {
+            // split u at index i
+            // and test if lu and ru can be segmented into a space-separated sequence of one more dictionary word
+            auto l = dfs(u.substr(0, i));
+            auto r = dfs(u.substr(i));
+            if (!l.empty() && !r.empty()) {
+                for (const auto& li: l) {
+                    for (const auto& ri: r) {
+                        string_1d_vec_t one_vec;
+                        one_vec.insert(one_vec.end(), li.begin(), li.end());
+                        one_vec.insert(one_vec.end(), ri.begin(), ri.end());
+                        ans.push_back(one_vec);
+                    }
                 }
             }
         }
-        return sub_solution[u];
+        sub_solution[u] = ans;
+        return ans;
     };
-
-    auto res = dfs(input);
-    vector<string> ans;
-    if (res.first) {
-        for (auto& words: res.second) {
-            string candidate;
-            for (auto& w: words) {
-                if (w.empty()) { // skip empty string
-                    continue;
-                }
-                candidate.append(w);
-                candidate.push_back(' ');
-            }
-            candidate.pop_back(); // erase the last whitespace
-            //std::cout << candidate << std::endl;
-            ans.push_back(candidate);
+    string_2d_vec_t result = dfs(input);
+    set<string> ans;
+    for (const auto& one_vec: result) {
+        string candidate;
+        for (const auto& w: one_vec) {
+            candidate += w;
+            candidate.push_back(' ');
         }
+        candidate.pop_back();
+        ans.insert(candidate);
     }
-    return ans;
-}
-
+    return vector<string>(ans.begin(), ans.end());
 }
 
 

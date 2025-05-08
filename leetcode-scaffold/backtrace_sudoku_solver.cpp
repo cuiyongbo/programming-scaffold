@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 37, 51, 52 */
-
 class Solution {
 public:
     void solveSudoku(vector<vector<char>>& board);
@@ -45,7 +43,7 @@ private:
 */
 void Solution::solveSudoku(vector<vector<char>>& board) {
     auto is_valid = [&](int r, int c) {
-        // row
+        // iterate one row
         for (int i=0; i<9; i++) {
             if (i != c) {
                 if (board[r][i] == board[r][c]) {
@@ -53,7 +51,7 @@ void Solution::solveSudoku(vector<vector<char>>& board) {
                 }
             }
         }
-        // column
+        // iterate one column
         for (int i=0; i<9; i++) {
             if (i != r) {
                 if (board[i][c] == board[r][c]) {
@@ -61,7 +59,7 @@ void Solution::solveSudoku(vector<vector<char>>& board) {
                 }
             }
         }
-        //subgrid
+        // iterate one sub-grid
         int sr = r/3*3;
         int sc = c/3*3;
         for (int i=sr; i<sr+3; i++) {
@@ -75,25 +73,24 @@ void Solution::solveSudoku(vector<vector<char>>& board) {
         }
         return true;
     };
-
     function<bool(int, int)> backtrace = [&] (int r, int c) {
-        if (r == 9) {
+        if (r == 9) { // reach the end of the board
             return true;
         }
-        if (c == 9) {
+        if (c == 9) { // reach the end of row r, go to the next row
             return backtrace(r+1, 0);
         }
-        if (board[r][c] != '.') {
+        if (board[r][c] != '.') { // skip no empty cell
             return backtrace(r, c+1);
         }
         for (int i=1; i<10; i++) {
-            board[r][c] = i+'0';
+            board[r][c] = i+'0'; // test
             if (is_valid(r, c)) {
-                if (backtrace(r, c+1)) {
+                if (backtrace(r, c+1)) { // perform backtrace
                     return true;
                 }
             }
-            board[r][c] = '.';
+            board[r][c] = '.'; // restore
         }
         return false;
     };
@@ -105,38 +102,38 @@ void Solution::solveSudoku(vector<vector<char>>& board) {
 bool Solution::isValidQueen(vector<string>& board, int r, int c) {
     int n = board.size();
     for (int i=0; i<n; ++i) {
-        if (i!=c && board[r][i]=='Q') { // not necessary
+        if (i!=c && board[r][i]=='Q') { // check row r, not necessary
             return false;
         }
-        if (i!=r && board[i][c]=='Q') { // column
+        if (i!=r && board[i][c]=='Q') { // check column c
             return false;
         }
     }
     // check uniqueness alone each diagonal
-    // we take (r, c) as one end of each of the four diagonals: upper left, down right, down left, uppper right
+    // we take (r, c) as one end of each of the four diagonals: upper-left, down-right, down-left, uppper-right
     int i=r, j=c;
-    while (i>=0 && j>=0) { // upper left
+    while (i>=0 && j>=0) { // upper-left
         if (board[i][j] == 'Q') {
             return false;
         }
         i--; j--;
     }
     i=r, j=c;
-    while (i<n && j<n) { // down right
+    while (i<n && j<n) { // down-right
         if (board[i][j] == 'Q') {
             return false;
         }
         i++; j++;
     }
     i=r, j=c;
-    while (i<n && j>=0) { // down left
+    while (i<n && j>=0) { // down-left
         if (board[i][j] == 'Q') {
             return false;
         }
         i++; j--;
     }
     i=r, j=c;
-    while (i>=0 && j<n) { // upper right
+    while (i>=0 && j<n) { // upper-right
         if (board[i][j] == 'Q') {
             return false;
         }
@@ -147,26 +144,28 @@ bool Solution::isValidQueen(vector<string>& board, int r, int c) {
 
 
 /*
-    The n-queens puzzle is the problem of placing n queens on an n×n chessboard such that no two queens attack each other.
-    Given an integer n, return all distinct solutions to the n-queens puzzle.
-    Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' indicate a queen and an empty space respectively.
-    A valid configuration is such one that none of the n Queens share the same row, column, or diagonal. In this case, "diagonal" means all diagonals, not just the two that bisect the board.
+The n-queens puzzle is the problem of **placing n queens on an n×n chessboard** such that no two queens attack each other.
+Given an integer n, return all distinct solutions to the n-queens puzzle.
+Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' indicate a queen and an empty space respectively.
+A valid configuration is such one that none of the n Queens share the same row, column, or diagonal. In this case, "diagonal" means all diagonals, not just the two that bisect the board.
 */
 vector<vector<string>> Solution::solveNQueens(int n) {
     vector<vector<string>> ans;
-    vector<string> board(n, string(n, '.'));
+    vector<string> board(n, string(n, '.')); // nxn board
+    // we may put one Queen on each row
     function<void(int r)> backtrace = [&](int r) {
-        if (r == n) {
+        if (r == n) { // termination
             ans.push_back(board);
             return;
         }
         for (int c=0; c<n; c++) {
             // prune invalid branches
-            if (isValidQueen(board, r, c)) {
-                board[r][c] = 'Q';
-                backtrace(r+1);
-                board[r][c] = '.';
+            if (!isValidQueen(board, r, c)) {
+                continue;
             }
+            board[r][c] = 'Q';
+            backtrace(r+1);
+            board[r][c] = '.';
         }
     };
     backtrace(0);
@@ -175,22 +174,24 @@ vector<vector<string>> Solution::solveNQueens(int n) {
 
 
 /*
-    Given an integer n, return the number of distinct solutions to the n-queens puzzle.
+Given an integer n, return the number of distinct solutions to the n-queens puzzle.
 */
 int Solution::totalNQueens(int n) {
     int ans = 0;
     vector<string> board(n, string(n, '.'));
     function<void(int)> backtrace = [&](int r) {
-        if (r == n) {
+        if (r == n) { // termination
             ++ans;
             return;
         }
-        for (int i=0; i<n; i++) {
-            if (isValidQueen(board, r, i)) {
-                board[r][i] = 'Q';
-                backtrace(r+1);
-                board[r][i] = '.';
+        for (int c=0; c<n; c++) {
+            // prune invalid branches
+            if (!isValidQueen(board, r, c)) {
+                continue;
             }
+            board[r][c] = 'Q';
+            backtrace(r+1);
+            board[r][c] = '.';
         }
     };
     backtrace(0);

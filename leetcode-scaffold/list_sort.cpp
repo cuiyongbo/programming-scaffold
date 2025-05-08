@@ -12,11 +12,12 @@ public:
     ListNode* sortList(ListNode* head);
 };
 
-ListNode* Solution::mergeTwoLists(ListNode* l1, ListNode* l2) {
+
 /*
-    Merge two sorted linked lists and return it as a new sorted list. 
-    The new list should be made by splicing together the nodes of the first two lists. 
+Merge two sorted linked lists and return it as a new sorted list. 
+The new list should be made by splicing together the nodes of the first two lists. 
 */
+ListNode* Solution::mergeTwoLists(ListNode* l1, ListNode* l2) {
     ListNode dummy;
     ListNode* p = &dummy;
     while (l1 != nullptr && l2 != nullptr) {
@@ -32,17 +33,18 @@ ListNode* Solution::mergeTwoLists(ListNode* l1, ListNode* l2) {
     return dummy.next;
 }
 
-ListNode* Solution::mergeKLists(std::vector<ListNode*>& lists) {
+
 /*
-    Merge k sorted linked lists and return it as one sorted list.
+Merge k sorted linked lists and return it as one sorted list.
 */
+ListNode* Solution::mergeKLists(std::vector<ListNode*>& lists) {
     ListNode dummy;
     ListNode* p = &dummy;
-    // min-heap ordered by ListNode::val
+    // min-heap ordered by `ListNode::val`
     auto cmp = [] (ListNode* a, ListNode* b) {
         return a->val > b->val;
     };
-    std::priority_queue<ListNode*, std::vector<ListNode*>, decltype(cmp)> pq(cmp);
+    std::priority_queue<ListNode*, std::vector<ListNode*>, decltype(cmp)> pq(cmp); // min-heap
     for (auto t: lists) {
         if (t != nullptr) {
             pq.push(t);
@@ -59,10 +61,33 @@ ListNode* Solution::mergeKLists(std::vector<ListNode*>& lists) {
 }
 
 
-ListNode* Solution::insertionSortList(ListNode* head) {
 /*
-    Sort a linked list using insertion sort.
+Sort a linked list using insertion sort.
 */
+ListNode* Solution::insertionSortList(ListNode* head) {
+{
+    ListNode dummy;
+    while (head != nullptr) {
+        ListNode* tmp = head->next; // save next node
+        head->next = nullptr; // isolate head
+        // find the position to insert head
+        ListNode* p = &dummy;
+        while (p->next != nullptr) {
+            if (head->val < p->next->val) {
+                // head should be inserted after p
+                break;
+            }
+            p = p->next;
+        }
+        // insert head between p and p->next
+        head->next = p->next; p->next = head;
+        // update head
+        head = tmp;
+    }
+    return dummy.next;
+}
+
+{
     ListNode dummy;
     while (head != nullptr) {
         ListNode* tmp = head->next;
@@ -82,26 +107,29 @@ ListNode* Solution::insertionSortList(ListNode* head) {
     return dummy.next;
 }
 
+}
 
-ListNode* Solution::sortList(ListNode* head) {
+
 /*
-    Given the head of a linked list, return the list after sorting it in ascending order.
-    Follow up: Can you sort the linked list in O(n logn) time and O(1) memory (i.e. constant space)?
-    Hint: perform mergeSort on the list
-    For example, given an input [3,1,2], the path of execution is:
-        dac(3, null)
-            mid = 1
-            dac(3,1) -> [3,null]
-            dac(1,null)
-                mid = 2
-                dac(1,2) -> [1, null]
-                dac(2,null) -> [2, null]
-                merger: 1->2->null
-            merger: 1->2->3->null
+Given the head of a linked list, return the list after sorting it in ascending order.
+Follow up: Can you sort the linked list in O(n logn) time and O(1) memory (i.e. constant space)?
+Hint: perform mergeSort on the list
+For example, given an input [3,1,2], the path of execution is:
+    dac(3, null)
+        mid = 1
+        dac(3,1) -> [3,null]
+        dac(1,null)
+            mid = 2
+            dac(1,2) -> [1, null]
+            dac(2,null) -> [2, null]
+            merger: 1->2->null
+        merger: 1->2->3->null
 */
-    if (head == nullptr || head->next == nullptr) { // trivial case
+ListNode* Solution::sortList(ListNode* head) {
+    if (head == nullptr || head->next == nullptr) { // trivial case: empty list or list with only one node
         return head;
     }
+    // find the middle node with fast-slow pointer
     ListNode* fast = head;
     ListNode* slow = head;
     ListNode* p = slow;
@@ -113,9 +141,11 @@ ListNode* Solution::sortList(ListNode* head) {
         p = slow;
         slow = slow->next;
     }
-    p->next = nullptr; // IMPORTANT: split original list into two pieces
-    ListNode* l = sortList(head);
+    p->next = nullptr; // IMPORTANT: split original list into two isolated pieces
+    // divide
+    ListNode* l = sortList(head); // the original list has been splitted into two sublists at node p
     ListNode* r = sortList(slow);
+    // conquer
     return mergeTwoLists(l, r);
 }
 

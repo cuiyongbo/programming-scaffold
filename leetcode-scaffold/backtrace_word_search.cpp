@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 79, 212 */
-
 class Solution {
 public:
     bool exist(const vector<vector<char>>& board, const string& word);
@@ -13,26 +11,28 @@ public:
 
 
 /*
-    Given a 2D board and a word, find if the word exists in the grid.
-    The word can be constructed from letters of sequentially adjacent cell, 
-    where “adjacent” cells are those horizontally or vertically neighboring. 
-    **The same letter cell may not be used more than once.**
+Given a 2D board and a word, find if the word exists in the grid.
+The word can be constructed from letters of sequentially adjacent cell, 
+where “adjacent” cells are those horizontally or vertically neighboring. 
+**The same letter cell may not be used more than once.**
 */
 bool Solution::exist(const vector<vector<char>>& board, const string& word) {
     int rows = board.size();
     int columns = board[0].size();
     vector<vector<bool>> used(rows, vector<bool>(columns, false));
-    // take care of corner case: the length of word is equal to rows*columns
+    // take care of corner cases: the length of word is equal to rows*columns
     function<bool(int, int, int)> backtrace = [&] (int r, int c, int u) {
-        if (u == word.size()) {
+        if (u == (int)word.size()) { // termination
             return true;
         }
+        // prune invalid branches
         if (r<0 || r>=rows || c<0 || c>=columns || used[r][c]) {
             return false;
         }
         if (board[r][c] != word[u]) {
             return false;
         }
+        // perform backtrace
         used[r][c] = true;
         // IMPORTANT: we have to perform test outside the loop
         for (auto& d: directions) {
@@ -42,6 +42,7 @@ bool Solution::exist(const vector<vector<char>>& board, const string& word) {
                 return true;
             }
         }
+        // restore
         used[r][c] = false;
         return false;
     };
@@ -58,10 +59,10 @@ bool Solution::exist(const vector<vector<char>>& board, const string& word) {
 
 
 /*
-    Given a 2D board and a list of words from the dictionary, find all words in the board.
-    Each word must be constructed from letters of sequentially adjacent cell, 
-    where “adjacent” cells are those horizontally or vertically neighboring. 
-    **The same letter cell may not be used more than once in a word.**
+Given a 2D board and a list of words from the dictionary, find all words in the board.
+Each word must be constructed from letters of sequentially adjacent cell, 
+where “adjacent” cells are those horizontally or vertically neighboring. 
+**The same letter cell may not be used more than once in a word.**
 */
 vector<string> Solution::findWords(const vector<vector<char>>& board, const vector<string>& words) {
     vector<string> ans;

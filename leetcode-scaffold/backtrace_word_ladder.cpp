@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 126, 127, 752, 818 */
-
 class Solution {
 public:
     int ladderLength(string beginWord, string endWord, vector<string>& wordList);
@@ -14,7 +12,7 @@ public:
 private:
     bool is_valid_transformation(string t, string w) {
         int diff = 0;
-        for (int i=0; i<t.size(); ++i) {
+        for (int i=0; i<(int)t.size(); ++i) {
             if (t[i] != w[i]) {
                 ++diff;
             }
@@ -25,22 +23,22 @@ private:
 
 
 /*
-    Given two words (beginWord and endWord), and a dictionary’s word list, find the length of shortest transformation sequence from beginWord to endWord, 
-    Return 0 if there is no such transformation sequence.
-    such that:
-        Only one letter can be changed at a time.
-        Each transformed word must exist in the word list. Note that beginWord is not a transformed word.
-    For example, Given:
-        beginWord = "hit"
-        endWord = "cog"
-        wordList = ["hot","dot","dog","lot","log","cog"]
-    As one shortest transformation is "hit" -> "hot" -> "dot" -> "dog" -> "cog", return its length 5.
-    Note:
-        All words have the same length.
-        All words contain only lowercase alphabetic characters.
-        You may assume no duplicates in the word list.
-        You may assume beginWord and endWord are non-empty and are not the same.
-    Hint: use bfs(recommended)/dfs to find the shortest path from beginWord to endWord
+Given two words (beginWord and endWord), and a dictionary’s word list, find the length of the shortest transformation sequence from beginWord to endWord, 
+Return 0 if there is no such transformation sequence.
+such that:
+    Only one letter can be changed at a time.
+    Each transformed word must exist in the word list. Note that beginWord is not a transformed word.
+For example, Given:
+    beginWord = "hit"
+    endWord = "cog"
+    wordList = ["hot","dot","dog","lot","log","cog"]
+As one shortest transformation is "hit" -> "hot" -> "dot" -> "dog" -> "cog", return its length 5.
+Note:
+    All words have the same length.
+    All words contain only lowercase alphabetic characters.
+    You may assume no duplicates in the word list.
+    You may assume beginWord and endWord are non-empty and are not the same.
+Hint: use bfs(recommended)/dfs to find the shortest path from beginWord to endWord
 */
 int Solution::ladderLength(string beginWord, string endWord, vector<string>& wordList) {
 
@@ -50,10 +48,9 @@ int Solution::ladderLength(string beginWord, string endWord, vector<string>& wor
     vector<bool> used(sz, false);
     queue<string> q; q.push(beginWord);
     while (!q.empty()) {
-        int size = q.size();
-        for (int i=0; i<size; ++i) {
+        for (int k=q.size(); k!=0; k--) {
             auto u = q.front(); q.pop();
-            if (u == endWord) {
+            if (u == endWord) { // termination
                 return steps+1; // add endWord
             }
             for (int v=0; v<sz; ++v) {
@@ -96,105 +93,62 @@ int Solution::ladderLength(string beginWord, string endWord, vector<string>& wor
     return 0;
 }
 
-{ // dfs solution
-    // preprocess
-    std::sort(wordList.begin(), wordList.end());
-    auto it = std::unique(wordList.begin(), wordList.end());
-    wordList.erase(it, wordList.end());
-
-    int ans = INT32_MAX;
-    int sz = wordList.size();
-    vector<bool> used(sz, false);
-    vector<string> candidate; candidate.push_back(beginWord);
-    function<void(int)> dfs = [&] (int u) {
-        if (candidate.back() == endWord) { // reach the destination
-#ifdef DEBUG
-            std::copy(candidate.begin(), candidate.end(), std::ostream_iterator<string>(cout, ","));
-            cout << endl;
-#endif
-            ans = min(ans, (int)candidate.size());
-            return;
-        }
-        if (u == sz) { // unreachable
-            return;
-        }
-        for (int i=0; i<sz; ++i) {
-            if (used[u] || candidate.size() > ans) { // prune useless branches
-                continue;
-            }
-            if (wordList[i] == beginWord) { // avoid loop!!!
-                continue;
-            }
-            if (is_valid_transformation(candidate.back(), wordList[i])) {
-                used[i] = true;
-                candidate.push_back(wordList[i]);
-                dfs(u+1);
-                candidate.pop_back();
-                used[i] = false;
-            }
-        }
-    };
-    dfs(0);
-    return ans == INT32_MAX ? 0 : ans;
-}
-
 }
 
 
 /*
-    Given two words (beginWord and endWord), and a dictionary’s word list, 
-    find all shortest transformation sequence(s) from beginWord to endWord, such that:
-        Only one letter can be changed at a time
-        Each transformed word must exist in the word list. Note that beginWord is not a transformed word.
-    Return an empty list if there is no such transformation sequence.
-    For example, Given:
-        beginWord = "hit"
-        endWord = "cog"
-        wordList = ["hot","dot","dog","lot","log","cog"]
-    Return
-        [
-            ["hit","hot","dot","dog","cog"],
-            ["hit","hot","lot","log","cog"]
-        ]
-    Note:
-        All words have the same length.
-        All words contain only lowercase alphabetic characters.
-        You may assume no duplicates in the word list.
-        You may assume beginWord and endWord are non-empty and are not the same.
+Given two words (beginWord and endWord), and a dictionary’s word list, 
+find all shortest transformation sequence(s) from beginWord to endWord, such that:
+    Only one letter can be changed at a time
+    Each transformed word must exist in the word list. Note that beginWord is not a transformed word.
+Return an empty list if there is no such transformation sequence.
+For example, Given:
+    beginWord = "hit"
+    endWord = "cog"
+    wordList = ["hot","dot","dog","lot","log","cog"]
+Return
+    [
+        ["hit","hot","dot","dog","cog"],
+        ["hit","hot","lot","log","cog"]
+    ]
+Note:
+    All words have the same length.
+    All words contain only lowercase alphabetic characters.
+    You may assume no duplicates in the word list.
+    You may assume beginWord and endWord are non-empty and are not the same.
 */
 vector<vector<string>> Solution::findLadders(string beginWord, string endWord, vector<string>& wordList) {
     vector<vector<string>> ans;
-    // we need to find the best_path_len first before performing dfs search, otherwise dfs would spend too much time on invalid path
+    // we need to find the best_path_len first before performing dfs search, otherwise backtrace would spend too much time on invalid paths
     int best_path_len = ladderLength(beginWord, endWord, wordList);
     vector<string> path; path.push_back(beginWord); // initialize path, visited with start node
     set<string> visited; visited.insert(beginWord);
     function<void(string)> backtrace = [&] (string u) {
-        //SPDLOG_INFO("{}, depth: {}, best_path_len: {}", u, path.size(), best_path_len);
         // prune invalid branches
-        if (path.size() > best_path_len) {
+        if ((int)path.size() > best_path_len) {
             return;
         }
         if (u == endWord) {
-            if (path.size() < best_path_len) {
+            if ((int)path.size() < best_path_len) {
                 ans.clear();
                 best_path_len = path.size();
             }
-            // DEBUG
             ans.push_back(path);
             return;
         }
-        for (int i=0; i<wordList.size(); i++) {
+        for (int i=0; i<(int)wordList.size(); i++) {
             if (visited.count(wordList[i])) {
                 continue;
             }
             // prune invalid branches
-            if (is_valid_transformation(u, wordList[i])) {
-                visited.insert(wordList[i]);
-                path.push_back(wordList[i]);
-                backtrace(wordList[i]);
-                path.pop_back();
-                visited.erase(wordList[i]);
+            if (!is_valid_transformation(u, wordList[i])) {
+                continue;
             }
+            visited.insert(wordList[i]);
+            path.push_back(wordList[i]);
+            backtrace(wordList[i]);
+            path.pop_back();
+            visited.erase(wordList[i]);
         }
     };
     backtrace(beginWord);
@@ -202,20 +156,20 @@ vector<vector<string>> Solution::findLadders(string beginWord, string endWord, v
 }
 
 
-int Solution::openLock(vector<string>& deadends, string target) {
 /*
-    You have a lock in front of you with 4 circular wheels. Each wheel has 10 slots: '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'. 
-    The wheels can rotate freely and wrap around: for example we can turn '9' to be '0', or '0' to be '9'. **Each move consists of turning one wheel one slot.**
-    The lock initially starts at '0000', a string representing the state of the 4 wheels.
-    You are given a list of deadends, meaning if the lock displays any of these codes, the wheels of the lock will stop turning and you will be unable to open it.
-    Given a target representing the value of the wheels that will unlock the lock, return the minimum total number of turns required to open the lock, or -1 if it is impossible.
-    Note:
-        The length of deadends will be in the range [1, 500].
-        target will not be in the list deadends.
-        Every string in deadends and the string target will be a string of 4 digits from the 10,000 possibilities '0000' to '9999'.
-    
-    Hint: BFS or Bidirectional BFS
+You have a lock in front of you with 4 circular wheels. Each wheel has 10 slots: '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'. 
+The wheels can rotate freely and wrap around: for example we can turn '9' to be '0', or '0' to be '9'. **Each move consists of turning one wheel one slot.**
+The lock initially starts at '0000', a string representing the state of the 4 wheels.
+You are given a list of deadends, meaning if the lock displays any of these codes, the wheels of the lock will stop turning and you will be unable to open it.
+Given a target representing the value of the wheels that will unlock the lock, return the minimum total number of turns required to open the lock, or -1 if it is impossible.
+Note:
+    The length of deadends will be in the range [1, 500].
+    target will not be in the list deadends.
+    Every string in deadends and the string target will be a string of 4 digits from the 10,000 possibilities '0000' to '9999'.
+
+Hint: BFS or Bidirectional BFS
 */
+int Solution::openLock(vector<string>& deadends, string target) {
 
 if (0) { // naive bfs
     int steps = 0;
@@ -229,16 +183,17 @@ if (0) { // naive bfs
     while (!q.empty()) {
         for (int k=q.size(); k!=0; k--) {
             auto u = q.front(); q.pop();
-            if (u == target) {
+            if (u == target) { // early stop
                 return steps;
             }
-            for (int i=0; i<4; i++) {
+            for (int i=0; i<4; i++) { // test moving each digit
                 for (auto d: {-1, 1}) {
-                    char c = u[i];
-                    u[i] = u[i] + d;
-                    if (u[i] < '0') {
+                    char c = u[i]; // save original u[i] for restoring since we may clamp u[i] after transformation 
+                    u[i] += d;
+                    // range clamp
+                    if (u[i] < '0') { // 0->9
                         u[i] = '9';
-                    } else if (u[i] > '9') {
+                    } else if (u[i] > '9') { // 9->0
                         u[i] = '0';
                     }
                     if (forbidden.count(u)==0 && visited.count(u)==0) {
@@ -260,16 +215,18 @@ if (0) { // naive bfs
     if (forbidden.count(start) != 0 || forbidden.count(target) != 0) {
         return -1;
     }
+    // forward traversal from start
     int forward_steps = 0;
     queue<string> q1; q1.push(start);
     set<string> v1; v1.emplace(start);
+    // backward traversal from target
     int backward_steps = 0;
     queue<string> q2; q2.push(target);
     set<string> v2; v2.emplace(target);
     auto routeStep = [&] (queue<string>& q, set<string>& visited, set<string>& reverse_visited) {
         for (int k=q.size(); k!=0; --k) {
             auto u = q.front(); q.pop();
-            if (reverse_visited.count(u)) {
+            if (reverse_visited.count(u)) { // ok, forward traversal meets backward traversal
                 return true;
             }
             for (int i=0; i<4; i++) {
@@ -308,12 +265,12 @@ if (0) { // naive bfs
 
 
 /*
-    Your car starts at position 0 and speed=1 on an infinite number line. (Your car can go into negative positions.)
-    Your car drives automatically according to a sequence of instructions A (accelerate) and R (reverse).
-    When you get an instruction “A”, your car does the following: position += speed, speed *= 2.
-    When you get an instruction “R”, your car does the following: if your speed is positive then speed = -1 , otherwise speed = 1. (Your position stays the same.)
-    For example, after commands “AAR”, your car goes to positions 0->1->3->3, and your speed goes to 1->2->4->-1.
-    Now for some target position, say the length of the shortest sequence of instructions to get there.
+Your car starts at position 0 and speed=1 on an infinite number line. (Your car can go into negative positions.)
+Your car drives automatically according to a sequence of instructions A (accelerate) and R (reverse).
+When you get an instruction “A”, your car does the following: position += speed, speed *= 2.
+When you get an instruction “R”, your car does the following: if your speed is positive then speed = -1 , otherwise speed = 1. (Your position stays the same.)
+For example, after commands “AAR”, your car goes to positions 0->1->3->3, and your speed goes to 1->2->4->-1.
+Now for some target position, say the length of the shortest sequence of instructions to get there.
 */
 int Solution::racecar(int target) {
 
@@ -325,13 +282,14 @@ int Solution::racecar(int target) {
     while (!q.empty()) {
         for (int k=q.size(); k!=0; k--) {
             auto t = q.front(); q.pop();
-            if (t.first == target) {
+            if (t.first == target) { // termination
                 return steps;
             }
             element_t p;
             // accelerate
-            // we won't choose acceleration if we would surpassed target after accelerating next time
             p = std::make_pair(t.first+t.second, t.second*2);
+            // we won't choose acceleration if we would surpassed target after accelerating next time
+            // we may surpass target once, but should not do it twice
             if (p.first <= 2*target && visited.count(p) == 0) {
                 q.push(p);
                 visited.insert(p);

@@ -2,96 +2,12 @@
 
 using namespace std;
 
-/* leetcode: 131, 89 */
-
+/* leetcode: 89 */
 class Solution {
 public:
-    vector<vector<string>> partition(string s);
     vector<int> grayCode(int n);
-
-private:
-    bool is_palindrome(const string& input) {
-        int sz = input.size();
-        for (int i=0; i<sz/2; i++) {
-            if (input[i] != input[sz-1-i]) {
-                return false;
-            }
-        }        
-        return true;
-    }
 };
 
-
-/*
-Given a string s, partition s such that every substring of the partition is a palindrome. Return all possible palindrome partitioning of s.
-For example, given an input "aab", one possible output would be [["aa","b"],["a","a","b"]]
-*/
-vector<vector<string>> Solution::partition(string s) {
-
-{
-    int sz = s.size();
-    vector<vector<string>> ans;
-    vector<string> candidate;
-    function<void(int)> backtrace = [&] (int u) {
-        if (u == sz) {
-            ans.push_back(candidate);
-            return;
-        }
-        for (int i=u; i<sz; i++) {
-            auto sub = s.substr(u, i-u+1);
-            if (is_palindrome(sub)) {
-                candidate.push_back(sub);
-                backtrace(i+1);
-                candidate.pop_back();
-            }
-        }
-    };
-    backtrace(0);
-    return ans;
-}
-
-{ // backtrace with memoization
-    typedef vector<vector<string>> result_type;
-    typedef pair<bool,result_type> element_type;
-    map<string, element_type> sub_solution_mp;
-    sub_solution_mp[""] = make_pair(true, result_type());
-    function<element_type(string)> worker = [&] (string input) {
-        if (sub_solution_mp.count(input) == 1) { // memoization
-            return sub_solution_mp[input];
-        }
-
-        result_type ans;
-        bool valid = false;
-        for (int i=0; i<input.size(); ++i) {
-            auto left = input.substr(0, i+1);
-            if (!is_palindrome(left)) {
-                continue;
-            }
-            auto right = input.substr(i+1);
-            auto rr = worker(right);
-            if (rr.first) {
-                valid = true;
-                if (rr.second.empty()) {
-                    vector<string> candidate;
-                    candidate.insert(candidate.end(), left);
-                    ans.push_back(candidate);
-                }
-                for (auto& p: rr.second) {
-                    vector<string> candidate;
-                    candidate.insert(candidate.end(), left);
-                    candidate.insert(candidate.end(), p.begin(), p.end());
-                    ans.push_back(candidate);
-                }
-            }
-        }
-        //cout << input << "(" << valid << ", " << ans.size() << ")" << endl;
-        sub_solution_mp[input] = make_pair(valid, ans);
-        return sub_solution_mp[input];
-    };
-    return worker(s).second;
-}
-
-}
 
 /*
 The gray code is a binary numeral system where two successive values differ in only one bit. A gray code sequence must begin with 0.
@@ -134,26 +50,6 @@ vector<int> Solution::grayCode(int n) {
 }
 
 
-void partition_scaffold(string input, string expectedResult) {
-    Solution ss;
-    auto expected = stringTo2DArray<string>(expectedResult);
-    auto actual = ss.partition(input);
-    std::sort(actual.begin(), actual.end());
-    std::sort(expected.begin(), expected.end());
-    if (actual == expected) {
-        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
-    } else {
-        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual:", input, expectedResult);
-        for (const auto& s1: actual) {
-            for (const auto& s2: s1) {
-                std::cout << s2 << ",";
-            }
-            std::cout << std::endl;
-        }
-    }
-}
-
-
 void grayCode_scaffold(int input, string expectedResult) {
     Solution ss;
     auto expected = stringTo1DArray<int>(expectedResult);
@@ -167,13 +63,6 @@ void grayCode_scaffold(int input, string expectedResult) {
 
 
 int main() {
-    SPDLOG_WARN("Running partition tests:");
-    TIMER_START(partition);
-    partition_scaffold("aab", "[[a,a,b],[aa,b]]");
-    partition_scaffold("aba", "[[a,b,a],[aba]]");
-    TIMER_STOP(partition);
-    SPDLOG_WARN("partition tests use {} ms", TIMER_MSEC(partition));
-
     SPDLOG_WARN("Running grayCode tests:");
     TIMER_START(grayCode);
     grayCode_scaffold(0, "[0]");
