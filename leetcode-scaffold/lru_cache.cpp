@@ -48,55 +48,11 @@ Explanation
 
 namespace std_implementation {
 
-/*
 class LRUCache {
-public:
-    LRUCache(int cap) {
-        m_capacity = cap;
-    }
-
-    int get(int key) {
-        if (m_node_map.count(key) == 0) {
-            return -1;
-        }
-        int val = m_node_map[key]->second;
-        put(key, val);
-        return val;
-    }
-
-    void put(int key, int value) {
-        if (m_node_map.count(key)) {
-            m_nodes.erase(m_node_map[key]);
-        } else {
-            if (m_capacity == m_nodes.size()) {
-                m_node_map.erase(m_nodes.back().first);
-                m_nodes.pop_back();
-            }
-        }
-        m_nodes.push_front(std::make_pair(key, value));
-        m_node_map[key] = m_nodes.begin();
-    }
-
-    void display() {
-        for (auto it: m_nodes) {
-            printf("(%d,%d)", it.first, it.second);
-        }
-        printf("\n");
-    }
-
-private:
-    unordered_map<int, list<pair<int, int>>::iterator> m_node_map;
-    list<pair<int, int>> m_nodes;
-    int m_capacity;
-};*/
-
-
-class LRUCache
-{
 private:
     std::mutex m_mutex;
     int m_cap;
-    std::list<pair<int, int>> m_nodes;
+    std::list<pair<int, int>> m_nodes; // <key, value>
     std::map<int, list<pair<int, int>>::iterator> m_node_map;
     /* data */
 public:
@@ -120,12 +76,12 @@ void LRUCache::put_without_lock(int key, int value) {
     } else { // key doesn't exist
         if (m_nodes.size() == m_cap) {
             auto b = m_nodes.back();
-            m_node_map.erase(b.first);
-            m_nodes.pop_back();
+            m_node_map.erase(b.first); // first remove iterator from the map
+            m_nodes.pop_back(); // then remove iterator from the list
         }
     }
-    m_nodes.push_front(std::make_pair(key, value));
-    m_node_map[key] = m_nodes.begin();
+    m_nodes.push_front(std::make_pair(key, value)); // move <key, value> to the front of the list
+    m_node_map[key] = m_nodes.begin(); // update map
 }
 
 int LRUCache::get(int key) {
@@ -134,6 +90,12 @@ int LRUCache::get(int key) {
     if (it == m_node_map.end()) {
         return -1;
     }
+    // you need to change the position of key in the list
+    /*
+    Transfers elements from one list to another.
+    No elements are copied or moved, only the internal pointers of the list nodes are re-pointed.
+    No iterators or references become invalidated, the iterators to moved elements remain valid, but now refer into *this, not into other.
+    */
     m_nodes.splice(m_nodes.begin(), m_nodes, it->second); // move key to the front of m_nodes
     return it->second->second;
 }
@@ -161,6 +123,7 @@ public:
         if (it == m_node_map.end()) {
             return -1;
         } else {
+            // you need to change the position of key in the list
             m_nodes.splice(m_nodes.begin(), m_nodes, it->second); // move key to the front of m_nodes
             return it->second->second;
         }
@@ -223,5 +186,7 @@ int main() {
     lru.display();  // (2,22)(4,40)(3,30)
     p = lru.get(2);
     assert(p == 22);
+    assert(p == 2);
     lru.display();  // (2,22)(4,40)(3,30)
+    cout << p << endl;
 }

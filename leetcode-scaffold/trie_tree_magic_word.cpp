@@ -2,10 +2,8 @@
 #include "util/trie_tree.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 676 */
-
 /*
     Implement a magic directory with buildDict, and search methods.
     For the method buildDict, you’ll be given a list of non-repetitive words to build a dictionary.
@@ -20,18 +18,17 @@ using namespace osrm;
         Input: search("hell"), Output: False
         Input: search("leetcoded"), Output: False
 */
-
 class MagicDictionary {
 public:
     void buildDict(const vector<string>& dict);
     bool search(string word);
 private:
-    TrieTree m_trieTree;
+    TrieTree m_trie_tree;
 };
 
 void MagicDictionary::buildDict(const vector<string>& dict) {
     for (const auto& s: dict) {
-        m_trieTree.insert(s);
+        m_trie_tree.insert(s);
     }
 }
 
@@ -43,7 +40,7 @@ bool MagicDictionary::search(string word) {
             }
             char prev = word[i];
             word[i] = c;
-            if (m_trieTree.search(word)) {
+            if (m_trie_tree.search(word)) {
                 return true;
             }
             word[i] = prev;

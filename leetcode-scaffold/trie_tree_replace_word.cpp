@@ -4,7 +4,6 @@
 using namespace std;
 
 /* leetcode: 648, 720 */
-
 class Solution {
 public:
     string replaceWords(vector<string>& dict, string sentence);
@@ -12,45 +11,14 @@ public:
 };
 
 /*
-    In English, we have a concept called root, which can be followed by some other words to form another longer word – let’s call this word successor. 
-    For example, the root `an`, followed by `other`, which can form another word `another`.
-    Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor in the sentence with the root forming it. 
-    If a successor has many roots can form it, replace it with the root with the shortest length. You need to output the sentence after the replacement.
-    You may assume that all the inputs consist of lowercase letters a-z.
+In English, we have a concept called root, which can be followed by some other words to form another longer word – let’s call this word successor. 
+For example, the root `an`, followed by `other`, which can form another word `another`.
+Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor in the sentence with the root forming it. 
+If a successor has many roots can form it, replace it with the root with the shortest length. You need to output the sentence after the replacement.
+You may assume that all the inputs consist of lowercase letters a-z.
 */
 string Solution::replaceWords(vector<string>& dict, string sentence) {
-{
-    TrieTree tree;
-    for (auto& d: dict) {
-        tree.insert(d);
-    }
-
-    function<string(string)> find_root = [&] (string word) {
-        TrieNode* p = tree.root();
-        string root;
-        for (auto c: word) {
-            if (p->children[c] == nullptr) {
-                return word;
-            }
-            root.push_back(c);
-            if (p->children[c]->is_leaf) {
-                return root;
-            }
-            p = p->children[c];
-        }
-        return word;
-    };
-
-    string ans;
-    stringstream oss(sentence);
-    for(string word; std::getline(oss, word, ' '); ) {
-        ans.append(find_root(word));
-        ans.push_back(' ');
-    }
-    ans.pop_back();
-    return ans;
-}
-
+    // build the tri tree from dict
     TrieTree tree;
     for (auto& d: dict) {
         tree.insert(d);
@@ -59,21 +27,22 @@ string Solution::replaceWords(vector<string>& dict, string sentence) {
         TrieNode* p = tree.root();
         string root;
         for (auto c: word) {
-            if (p->children[c] == nullptr) {
+            if (p->children[c] == nullptr) { // there is not root for word in the tree
                 break;
             }
             root.push_back(c);
             p = p->children[c];
-            if (p->is_leaf) {
+            if (p->is_leaf) {  // stop at the shortest root
                 return root;
             }
         }
         return word;
     };
     string ans;
-    // split sentence by whitespace
     std::stringstream ss(sentence);
+    // split sentence by whitespace
     for (std::string word; std::getline(ss, word, ' ');) {
+        //printf("[%s]\n", word.c_str());
         ans.append(word_root(word) + " ");
     }
     ans.pop_back();
@@ -81,12 +50,14 @@ string Solution::replaceWords(vector<string>& dict, string sentence) {
 }
 
 /*
-    Given a list of strings words representing an English Dictionary, find the longest word in words that can be built one character at 
-    a time by other words in words. If there is more than one possible answer, return the longest word with the smallest lexicographical order.
-    If there is no answer, return the empty string. For example, given an input words=[w,wo,wor,worl,world], the output is "world",
-    The word "world" can be built one character at a time by "w", "wo", "wor", and "worl".
+Given a list of strings words representing an English Dictionary, find the longest word in words that can be built one character at 
+a time by other words in words. If there is more than one possible answer, return the longest word with the smallest lexicographical order.
+If there is no answer, return the empty string. For example, given an input words=[w,wo,wor,worl,world], the output is "world",
+The word "world" can be built one character at a time by "w", "wo", "wor", and "worl".
+You may assume that all the inputs consist of lowercase letters a-z.
 */
 string Solution::longestWord(vector<string>& words) {
+    // build the trie tree
     TrieTree tree;
     for (const auto& w: words) {
         tree.insert(w);
@@ -100,7 +71,7 @@ string Solution::longestWord(vector<string>& words) {
         for (int i='a'; i<='z'; ++i) {
             auto ch = p->children[i];
             // we expect a leaf node at every step
-            if (ch == nullptr || !ch->is_leaf) {
+            if (ch == nullptr || !ch->is_leaf) { // prune invalid branches
                 continue;
             }
             buffer.push_back(i);

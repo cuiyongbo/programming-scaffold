@@ -17,8 +17,8 @@ Implement the Trie class:
 namespace naive_version {
 class Trie {
 struct TrieNode {
-    bool is_end;
-    map<char, TrieNode*> children;
+    bool is_end; // true if there is some word ending with current node
+    map<char, TrieNode*> children; // nodes after current nodes
     TrieNode(): is_end(false) {}
     ~TrieNode() {
         for (auto t: children) {
@@ -27,23 +27,24 @@ struct TrieNode {
     }
 };
 private:
-    TrieNode m_root;
+    TrieNode m_root; // root of trie tree
+
 public:
     void insert(string word) {
-        TrieNode* p = &m_root;
+        TrieNode* p = &m_root; // start from the root
         for (auto c: word) {
-            if (p->children.count(c) == 0) {
+            if (p->children.count(c) == 0) { // create node if it doesn't exist yes
                 p->children[c] = new TrieNode;
             }
-            p = p->children[c];
+            p = p->children[c]; // go to the next node
         }
-        p->is_end = true;
+        p->is_end = true; // mark the end of word
     }
     
     bool search(string word) {
         TrieNode* p = &m_root;
         for (auto c: word) {
-            if (p->children.count(c) == 0) {
+            if (p->children.count(c) == 0) { // every node for the character in the word must exist
                 return false;
             }
             p = p->children[c];
@@ -65,6 +66,7 @@ public:
 
 }
 
+
 void TrieTree_scaffold(string operations, string args, string expectedOutputs) {
     vector<string> funcOperations = stringTo1DArray<string>(operations);
     vector<vector<string>> funcArgs = stringTo2DArray<string>(args);
@@ -75,7 +77,7 @@ void TrieTree_scaffold(string operations, string args, string expectedOutputs) {
     for (int i=0; i<n; ++i) {
         if (funcOperations[i] == "insert") {
             tm.insert(funcArgs[i][0]);
-            SPDLOG_INFO("{}({}) passed", funcOperations[i]);
+            SPDLOG_INFO("{}({}) passed", funcOperations[i], funcArgs[i][0]);
         } else if (funcOperations[i] == "search" || funcOperations[i] == "startsWith") {
             bool actual = funcOperations[i] == "search" ? 
                                 tm.search(funcArgs[i][0]) :
@@ -109,20 +111,19 @@ Output: [1,2]
 class Solution {
 public:
     vector<int> lexicalOrder(int n) {
-        vector<int> ans;
-        ans.reserve(n);
+        vector<int> ans; ans.reserve(n);
         std::function<void(int)> dfs = [&] (int cur) {
-            if (cur > n) { // stop traversing
+            if (cur > n) { // termination
                 return;
             }
             ans.push_back(cur);
             // at each level traverse each digit in ascending order
-            for (int i=0; i<10; i++) {
+            for (int i=0; i<=9; i++) {
                 dfs(cur*10 + i);
             }
         };
-        // traverse a number from MSB to LSB, and MSB can't be zero
-        for (int i=1; i<10; i++) {
+        // traverse a number from MSB to LSB. NOTE that MSB can't be zero
+        for (int i=1; i<=9; i++) {
             dfs(i);
         }
         return ans;

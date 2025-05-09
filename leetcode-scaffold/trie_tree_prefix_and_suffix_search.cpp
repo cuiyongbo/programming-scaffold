@@ -19,7 +19,6 @@ Note:
     * `prefix, suffix` have lengths in range `[0, 10]`.
     * `words[i]` and `prefix, suffix` queries consist of lowercase letters only.
 */
-
 class WordFilter {
 struct FilterNode {
     FilterNode() {
@@ -54,9 +53,9 @@ void WordFilter::buildDict(const vector<string>& dict) {
 
 
 void WordFilter::insert(const string& key, int val){
-    FilterNode* cur = &m_root;
+    FilterNode* cur = &m_root; // start from root of the tree
     for (auto c: key) {
-        if (cur->children[c] == nullptr) {
+        if (cur->children[c] == nullptr) { // create node i
             cur->children[c] = new FilterNode;
         }
         cur = cur->children[c];
@@ -80,22 +79,24 @@ int WordFilter::filter(const string& prefix, const string& suffix) {
     }
     // traverse from the enter pointer, finding the candidate with maximum weight
     int ans = -1;
-    std::string buffer = prefix;
+    std::string candidate = prefix;
     function<void(FilterNode*)> backtrace = [&] (FilterNode* node) {
         if (node == nullptr) {
             return;
         }
         if (node->is_leaf) {
-            if (buffer.ends_with(suffix)) { // need C++20
+            if (candidate.ends_with(suffix)) { // need C++20
                 ans = max(ans, node->val);
             }
         }
         for (char c='a'; c<='z'; ++c) {
             if (node->children[c] != nullptr) {
-                buffer.push_back(c);
-                backtrace(node->children[c]);
-                buffer.pop_back();
+                continue;
             }
+            // perform backtrace
+            candidate.push_back(c);
+            backtrace(node->children[c]);
+            candidate.pop_back();
         }
     };
     backtrace(p);

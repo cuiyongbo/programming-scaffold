@@ -46,11 +46,12 @@ private:
 void MapSum::insert(const string& key, int val) {
     MapNode* p = &m_root;
     for (auto c: key) {
-        if (p->children[c] == nullptr) {
+        if (p->children[c] == nullptr) { // create a node if it doesn't exist yet
             p->children[c] = new MapNode;
         }
         p = p->children[c];
     }
+    // set node value
     p->is_leaf = true;
     p->val = val;
 }
@@ -70,11 +71,11 @@ int MapSum::sum(const string& prefix) {
     // traverse from the enter pointer, and sum values of all leaf nodes
     // return the sum of subtree rooted at node
     function<int(MapNode*)> dfs = [&] (MapNode* node) {
-        if (node == nullptr) {
+        if (node == nullptr) { //trivial case
             return 0;
         }
         int ans = 0;
-        if (node->is_leaf) {
+        if (node->is_leaf) { // sum up the values of leaf node
             ans += node->val;
         }
         for (auto c: node->children) {

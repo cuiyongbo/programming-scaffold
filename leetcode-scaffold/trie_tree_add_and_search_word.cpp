@@ -19,7 +19,6 @@ Example:
     search(".ad") -> true
     search("b..") -> true
 */
-
 class WordDictionary {
 public:
     void addWord(const string& word);
@@ -32,29 +31,31 @@ private:
 void WordDictionary::addWord(const string& word) {
     m_tree.insert(word);
 }
-    
+
+
 /** Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter. */
 bool WordDictionary::search(const std::string& word) {
     std::function<bool(TrieNode*, int)> backtrace = [&] (TrieNode* node, int u) {
-        if (node == nullptr) {
+        if (node == nullptr) { // trivial case
             return false;
         }
-        if (u == word.size()) {
+        if (u == (int)word.size()) { // termination
             return node->is_leaf;
         }
-        if (word[u] == '.') {
+        if (word[u] == '.') { // try every candidate
             for (auto c: node->children) {
                 if (backtrace(c, u+1)) { // return true if there is a possible match
                     return true;
                 }
             }
             return false;
-        } else {
+        } else { // require an exact match
             return backtrace(node->children[word[u]], u+1);
         }
     };
     return backtrace(m_tree.root(), 0);
 }
+
 
 void WordFilter_scaffold(string operations, string args, string expectedOutputs) {
     vector<string> funcOperations = stringTo1DArray<string>(operations);

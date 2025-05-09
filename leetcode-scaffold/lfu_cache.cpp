@@ -36,122 +36,10 @@ Example:
     cache.get(3);       // returns 3
     cache.get(4);       // returns 4
 
-Hint: use insertSort to maintain order: first sort by frequency then by timestamp
+Hint: use insertSort to maintain order: first sort by frequency then by inserted timestamp
 Reference solution: https://zxi.mytechroad.com/blog/hashtable/leetcode-460-lfu-cache/
 */
 
-namespace naive_implementation {
-class LFUCache {
-private:
-    struct CacheNode {
-        int key;
-        int val;
-        int access;
-        time_t timestamp;
-        CacheNode* prev;
-        CacheNode* next;
-        CacheNode(int k=-1, int v=-1):
-            key(k), val(v),
-            prev(nullptr),
-            next(nullptr) {
-            access = 1;
-            timestamp = time(nullptr);
-        }
-    };
-    int m_capacity;
-    CacheNode m_head;
-    CacheNode m_tail;
-    map<int, CacheNode*> m_nodeMap;    
-public:
-    LFUCache(int capacity):
-        m_capacity(capacity) {
-        assert(capacity > 0);
-        m_head.next = &m_tail;
-        m_tail.prev = &m_head;
-    }
-    
-    int get(int key) {
-        auto it = m_nodeMap.find(key);
-        if (it == m_nodeMap.end()) {
-            return -1;
-        } else {
-            auto node = it->second;
-            node->access++;
-            node->timestamp = time(nullptr);
-            // extract node from the list
-            node->prev->next = node->next; node->next->prev = node->prev;
-            // re-insert node into the list
-            insert(node);
-            return node->val;
-        }
-    }
-    
-    void put(int key, int value) {
-        CacheNode* node = nullptr;
-        auto it = m_nodeMap.find(key);
-        if (it == m_nodeMap.end()) {
-            // node doesn't exist yet
-            node = new CacheNode(key, value);
-            // if we reach the capcity, we need to remove the last node from tail first
-            if (m_nodeMap.size() == m_capacity) {
-                auto p = m_tail.prev;
-                p->prev->next = &m_tail;
-                m_tail.prev = p->prev;
-                m_nodeMap.erase(p->key);
-                delete p;  
-            }
-            m_nodeMap[key] = node;
-        } else {
-            // node has already existed, update its value
-            node = it->second;
-            node->val = value;
-            node->access++;
-            node->timestamp = time(nullptr);
-            // extract node from the list
-            node->prev->next = node->next; node->next->prev = node->prev;
-        }
-        // re-insert node into the list
-        insert(node);
-    }
-    void display() {
-        printf("Capacity: %d, Value: ", m_capacity);
-        auto p = m_head.next;
-        while (p != &m_tail) {
-            printf("(%d,%d,%d,%lld)", p->key, p->val, p->access, (int64_t)p->timestamp);
-            p = p->next;
-        }
-        printf("\n");
-    }
-private:
-    void insert(CacheNode* node) {
-        // perform insertionSort to find where to insert node
-        auto p = m_head.next;
-        while (p != &m_tail) {
-            if (p->access > node->access) {
-                p = p->next;
-            } else if (p->access == node->access) {
-                if (p->timestamp > node->timestamp) {
-                    p = p->next;
-                } else {
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-        // insert node before p
-        // point node's previous to [p->prev]
-        node->prev = p->prev;
-        // point node's next to [p]
-        node->next = p;
-        // point [p->prev]'s next to node
-        p->prev->next = node;
-        // point p's previous to node
-        p->prev = node; 
-    }
-};
-
-}
 
 uint64_t get_timetick_count() {
     auto tick_count = std::chrono::high_resolution_clock::now();
@@ -187,13 +75,14 @@ public:
         if (it == m_node_map.end()) {
             return -1;
         } else {
-            auto node = *(it->second);
+            auto node = *(it->second); // copy by value
             // update its value
             node.access++;
             node.timestamp = get_timetick_count();
             // remove old reference
             m_nodes.erase(it->second);
             m_node_map.erase(it);
+            // re-insert node into the list
             insert(node);
             return node.val;
         }
@@ -229,18 +118,20 @@ public:
 
     void insert(const CacheNode& node) {
         int index = 0;
-        for (const auto& it: m_nodes) {
+        for (const auto& it: m_nodes) { // traverse the list from head to tail
             if (node.access > it.access) {
+                // order the list first by node.access in descending order
                 break;
             } else if (node.access == it.access) {
+                // then by node.timestamp in descending order
                 if (node.timestamp > it.timestamp) {
                     break;
                 }
             }
             index++;
         }
-        m_nodes.insert(std::next(m_nodes.begin(), index), node);
-        m_node_map[node.key] = std::next(m_nodes.begin(), index); // IMPORTANT: you have to re-fetch iterator since it has changed to the new node after `m_nodes.insert`
+        auto it = m_nodes.insert(std::next(m_nodes.begin(), index), node);
+        m_node_map[node.key] = it;
     }
 
     void display() {

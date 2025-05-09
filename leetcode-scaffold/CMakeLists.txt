@@ -43,8 +43,8 @@ else()
     message(STATUS "Unrecognized build type - will use cmake defaults")
 endif()
 
-# message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
-# message("List of compile features: ${CMAKE_CXX_COMPILE_FEATURES}")
+message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message("List of compile features: ${CMAKE_CXX_COMPILE_FEATURES}")
 
 add_executable(graph_connected_components graph_connected_components.cpp ${PUB_UTIL_FILES})
 target_compile_features(graph_connected_components PUBLIC cxx_std_17)
