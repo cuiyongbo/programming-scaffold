@@ -4,8 +4,9 @@
 using namespace std;
 
 DisjointSet::DisjointSet(int n) {
-    m_rank.resize(n+1, 0);
-    m_parent.resize(n+1, 0);
+    m_rank.resize(n+1, 0);  // rank of node i. the upperbound of the height of node i
+    m_parent.resize(n+1, 0); // parent of node i
+    // initialization: set parent of each node to itself
     std::iota(m_parent.begin(), m_parent.end(), 0);
 }
 
@@ -39,20 +40,20 @@ int DisjointSet::find_iterative(int x) {
 }
 
 bool DisjointSet::unionFunc(int x, int y) {
+    // 1. find the parent of node x, y
     int px = find(x);
     int py = find(y);
-
     if(px == py) {
         return false; // cycle detected
     }
-
+    // 2. set parent of node with lower rank point to the parent of node with higher rank 
     if (m_rank[px] > m_rank[py]) {
-        m_parent[py] = px;
-    } else {
+        m_parent[py] = px; 
+    } else if (m_rank[px] < m_rank[py]) {
         m_parent[px] = py;
-        if(m_rank[px] == m_rank[py]) {
-            ++m_rank[py];
-        }
+    } else { // for ties, increase the rank of either node
+        m_parent[px] = py;
+        ++m_rank[py];
     }
     return true;
 }

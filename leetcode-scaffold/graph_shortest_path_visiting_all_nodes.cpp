@@ -2,10 +2,8 @@
 #include "util/trip_farthest_insertion.hpp"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 847, 864, 1298 */
-
 class Solution {
 public:
     int shortestPathLength(vector<vector<int>>& graph);
@@ -15,14 +13,15 @@ private:
     int bruteForceTrip(vector<vector<int>>& distance_table, int node_count);
 };
 
-int Solution::shortestPathLength(vector<vector<int>>& graph) {
-/*
-    An *undirected* graph of N nodes (labelled 0, 1, 2, ..., N-1, N=graph.length) is given in *adjacency-list* notation.
-    Return the length of the shortest path that visits every node. You may start and stop at any node, you may revisit nodes multiple times, and you may reuse edges.
-    Hint: Traveling Salesman Problem 
-*/
 
+/*
+An *undirected* graph of N nodes (labelled 0, 1, 2, ..., N-1, N=graph.length) is given in *adjacency-list* notation.
+Return the length of the shortest path that visits every node. You may start and stop at any node, you may revisit nodes multiple times, and you may reuse edges.
+Hint: Traveling Salesman Problem
+*/
+int Solution::shortestPathLength(vector<vector<int>>& graph) {
     int node_count = graph.size();
+    // distance_table(i, j) means the minimum distance between i and j
     vector<vector<int>> distance_table(node_count, vector<int>(node_count, INT32_MAX));
     // initialize trivial cases
     for (int u=0; u<node_count; ++u) {
@@ -33,7 +32,7 @@ int Solution::shortestPathLength(vector<vector<int>>& graph) {
         }
     }
     // floyd-warshall algorithm
-    for (int k=0; k<node_count; ++k) {
+    for (int k=0; k<node_count; ++k) { // use node k as waypoint. distance_table(i, j) = min{distance_table(i, k) + distance_table(k, j)} for k in [0, n]
         for (int i=0; i<node_count; ++i) {
             for (int j=0; j<node_count; ++j) {
                 if (distance_table[i][k] != INT32_MAX && distance_table[k][j] != INT32_MAX) {
@@ -49,30 +48,24 @@ int Solution::shortestPathLength(vector<vector<int>>& graph) {
         maxWeight = std::max(maxWeight, *it);
     }
 
+    // make sure there is no unreachable node in the graph
     BOOST_ASSERT_MSG(maxWeight != INT32_MAX, "graph is not a strongly connected component");
-
-#ifdef DEBUG
-    for (int i=0; i<node_count; ++i) {
-        std::cout << numberVectorToString(distance_table[i]) << std::endl;
-    }
-#endif
 
     // Taken from OSRM project
     if (node_count < 10) {
         // Time Limit Exceeded
         return bruteForceTrip(distance_table, node_count);
     } else {
-        vector<int> node_order = scaffold::farthestInsertionTrip(node_count, distance_table);
-#ifdef DEBUG
-        cout << "Optimal plan: " << numberVectorToString(node_order) << endl;
-#endif
+        vector<int> plan = scaffold::farthestInsertionTrip(node_count, distance_table);
+        SPDLOG_DEBUG("optimal plan: {}", numberVectorToString(plan));
         int length = 0;
         for (int i=1; i<node_count; ++i) {
-            length += distance_table[node_order[i-1]][node_order[i]];
+            length += distance_table[plan[i-1]][plan[i]];
         }
         return length;
     }
 }
+
 
 int Solution::bruteForceTrip(vector<vector<int>>& distance_table, int node_count) {
     auto tripLengthForPlan = [&](vector<int>& node_order, int minLenth) {
@@ -93,7 +86,7 @@ int Solution::bruteForceTrip(vector<vector<int>>& distance_table, int node_count
     vector<int> node_order(node_count);
     vector<int> plan = node_order;
     std::iota(node_order.begin(), node_order.end(), 0);
-    // traversal all possible orders to visit all nodes, choose the best plan by path length
+    // traversal all possible permutations of nodes, choose the best plan by path length
     do {
         int len = tripLengthForPlan(node_order, ans);
         if (len < ans) {
@@ -101,27 +94,24 @@ int Solution::bruteForceTrip(vector<vector<int>>& distance_table, int node_count
             ans = len;
         }
     } while (std::next_permutation(node_order.begin(), node_order.end()));
-    
-#if defined(DEBUG_VERBOSITY)
-    util::Log(logINFO) << "optimal plan: " << numberVectorToString(plan) << endl;
-#endif
-    return ans;    
+    SPDLOG_DEBUG("optimal plan: {}", numberVectorToString(plan));
+    return ans;
 }
 
-int Solution::shortestPathAllKeys(vector<string>& grid) {
 /*
-    We are given a 2-dimensional grid. "." is an empty cell, "#" is a wall, "@" is the starting point, ("a", "b", …) are keys, and ("A", "B", …) are locks.
+We are given a 2-dimensional grid. "." is an empty cell, "#" is a wall, "@" is the starting point, ("a", "b", …) are keys, and ("A", "B", …) are locks.
 
-    We start at the starting point, and one move consists of walking one space in one of the 4 cardinal directions.
-    We cannot walk outside the grid, or walk into a wall. If we walk over a key, we pick it up. We can’t walk over a lock unless we have the corresponding key.
+We start at the starting point, and one move consists of walking one space in one of the 4 cardinal directions.
+We cannot walk outside the grid, or walk into a wall. If we walk over a key, we pick it up. We can’t walk over a lock unless we have the corresponding key.
 
-    For some 1 <= K <= 6, there is exactly one lowercase and one uppercase letter of the first K letters 
-    of the English alphabet in the grid. This means that there is exactly one key for each lock, 
-    and one lock for each key; and also that the letters used to represent the keys and locks 
-    were chosen in the same order as the English alphabet.
+For some 1 <= K <= 6, there is exactly one lowercase and one uppercase letter of the first K letters 
+of the English alphabet in the grid. This means that there is exactly one key for each lock, 
+and one lock for each key; and also that the letters used to represent the keys and locks 
+were chosen in the same order as the English alphabet.
 
-    Return the lowest number of moves to acquire all keys. If it’s impossible, return -1.
+Return the lowest number of moves to acquire all keys. If it’s impossible, return -1.
 */
+int Solution::shortestPathAllKeys(vector<string>& grid) {
 
     auto is_key = [] (int letter) {
         return 'a' <= letter && letter <= 'z';
@@ -148,62 +138,62 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
     }
 
     keys /= 2; // number of the pairs of key/lock
-    auto route_length = [&] () {
-        int steps = 0;
-        set<int> visited_locks;
-        set<int> visited_keys;
-        const int diff = 'a' - 'A';
-        Coordinate start = coors[(int)'@'];
-        set<Coordinate> visited; visited.insert(start);
-        queue<Coordinate> q; q.push(start);
-        while (!q.empty()) {
-            if ((int)visited_keys.size() == keys) {
-                return steps;
-            }
-            for (int k=q.size(); k!=0; --k) {
-                auto u = q.front(); q.pop();
-                for (auto& d: directions) {
-                    int nr = u.first + d.first;
-                    int nc = u.second + d.second;
-                    // out of boundary or ecounter walls
-                    if (nr<0 || nr >=rows ||
-                        nc<0 || nc >=columns ||
-                        grid[nr][nc] == '#') {
-                        continue;
-                    }
-                    // already visited
-                    if (visited.count({nr, nc}) == 1) {
-                        continue;
-                    }
-                    int letter = grid[nr][nc];
-                    if (letter == '.') { // empty cells
+    int steps = 0;
+    set<int> visited_locks;
+    set<int> visited_keys;
+    const int diff = 'a' - 'A';
+    Coordinate start = coors[(int)'@'];
+    queue<Coordinate> q;
+    set<Coordinate> visited;
+    // initialization
+    q.push(start);
+    visited.insert(start);
+    // perform bfs search to find the minimum steps
+    while (!q.empty()) {
+        if ((int)visited_keys.size() == keys) {
+            return steps;
+        }
+        for (int k=q.size(); k!=0; --k) {
+            auto u = q.front(); q.pop();
+            for (auto& d: directions) {
+                int nr = u.first + d.first;
+                int nc = u.second + d.second;
+                // out of boundary or ecounter walls
+                if (nr<0 || nr >=rows ||
+                    nc<0 || nc >=columns ||
+                    grid[nr][nc] == '#') {
+                    continue;
+                }
+                // already visited
+                if (visited.count({nr, nc}) == 1) {
+                    continue;
+                }
+                int letter = grid[nr][nc];
+                if (letter == '.') { // empty cells
+                    q.emplace(nr, nc);
+                    visited.emplace(nr, nc);
+                } else if (is_key(letter)) { // keys
+                    visited_keys.insert(letter);
+                    q.emplace(nr, nc);
+                    visited.emplace(nr, nc);
+                    // after we got the key we may pass the lock next time
+                    if (visited_locks.count(letter-diff) == 1) {
+                        q.push(coors[letter-diff]);
+                        visited.insert(coors[letter-diff]);
+                    }  
+                } else if (is_lock(letter)) { // locks
+                    if (visited_keys.count(letter+diff) == 1) { // we can pass lock only if we have alread got its key
                         q.emplace(nr, nc);
                         visited.emplace(nr, nc);
-                    } else if (is_key(letter)) { // keys
-                        visited_keys.insert(letter);
-                        q.emplace(nr, nc);
-                        visited.emplace(nr, nc);
-                        // after we got the key we may pass the lock next time
-                        if (visited_locks.count(letter-diff) == 1) {
-                            q.push(coors[letter-diff]);
-                            visited.insert(coors[letter-diff]);
-                        }  
-                    } else if (is_lock(letter)) { // locks
-                        if (visited_keys.count(letter+diff) == 1) { // we can pass lock only if we have alread got its key
-                            q.emplace(nr, nc);
-                            visited.emplace(nr, nc);
-                        } else {
-                            visited_locks.insert(letter);
-                        }
+                    } else {
+                        visited_locks.insert(letter);
                     }
                 }
             }
-            ++steps;
         }
-        return INT32_MAX;
-    };
-    int ans = route_length();
-    return ans == INT32_MAX ? -1 : ans;
+        ++steps;
+    }
+    return -1;
 }
 
 

@@ -3,7 +3,6 @@
 using namespace std;
 
 /* leetcode: 332*/
-
 class Solution {
 public:
     vector<string> findItinerary(vector<vector<string>>& tickets);
@@ -11,13 +10,14 @@ public:
 
 
 /*
-    Given a list of airline tickets represented by pairs of departure and arrival airports [from, to], reconstruct the itinerary in order.
-    All of the tickets belong to a man who departs from JFK. Thus the itinerary must begin with JFK. If there are multiple valid itineraries,
-    you should return the itinerary that has the smallest lexical order when read as a single string. You may assume all tickets form at least one valid itinerary.
+Given a list of airline tickets represented by pairs of departure and arrival airports [from, to], reconstruct the itinerary in order.
+All of the tickets belong to a man who departs from JFK. Thus **the itinerary must begin with JFK.** If there are multiple valid itineraries,
+you should return the itinerary that has the smallest lexical order when read as a single string. You may assume all tickets form at least one valid itinerary.
 */
 vector<string> Solution::findItinerary(vector<vector<string>>& tickets) {
+    // build a directed graph
     map<string, vector<string>> graph;
-    for (auto& t: tickets) {
+    for (const auto& t: tickets) {
         graph[t[0]].emplace_back(t[1]);
     }
     for (auto& it: graph) {
@@ -26,8 +26,9 @@ vector<string> Solution::findItinerary(vector<vector<string>>& tickets) {
     vector<string> itinerary;
     function<void(string)> dfs = [&] (string u) {
         itinerary.push_back(u);
+        // we just need return one valid candidate, no need to use a set<string> to recorded which node has been visited
         if (!graph[u].empty()) {
-            auto v = graph[u].back();
+            auto v = graph[u].back(); // remove the back from a adjacency-list, so it is sorted in descending order
             graph[u].pop_back(); // remove v from u's neighbors when we have visited v
             dfs(v);
         }

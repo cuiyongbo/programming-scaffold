@@ -1,28 +1,27 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 997 */
-
 class Solution {
 public:
     int findJudge(int N, vector<vector<int>>& trusts);
 };
 
-int Solution::findJudge(int N, vector<vector<int>>& trusts) {
+
 /*
-    In a town, there are N people labelled from 1 to N.
-    There is a rumor that one of these people is secretly the town judge.
-    If the town judge exists, then:
-        The town judge trusts nobody.
-        Everybody (except for the town judge) trusts the town judge.
-        There is exactly one person that satisfies properties 1 and 2.
-    You are given trust, an array of pairs `trust[i] = [a, b]` representing 
-    that the person labelled `a` trusts the person labelled `b`.
-    If the town judge exists and can be identified, return the label of the town judge. Otherwise, return -1.
-    Hint: node with degree (in_degree - out_degree == N-1) is the judge
+In a town, there are N people labelled from 1 to N. (1-indexed)
+There is a rumor that one of these people is secretly the town judge.
+If the town judge exists, then:
+    The town judge trusts nobody.
+    Everybody (except for the town judge) trusts the town judge.
+    There is exactly one person that satisfies properties 1 and 2.
+You are given trust, an array of pairs `trust[i] = [a, b]` representing 
+that the person labelled `a` trusts the person labelled `b`.
+If the town judge exists and can be identified, return the label of the town judge. Otherwise, return -1.
+Hint: node with degree (in_degree - out_degree == N-1) is the judge
 */
+int Solution::findJudge(int N, vector<vector<int>>& trusts) {
     vector<pair<int,int>> graph(N+1); // in_degree, out_degree
     for (auto& t: trusts) {
         graph[t[1]].first++;

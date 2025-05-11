@@ -12,21 +12,21 @@ public:
 
 
 /*
-    In this problem, a tree is an *undirected* graph that is connected and has no cycles.
+In this problem, a tree is an *undirected* graph that is connected and has no cycles.
 
-    You are given a graph that started as a tree with n nodes labelled from 1 to n, with one additional edge added. 
-    The added edge has two different vertices chosen from 1 to n, and was not an edge that already existed. 
-    The graph is represented as an array edges of length n where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the graph.
+You are given a graph that started as a tree with n nodes labelled from 1 to n (1-indexed),  with one additional edge added. 
+The added edge has two different vertices chosen from 1 to n, and was not an edge that already existed. 
+The graph is represented as an array edges of length n where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the graph.
 
-    Return an edge that can be removed so that the resulting graph is a tree of n nodes. If there are multiple answers, return the answer that occurs last in the input.
+Return an edge that can be removed so that the resulting graph is a tree of n nodes. If there are multiple answers, return the answer that occurs last in the input.
 
-    Constraints:
-        N == edges.length
-        edges[i].length == 2
-        1 <= ai < bi <= edges.length
-        ai != bi
-        There are no repeated edges.
-        The given graph is connected.
+Constraints:
+    N == edges.length
+    edges[i].length == 2
+    1 <= ai < bi <= edges.length
+    ai != bi
+    There are no repeated edges.
+    The given graph is connected.
 */
 vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges) {
     vector<int> ans;
@@ -42,21 +42,21 @@ vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges) {
 
 
 /*
-    In this problem, a rooted tree is a directed graph such that, there is exactly one node (the root) for which all other nodes are descendants of this node,
-    plus every node has exactly one parent, except for the root node which has no parents.
+In this problem, a rooted tree is a directed graph such that, there is exactly one node (the root) for which all other nodes are descendants of this node,
+plus every node has exactly one parent, except for the root node which has no parents.
 
-    The given input is a directed graph that started as a rooted tree with N nodes (with distinct values 1, 2, …, N),
-    with one additional directed edge added. The added edge has two different vertices chosen from 1 to N, and was not an edge that already existed.
+The given input is a directed graph that started as a rooted tree with N nodes (with distinct values 1, 2, …, N),
+with one additional directed edge added. The added edge has two different vertices chosen from 1 to N, and was not an edge that already existed.
 
-    The resulting graph is given as a 2D-array of edges. Each element of edges is a pair [u, v] that represents a directed edge connecting nodes u and v, where u is a parent of child v.
-    Return an edge that can be removed so that the resulting graph is a rooted tree of N nodes. If there are multiple answers, return the answer that occurs last in the given 2D-array.
+The resulting graph is given as a 2D-array of edges. Each element of edges is a pair [u, v] that represents a directed edge connecting nodes u and v, where u is a parent of child v.
+Return an edge that can be removed so that the resulting graph is a rooted tree of N nodes. If there are multiple answers, return the answer that occurs last in the given 2D-array.
 
-    Constraints:
-        N == edges.length (note this constraint)
-        edges[i].length == 2
-        1 <= u, v <= N
-        u != v
-    Hint:
+Constraints:
+    N == edges.length (note this constraint)
+    edges[i].length == 2
+    1 <= u, v <= N
+    u != v
+Hint:
 
 case 1: the additional directed edge points to root node, which results in a cycle, and in-degree of all nodes is equal to 1, revert to findRedundantConnection
 
@@ -111,29 +111,29 @@ vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges
         }
         return ans;
     }
-    // 2 test if there is a cycle
+    // 2 test whether there is a cycle or not
     // return false if there is a cycle in the graph
     vector<int> visited(N+1, 0);
     std::function<bool(int)> dfs = [&] (int u) {
-        visited[u] = 1;
+        visited[u] = 1; // visiting
         for (auto v: graph[u]) {
             if (visited[v] == 0) {
                 if (!dfs(v)) {
                     return false;
                 }
-            } else if (visited[v] == 1) {
+            } else if (visited[v] == 1) { // find a cycle
                 return false;
             }
         }
-        visited[u] = 2;
+        visited[u] = 2; // visited
         return true;
     };
+    // root node has no parent, that is its indegree is 0
     int root_node = -1;
     for (int i=1; i<(int)indegrees.size(); i++) {
         if (indegrees[i] == 0) {
             root_node = i;
         }
-
     }
     bool no_cycle = dfs(root_node);
     // case 2
@@ -141,7 +141,6 @@ vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges
         vector<int> ans;
         for (auto e: edges) {
             if (e[1] == node_with_2_indegree) {
-            //if (e[0] != root_node && e[1] == node_with_2_indegree) {
                 ans = e;
             }
         }
@@ -160,13 +159,13 @@ vector<int> Solution::findRedundantDirectedConnection(vector<vector<int>>& edges
 
 
 /*
-    There are n computers numbered from 0 to n-1 connected by ethernet cables forming a network where connections[i] = [a, b] 
-    represents a connection between computers a and b (*undirected*). Any computer can reach any other computer directly or indirectly through the network.
+There are n computers numbered from 0 to n-1 connected by ethernet cables forming a network where connections[i] = [a, b]
+represents a connection between computers a and b (*undirected*). Any computer can reach any other computer directly or indirectly through the network.
 
-    Given an initial computer network connections. You can extract certain cables between two directly connected computers, and place them between any pair of disconnected computers to make them directly connected. 
-    Return the minimum number of times you need to do this in order to make all the computers connected. If it’s not possible, return -1. 
+Given an initial computer network connections. You can extract certain cables between two directly connected computers, and place them between any pair of disconnected computers to make them directly connected.
+Return the minimum number of times you need to do this in order to make all the computers connected. If it’s not possible, return -1.
 
-    Hint: use disjoint set to find the number of connected components.
+Hint: use disjoint set to find the number of connected components.
 */
 int Solution::makeConnected(int node_count, vector<vector<int>>& connections) {
     // calculate the number of redundant edges which we may use to connect SCC(s) later

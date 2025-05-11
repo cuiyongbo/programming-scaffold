@@ -74,6 +74,7 @@ void LRUCache::put_without_lock(int key, int value) {
         m_nodes.erase(m_node_map[key]);
         m_node_map.erase(key);
     } else { // key doesn't exist
+        // remove the oldest element if capacity reaches
         if (m_nodes.size() == m_cap) {
             auto b = m_nodes.back();
             m_node_map.erase(b.first); // first remove iterator from the map
@@ -96,6 +97,8 @@ int LRUCache::get(int key) {
     No elements are copied or moved, only the internal pointers of the list nodes are re-pointed.
     No iterators or references become invalidated, the iterators to moved elements remain valid, but now refer into *this, not into other.
     */
+    // void splice( const_iterator pos, list& other, const_iterator it );
+    // Transfers the element pointed to by it from other into *this. The element is inserted before the element pointed to by pos.
     m_nodes.splice(m_nodes.begin(), m_nodes, it->second); // move key to the front of m_nodes
     return it->second->second;
 }

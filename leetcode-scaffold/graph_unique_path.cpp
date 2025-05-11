@@ -11,9 +11,9 @@ public:
 
 /*
 On a 2-dimensional grid, there are 4 types of squares:
-        1 represents the starting square.  There is exactly one starting square.
-        2 represents the ending square.  There is exactly one ending square.
-        0 represents empty squares we can walk over.
+    1 represents the starting square.  There is exactly one starting square.
+    2 represents the ending square.  There is exactly one ending square.
+    0 represents empty squares we can walk over.
     -1 represents obstacles that we cannot walk over.
 Return the number of 4-directional paths from the starting square to the ending square, that **walk over every non-obstacle square(including start, end) exactly once.**
 */
@@ -40,7 +40,7 @@ int Solution::uniquePaths_980(vector<vector<int>>& grid) {
     // perform dfs search to find the number of paths from u to end which visit all non-obstacle nodes once and only once
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
     function<int(Coordinate, int)> dfs = [&] (Coordinate u, int steps) {
-        if (u==end || steps == non_obstacle_cnt) {
+        if (u==end || steps == non_obstacle_cnt) { // termination
             return (u==end && steps==non_obstacle_cnt) ? 1 : 0;
         }
         int path_num = 0;
@@ -48,9 +48,13 @@ int Solution::uniquePaths_980(vector<vector<int>>& grid) {
         for (auto& d: directions) {
             int nr = u.first + d.first;
             int nc = u.second + d.second;
-            if (nr<0 || nr>=rows || 
-                nc<0 || nc>=columns ||
-                grid[nr][nc] == -1 || visited[nr][nc]) {
+            if (nr<0 || nr>=rows || nc<0 || nc>=columns) { // off the grid
+                continue;
+            }
+            if (grid[nr][nc] == -1) { // skip obstacles
+                continue;
+            }
+            if (visited[nr][nc]) { // already visited
                 continue;
             }
             path_num += dfs({nr, nc}, steps+1); // backtrace
@@ -58,7 +62,7 @@ int Solution::uniquePaths_980(vector<vector<int>>& grid) {
         visited[u.first][u.second] = false;
         return path_num;
     };
-    return dfs(start, 1);
+    return dfs(start, 1); // start is also a non-obstacle nodde
 }
 
 

@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 200, 547, 695, 733, 827, 841, 1020, 1162, 1202 */
-
 class Solution {
 public:
     int numIslands(vector<vector<int>>& grid);
@@ -19,23 +17,23 @@ public:
 };
 
 
-string Solution::smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
 /*
-    You are given a string s, and an array of pairs of indices in the string where pairs[i] = [a, b] indicates 2 indices(0-indexed) of the string.
-    You can swap the characters at any pair of indices in the given pairs any number of times.
-    Return the lexicographically smallest string that s can be changed to after using the swaps.
-    Hint:
-        solution one: use to dfs to find connected components, then sort s.substring in each component
-        solution two: use disjoint set to find connected components, then sort s.substring in each component
+You are given a string s, and an array of pairs of indices in the string where pairs[i] = [a, b] indicates 2 indices (0-indexed) of the string.
+You can swap the characters at any pair of indices in the given pairs any number of times.
+Return the lexicographically smallest string that s can be changed to after using the swaps.
+Hint:
+    solution one: use to dfs to find connected components, then sort s.substring in each component
+    solution two: use disjoint set to find connected components, then sort s.substring in each component
 */
-
-if (0) { // disjoint set version solution
+string Solution::smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
+if (1) { // disjoint set version solution
     int sz = s.size();
     DisjointSet dsu(sz);
-    for (auto& p: pairs) {
+    for (const auto& p: pairs) {
         dsu.unionFunc(p[0], p[1]);
     }
-    map<int, vector<int>> group_map; // group id, node(s)
+    // cluster
+    map<int, vector<int>> group_map; // group id, node indices
     for (int i=0; i<sz; ++i) {
         group_map[dsu.find(i)].push_back(i);
     }
@@ -44,18 +42,18 @@ if (0) { // disjoint set version solution
         if (p.second.size() == 1) {
             continue;
         }
+        // sort each group lexicalgraphically
         string tmp;
         for (auto i: p.second) {
             tmp.push_back(s[i]);
         }
         sort(tmp.begin(), tmp.end());
-        for (int i=0; i<tmp.size(); ++i) {
+        for (int i=0; i<(int)tmp.size(); ++i) {
             ans[p.second[i]] = tmp[i];
         }
     }
     return ans;
 }
-
 
 { // dfs version solution
     int n = s.size();
@@ -95,7 +93,7 @@ if (0) { // disjoint set version solution
             tmp.push_back(s[i]);
         }
         std::sort(tmp.begin(), tmp.end());
-        for (int i=0; i<tmp.size(); i++) {
+        for (int i=0; i<(int)tmp.size(); i++) {
             ans[p[i]] = tmp[i];
         }
     }
@@ -105,14 +103,15 @@ if (0) { // disjoint set version solution
 }
 
 
-bool Solution::canVisitAllRooms(vector<vector<int>>& rooms) {
 /*
-    There are N rooms and you start in room 0. Each room has a distinct number in 0, 1, 2, ..., N-1, and each room may have some keys to access the next room.
-    Formally, each room i has a list of keys rooms[i], and each key rooms[i][j] is an integer in [0, 1, ..., N-1] where N = rooms.length. A key rooms[i][j] = v opens the room with number v.
-    Initially, all the rooms start locked (except for room 0). You can walk back and forth between rooms freely. Return true if and only if you can enter every room.
+There are N rooms and you start in room 0. Each room has a distinct number in 0, 1, 2, ..., N-1, and each room may have some keys to access the next room.
+Formally, each room i has a list of keys rooms[i], and each key rooms[i][j] is an integer in [0, 1, ..., N-1] where N = rooms.length. A key rooms[i][j] = v opens the room with number v.
+Initially, all the rooms start locked (except for room 0). You can walk back and forth between rooms freely. Return true if and only if you can enter every room.
 */
-    int n = rooms.size();
-    vector<bool> visited(n, false);
+bool Solution::canVisitAllRooms(vector<vector<int>>& rooms) {
+    int N = rooms.size();
+    vector<bool> visited(N, false);
+    // return the number of room visited
     std::function<int(int)> dfs = [&] (int u) {
         int count = 1;
         visited[u] = true;
@@ -124,32 +123,35 @@ bool Solution::canVisitAllRooms(vector<vector<int>>& rooms) {
         return count;
     };
     int visited_rooms = dfs(0);
-    return visited_rooms == n;
+    return visited_rooms == N;
 }
 
 
-int Solution::numEnclaves(vector<vector<int>>& grid) {
 /*
-    Given a 2D array grid, each cell is 0 (representing sea) or 1 (representing land).
-    A move consists of walking from one land square 4-directionally to another land square, or off the boundary of the grid.
-    Return the number of lands in the grid for which we cannot walk off the boundary of the grid in any number of moves.
-    Example 1:
-        Input: [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]
-        Output: 3
-        Explanation: There are three 1s that are enclosed by 0s, and one 1 that isn't enclosed because its on the boundary.
-    Example 2:
-        Input: [[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]
-        Output: 0
-        Explanation: All 1s are either on the boundary or can reach the boundary.
-    Note:
-        0 <= grid[i][j] <= 1
-        All rows have the same size.
+Given a 2D array grid, each cell is 0 (representing sea) or 1 (representing land).
+A move consists of walking from one land square 4-directionally to another land square, or off the boundary of the grid.
+Return the number of lands in the grid for which we cannot walk off the boundary of the grid in any number of moves. (the number of lands which are completely surrounded by sea)
+Example 1:
+    Input: [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]
+    Output: 3
+    Explanation: There are three 1s that are enclosed by 0s, and one 1 that isn't enclosed because its on the boundary.
+Example 2:
+    Input: [[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]
+    Output: 0
+    Explanation: All 1s are either on the boundary or can reach the boundary.
+Note:
+    0 <= grid[i][j] <= 1
+    All rows have the same size.
 */
+int Solution::numEnclaves(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
+    // return:
+    //  1. whether the land is safe or not
+    //  2. if safe, return the number of lands
     std::function<pair<bool, int>(int, int)> dfs = [&] (int r, int c) {
-        int count = 1;
+        int count = 1; 
         visited[r][c] = true;
         bool in_bound = true;
         for (auto d: directions) {
@@ -182,12 +184,12 @@ int Solution::numEnclaves(vector<vector<int>>& grid) {
 }
 
 
-int Solution::numIslands(vector<vector<int>>& grid) {
 /*
-    Given a 2d grid map of '1's (land) and '0's (water), count the number of islands.
-    An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.
-    You may assume all four edges of the grid are all surrounded by water.
+Given a 2d grid map of '1's (land) and '0's (water), count the number of islands.
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.
+You may assume all four edges of the grid are all surrounded by water.
 */
+int Solution::numIslands(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
@@ -196,15 +198,14 @@ int Solution::numIslands(vector<vector<int>>& grid) {
         for (auto d: directions) {
             int nr = r + d.first;
             int nc = c + d.second;
-            if (0<=nr && nr<rows &&
-                0<=nc && nc<columns &&
-                !visited[nr][nc] &&
-                grid[nr][nc] == 1) {
+            if (nr<0||nr>=rows||nc<0||nc>=columns) {
+                continue;
+            }
+            if (!visited[nr][nc] && grid[nr][nc] == 1) {
                 dfs(nr, nc);
             }
         }
     };
-
     int ans = 0;
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
@@ -217,26 +218,29 @@ int Solution::numIslands(vector<vector<int>>& grid) {
     return ans;
 }
 
-int Solution::findCircleNum(vector<vector<int>>& grid) {
+
 /*
-    There are n cities. Some of them are connected, while some are not. If city a is connected directly with city b, 
-    and city b is connected directly with city c, then city a is connected indirectly with city c.
-    **A province is a group of directly or indirectly connected cities and no other cities outside of the group.**
-    You are given an n x n matrix grid where grid[i][j] = 1 if the ith city and the jth city are directly connected, and grid[i][j] = 0 otherwise.
-    Return the total number of provinces.
+There are n cities. Some of them are connected, while some are not. If city a is connected directly with city b, 
+and city b is connected directly with city c, then city a is connected indirectly with city c.
+**A province is a group of directly or indirectly connected cities and no other cities outside of the group.**
+You are given an n x n matrix grid where grid[i][j] = 1 if the ith city and the jth city are directly connected, and grid[i][j] = 0 otherwise.
+Return the total number of provinces.
 */
+int Solution::findCircleNum(vector<vector<int>>& grid) {
     return numIslands(grid);
 }
 
-int Solution::maxAreaOfIsland(vector<vector<int>>& grid) {
+
 /*
-    Given a non-empty 2D array grid of 0’s and 1’s, an island is a group of 1‘s (representing land)
-    connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
-    Find the maximum area of an island in the given 2D array. (If there is no island, the maximum area is 0.)
+Given a non-empty 2D array grid of 0’s and 1’s, an island is a group of 1‘s (representing land)
+connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
+Find the maximum area of an island in the given 2D array. (If there is no island, the maximum area is 0.)
 */
+int Solution::maxAreaOfIsland(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
+    // return the area of island containing (r, c)
     std::function<int(int, int)> dfs = [&] (int r, int c) {
         int area = 1;
         visited[r][c] = true;
@@ -259,32 +263,34 @@ int Solution::maxAreaOfIsland(vector<vector<int>>& grid) {
     for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
             if (grid[r][c] == 1 && !visited[r][c]) {
-                ans = max(ans, dfs(r, c));
+                ans = std::max(ans, dfs(r, c));
             }
         }
     }
     return ans;
 }
 
-vector<vector<int>> Solution::floodFill(vector<vector<int>>& grid, int sr, int sc, int newColor) {
+
 /*
-    An image is represented by a 2D array of integers, each integer representing the pixel value of the image (from 0 to 65535).
-    Given a coordinate (sr, sc) representing the starting pixel (row and column) of the flood fill, and a pixel value newColor, “flood fill” the image.
-    To perform a “flood fill”, consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel, 
-    plus any pixels connected 4-directionally to those pixels (also with the same color as the starting pixel), and so on.
-    Replace the color of all of the aforementioned pixels with the newColor. At the end, return the modified image.
+An image is represented by a 2D array of integers, each integer representing the pixel value of the image (from 0 to 65535).
+Given a coordinate (sr, sc) representing the starting pixel (row and column) of the flood fill, and a pixel value newColor, “flood fill” the image.
+To perform a “flood fill”, consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel, 
+plus any pixels connected 4-directionally to those pixels (also with the same color as the starting pixel), and so on.
+Replace the color of all of the aforementioned pixels with the newColor. At the end, return the modified image.
 */
+vector<vector<int>> Solution::floodFill(vector<vector<int>>& grid, int sr, int sc, int newColor) {
     int rows = grid.size();
     int columns = grid[0].size();
     int originalColor = grid[sr][sc];
     function<void(int, int)> dfs = [&] (int r, int c) {
-        grid[r][c] = newColor;
+        grid[r][c] = newColor; // dye with new color
         for (auto& d: directions) {
             int nr = r + d.first;
             int nc = c + d.second;
-            if (0<=nr && nr<rows &&
-                0<=nc && nc<columns &&
-                grid[nr][nc]==originalColor) {
+            if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
+                continue;
+            }
+            if (grid[nr][nc] == originalColor) { // a pixel with the same color as the starting pixel's
                 dfs(nr, nc);
             }
         }
@@ -293,12 +299,12 @@ vector<vector<int>> Solution::floodFill(vector<vector<int>>& grid, int sr, int s
     return grid;
 }
 
-int Solution::largestIsland(vector<vector<int>>& grid) {
-/*
-    You are given an nxn binary matrix grid. You are allowed to change at most one 0 to be 1.
-    Return the size of the largest island in grid after applying this operation. An island is a 4-directionally connected group of 1s.
-*/
 
+/*
+You are given an nxn binary matrix grid. You are allowed to change at most one 0 to be 1.
+Return the size of the largest island in grid after applying this operation. An island is a 4-directionally connected group of 1s.
+*/
+int Solution::largestIsland(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
@@ -312,10 +318,7 @@ int Solution::largestIsland(vector<vector<int>>& grid) {
             if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
                 continue;
             }
-            if (grid[nr][nc] != 1) { // count only unknow island
-                continue;
-            }
-            if (!visited[nr][nc]) {
+            if (grid[nr][nc] == 1 && !visited[nr][nc]) {
                 area += dfs(nr, nc, island_id);
             }
         }
@@ -347,6 +350,7 @@ int Solution::largestIsland(vector<vector<int>>& grid) {
             if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
                 continue;
             }
+            // we only traverse one step from water nodes
             if (grid[nr][nc] == 0) {
                 continue;
             }
@@ -362,14 +366,14 @@ int Solution::largestIsland(vector<vector<int>>& grid) {
 }
 
 
-int Solution::maxDistance(vector<vector<int>>& grid) {
 /*
-    Given an N x N grid containing only values 0 and 1, where 0 represents water and 1 represents land,
-    find a water cell such that its distance to the nearest land cell is maximized and return the distance.
-    The distance used in this problem is the Manhattan distance: the distance between two cells (x0, y0) 
-    and (x1, y1) is |x0 - x1| + |y0 - y1|. If no land or water exists in the grid, return -1.
-    Hint: launch a bfs traversal from all land cells, traverse ONLY water cells until no cell left, then we would find the answer
+Given an N x N grid containing only values 0 and 1, where 0 represents water and 1 represents land,
+find a water cell such that its distance to the nearest land cell is maximized and return the distance.
+The distance used in this problem is the Manhattan distance: the distance between two cells (x0, y0) 
+and (x1, y1) is |x0 - x1| + |y0 - y1|. If no land or water exists in the grid, return -1.
+Hint: launch a bfs traversal from all land cells, traverse ONLY water cells until no cell left, then we would find the answer
 */
+int Solution::maxDistance(vector<vector<int>>& grid) {
     queue<pair<int, int>> q;
     int rows = grid.size();
     int columns = grid[0].size();
@@ -380,12 +384,11 @@ int Solution::maxDistance(vector<vector<int>>& grid) {
             }
         }
     }
-
     // all 0 or all 1
-    if (q.empty() || q.size() == rows*columns) {
+    if (q.empty() || rows*columns == (int)q.size()) {
         return -1;
     }
-
+    // perform bfs search from land cells
     int steps = 0;
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
     while (!q.empty()) {
@@ -394,10 +397,14 @@ int Solution::maxDistance(vector<vector<int>>& grid) {
             for (auto& d: directions) {
                 int nr = t.first + d.first;
                 int nc = t.second + d.second;
-                if (0<=nr && nr<rows &&
-                    0<=nc && nc<columns &&
-                    grid[nr][nc] == 0 && 
-                    !visited[nr][nc]) {
+                if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
+                    continue;
+                }
+                // record only water cells
+                if (grid[nr][nc] == 1) {
+                    continue;
+                }
+                if (!visited[nr][nc]) {
                     q.emplace(nr, nc);
                     visited[nr][nc] = true;
                 }
@@ -432,6 +439,7 @@ void findCircleNum_scaffold(string input, int expectedResult) {
     }
 }
 
+
 void maxAreaOfIsland_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
@@ -442,6 +450,7 @@ void maxAreaOfIsland_scaffold(string input, int expectedResult) {
         SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void floodFill_scaffold(string input, int sr, int sc, int newColor, string expectedResult) {
     Solution ss;
@@ -457,6 +466,7 @@ void floodFill_scaffold(string input, int sr, int sc, int newColor, string expec
         }
     }
 }
+
 
 void largestIsland_scaffold(string input, int expectedResult) {
     Solution ss;
@@ -480,6 +490,7 @@ void maxDistance_scaffold(string input, int expectedResult) {
     }
 }
 
+
 void numEnclaves_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(input);
@@ -490,6 +501,7 @@ void numEnclaves_scaffold(string input, int expectedResult) {
         SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void canVisitAllRooms_scaffold(string input, bool expectedResult) {
     Solution ss;
@@ -502,6 +514,7 @@ void canVisitAllRooms_scaffold(string input, bool expectedResult) {
     }
 }
 
+
 void smallestStringWithSwaps_scaffold(string input, string pairs, string expectedResult) {
     Solution ss;
     vector<vector<int>> graph = stringTo2DArray<int>(pairs);
@@ -512,6 +525,7 @@ void smallestStringWithSwaps_scaffold(string input, string pairs, string expecte
         SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 int main() {
     SPDLOG_WARN("Running numEnclaves tests:");

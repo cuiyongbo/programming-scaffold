@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 743, 787, 882, 1334 */
-
 class Solution {
 public:
     int networkDelayTime(vector<vector<int>>& times, int N, int K);
@@ -15,28 +13,28 @@ public:
 
 
 /*
-    There are N network nodes, labelled 1 to N. Given times, a list of travel times as *directed* edges times[i] = (u, v, w),
-    where u is the source node, v is the target node, and w is the time it takes for a signal to travel from source to target.
-    Now we send a signal from a certain node K. How long will it take for all nodes to receive the signal? If it is impossible, return -1.
-    Hint: perform dijkstra search on the graph
+There are N network nodes, labelled 1 to N. Given times, a list of travel times as *directed* edges times[i] = (u, v, w),
+where u is the source node, v is the target node, and w is the time it takes for a signal to travel from source to target.
+Now we send a signal from a certain node K. How long will it take for all nodes to receive the signal? If it is impossible, return -1.
+Hint: perform dijkstra search on the graph
 */
 int Solution::networkDelayTime(vector<vector<int>>& times, int N, int K) {
 
 { // refined solution
-    // build graph
+    // build a directed graph
     using element_t = std::pair<int, int>; // node id, weight
-    vector<vector<element_t>> graph(N);
+    vector<vector<element_t>> graph(N+1);
     for (auto p: times) {
-        graph[p[0]-1].emplace_back(p[1]-1, p[2]);
+        graph[p[0]].emplace_back(p[1], p[2]);
     }
     auto cmp_by_weight = [] (const element_t& l, const element_t& r) {
         return l.second > r.second;
     };
-    std::map<int,int> visited; // node u, time taking from K to node u
     std::priority_queue<element_t, vector<element_t>, decltype(cmp_by_weight)> pq(cmp_by_weight); // min_heap ordered by weight
+    std::map<int,int> visited; // node u, time taking from K to node u
     // initialization
-    visited[K-1] = 0;
-    pq.emplace(K-1, 0);
+    visited[K] = 0;
+    pq.emplace(K, 0);
     while (!pq.empty()) {
         auto u = pq.top(); pq.pop();
         for (auto& v: graph[u.first]) {
@@ -48,7 +46,7 @@ int Solution::networkDelayTime(vector<vector<int>>& times, int N, int K) {
         }
     }
     int ans = -1;
-    if (visited.size() == N) {
+    if ((int)visited.size() == N) {
         for (auto p: visited) {
             ans = max(ans, p.second);
         }
@@ -89,10 +87,10 @@ int Solution::networkDelayTime(vector<vector<int>>& times, int N, int K) {
 
 
 /*
-    There are n cities connected by m flights. Each flight [u, v, w] starts from city u and arrives at v with a price w.
-    Now given all the cities (labelled 0 to N-1) and flights, together with starting city `src` and the destination `dst`,
-    your task is to find the cheapest price from `src` to `dst` with at most `K` stops. If there is no such route, return -1.
-    hint: dijkstra algorithm
+There are n cities connected by m flights. Each flight [u, v, w] starts from city u and arrives at v with a price w.
+Now given all the cities (labelled 0 to N-1) and flights, together with starting city `src` and the destination `dst`,
+your task is to find the cheapest price from `src` to `dst` with at most `K` stops. If there is no such route, return -1.
+hint: dijkstra algorithm
 */
 int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int K) {
     // build a directed graph
@@ -102,7 +100,7 @@ int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, in
         graph[t[0]].emplace_back(t[1], t[2]);
     }
     int steps = 0;
-    set<bool> visited; visited.insert(src);
+    vector<bool> visited(n, false); visited[src] = true;
     vector<int> cost(n, INT32_MAX); cost[src] = 0;
     queue<element_t> q; q.emplace(src, 0);
     while (steps<=K && !q.empty()) {
@@ -113,9 +111,9 @@ int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, in
             //    return costs[u.first];
             //}
             for (auto& v: graph[u.first]) {
-                if (visited.count(v.first) == 0 || // not visited
+                if (!visited[v.first] || // not visited
                         cost[v.first] > u.second + v.second) { // find a cheaper route
-                    visited.insert(v.first);
+                    visited[v.first] = true;
                     cost[v.first] = u.second + v.second;
                     q.emplace(v.first, cost[v.first]);
                 }
@@ -128,37 +126,39 @@ int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, in
 
 
 /*
-    Starting with an *undirected* graph with N nodes labelled 0 to N-1, subdivisions are made to some of the edges.
-    The graph is given as follows: edges[k] is a list of integer pairs (i, j, n) such that (i, j) is an edge of the original graph,
-    and n is the total number of new nodes on that edge. Then the edge (i, j) is deleted from the original graph, 
-    n new nodes (x_1, x_2, ..., x_n) are added to the original graph, and n+1 new edges (i, x_1), (x_1, x_2), (x_2, x_3), ..., (x_{n-1}, x_n), (x_n, j) are added to the original graph.
-    Now, you start at node 0 from the original graph, and in each move, you travel along one edge. Return how many nodes you can reach in at most M moves.
+Starting with an *undirected* graph with N nodes labelled 0 to N-1 (0-indexed), subdivisions are made to some of the edges.
+The graph is given as follows: edges[k] is a list of integer pairs (i, j, n) such that (i, j) is an edge of the original graph,
+and n is the total number of new nodes on that edge. Then the edge (i, j) is deleted from the original graph, 
+n new nodes (x_1, x_2, ..., x_n) are added to the original graph, and n+1 new edges (i, x_1), (x_1, x_2), (x_2, x_3), ..., (x_{n-1}, x_n), (x_n, j) are added to the original graph.
+Now, you start at node 0 from the original graph, and in each move, you travel along one edge. Return how many nodes you can reach in at most M moves.
 */
 int Solution::reachableNodes(vector<vector<int>>& edges, int M, int N) {
 
-if (0) {
+if (1) {
     using element_t = std::pair<int, int>;
+    // build an undirected map
     vector<vector<element_t>> graph(N);
-    for (auto& e: edges) {
-        graph[e[0]].emplace_back(e[1], e[2]+1);
+    for (const auto& e: edges) {
+        graph[e[0]].emplace_back(e[1], e[2]+1); // nodes we can visit from e[0] to e[1], e[0] is not including
         graph[e[1]].emplace_back(e[0], e[2]+1);
     }
     auto cmp = [&] (const element_t& l, const element_t& r) {
         return l.second > r.second;
     };
-    int ans = 0;
     vector<int> distance_table(N, INT32_MAX); distance_table[0] = 0; // distance_table[u] means the number of visited nodes starting from node u
     priority_queue<element_t, vector<element_t>, decltype(cmp)> pq(cmp); // node, number of visited nodes
     pq.emplace(0, 0);
     while (!pq.empty()) {
-        auto t = pq.top(); pq.pop();
-        for (auto& p: graph[t.first]) {
-            if ((t.second+p.second) < distance_table[p.first]) {
-                distance_table[p.first] = p.second+t.second;
-                pq.emplace(p.first, distance_table[p.first]);
+        auto u = pq.top(); pq.pop();
+        for (auto& v: graph[u.first]) {
+            if (distance_table[v.first] > (u.second+v.second)) {
+                distance_table[v.first] = v.second+u.second;
+                pq.emplace(v.first, distance_table[v.first]);
             }
         }
     }
+    int ans = 0;
+    // nodes which are within M steps away from start point
     for (auto d: distance_table) {
         if (d<=M) {
             ans++;
@@ -166,8 +166,11 @@ if (0) {
     }
     for (auto& e: edges) {
         int cnt = e[2];
+        // we can visited `M-distance_table[e[1]]` nodes from e[0] at most. Note that `M-distance_table[e[1]]` can exceed cnt if M is very large
         int a = std::min(cnt, std::max(0, M-distance_table[e[1]]));
+        // we can visited `M-distance_table[e[0]]` nodes from e[1] at most
         int b = std::min(cnt, std::max(0, M-distance_table[e[0]]));
+        // how many nodes can we visit from both ends
         ans += std::min(cnt, a+b);
     }
     return ans;
@@ -213,26 +216,27 @@ if (0) {
 
 
 /*
-    There are n cities labelled from 0 to N-1. Given the array edges where edges[i] = [u, v, weight]
-    represents a *bidirectional* and weighted edge between cities u and v, and distance_threshold.
+There are n cities labelled from 0 to N-1. (0-indexed) Given the array edges where edges[i] = [u, v, weight]
+represents a *bidirectional* and weighted edge between cities u and v, and distance_threshold.
 
-    Return the city with the smallest number of cities that are reachable through some path and whose distance is 
-    at most distance_threshold, If there are multiple such cities, return the city with the greatest index.
+Return the city with the smallest number of cities that are reachable through some path and whose distance is 
+at most distance_threshold, If there are multiple such cities, return the city with the greatest index.
 
-    Notice that the distance of a path connecting cities i and j is equal to the sum of the edges' weights along that path.
+Notice that the distance of a path connecting cities i and j is equal to the sum of the edges' weights along that path.
 
-    Hint: Floyd-Warshall algorithm
+Hint: Floyd-Warshall algorithm
 */
 int Solution::findTheCity(int N, vector<vector<int>>& edges, int distance_threshold) {
     vector<vector<int>> distance_table(N, vector<int>(N, INT32_MAX));
     // initialize trivial cases
-    for (auto& e: edges) {
+    for (const auto& e: edges) {
         distance_table[e[0]][e[1]] = e[2];
         distance_table[e[1]][e[0]] = e[2];
     }
     // runtime complexity: O(n^3)
     for (int k=0; k<N; ++k) {
         // use k as waypoint
+        // distance(i, j) = min{distance(i,k)+distance(k, j)} for k in [0, N]
         distance_table[k][k] = 0; // trivial cases
         for (int i=0; i<N; ++i) {
             for (int j=0; j<N; ++j) {

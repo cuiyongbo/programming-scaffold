@@ -23,19 +23,20 @@ def to_chinese(num):
         remainder = num_b %10
         digits.append(remainder)
         num_b  = num_b // 10
-    digits = [(i,d) for i,d in enumerate(digits)]
+    digits = [(d, i) for i,d in enumerate(digits)]
     # from MSB to LSM
     digits.reverse()
     repr = []
     forward_is_zero = False
-    for idx, (unit_i, digit_i) in enumerate(digits):
-        if digit_i == 0: # skip continuous 0s
+    for idx, (digit_i, unit_i) in enumerate(digits):
+        if digit_i == 0: # 跳过连续的0. 比如 1001, 中文表示是 一千零一
+            # 注意不能直接在这里 append("零"), 比如说 100,000,000 的中文表示是 一亿
             forward_is_zero = True
             continue
         if forward_is_zero:
             forward_is_zero = False
-            repr.append(chinese_digits[0])
-        if idx==0 and unit_i==1 and digit_i==1: # for case 10, 11, 12, ...
+            repr.append("零")
+        if idx==0 and unit_i==1 and digit_i==1: # for case 10, 11, 12, ... 十, 十一, 十二, 
             pass
         else:
             repr.append(chinese_digits[digit_i])
@@ -51,8 +52,9 @@ def number_to_chinese(num):
     iter = 0
     iteration_units = ["", "万", "亿"]
     subs = []
+    # 1. 按照万单位拆分原数字, 每个子单位单独计算表示法, 然后带上相应的单位展示
     # in LSB order
-    num_b= num
+    num_b = num
     while num_b > 0:
         remainder = num_b % 10000
         subs.append((remainder, iteration_units[iter]))
@@ -63,7 +65,8 @@ def number_to_chinese(num):
     repr = []
     forward_is_zero = False
     for idx, (n, u) in enumerate(subs):
-        if n==0:
+        if n==0: # 当前这部分是零, 比如 100,001,000 的中文表示是 一亿零一千
+            # 注意不能直接在这里 append("零"), 我们得跳过连续的0. 比如说 100,000,000 的中文表示是 一亿
             forward_is_zero = True
             continue
         if forward_is_zero:
