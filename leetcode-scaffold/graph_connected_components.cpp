@@ -10,14 +10,14 @@ public:
     int numSimilarGroups(vector<string>& A);
     vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries);
     vector<vector<string>> accountsMerge(vector<vector<string>>& accounts);
-    bool areSentencesSimilar_737(vector<string>& words1, vector<string>& words2, vector<vector<string>>& pairs);
+    bool areSentencesSimilar(vector<string>& words1, vector<string>& words2, vector<vector<string>>& pairs);
     bool equationsPossible(vector<string>& equations);
     int minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial);
 };
 
 
 /*
-You have a graph of n nodes. You are given an integer n and an array edges where edges[i] = [ai, bi] indicates that there is an edge between ai and bi in the graph.
+You have a graph of n nodes. You are given an integer n and an array edges where edges[i] = [ai, bi] indicates that there is an edge between ai and bi (0-indexed) in the graph. (bidirectional graph)
 Return the number of connected components in the graph.
 */
 int Solution::countComponents(int n, vector<vector<int>>& edges) {
@@ -29,14 +29,16 @@ int Solution::countComponents(int n, vector<vector<int>>& edges) {
         graph[e[1]].push_back(e[0]);
     }
     vector<int> visited(n, 0);
+    // mark one connected component starting with node u
     function<void(int)> dfs = [&] (int u) {
-        visited[u] = 1;
+        visited[u] = 1; // visiting
         for (auto v: graph[u]) {
             if (visited[v] == 0) {
                 dfs(v);
             }
+            // it doesn't matter whether there is a cycle or not
         }
-        visited[u] = 2;
+        visited[u] = 2; // visited
     };
     int ans = 0;
     for (int i=0; i<n; ++i) {
@@ -74,8 +76,8 @@ int Solution::countComponents(int n, vector<vector<int>>& edges) {
     where equations.size() == values.size(), and the values are positive. This represents the equations. Return vector<double>.
 */
 vector<double> Solution::calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries) {
-    // build graph
-    typedef std::pair<string, string> key_t;
+    // build a bidirectional graph
+    using key_t =  std::pair<string, string>;
     map<key_t, double> weight_map;
     map<string, vector<string>> graph;
     for (int i=0; i<(int)equations.size(); ++i) {
@@ -85,10 +87,9 @@ vector<double> Solution::calcEquation(vector<vector<string>>& equations, vector<
         weight_map[{p[0], p[1]}] = values[i];
         weight_map[{p[1], p[0]}] = 1/values[i];
     }
-
     vector<key_t> path;
     set<string> visited;
-    // return true if there is a path connecting u and end
+    // return true if end is reachable from u
     function<bool(string, string)> dfs = [&] (string u, string end) {
         if (u == end) {
             return true;
@@ -96,6 +97,7 @@ vector<double> Solution::calcEquation(vector<vector<string>>& equations, vector<
         visited.insert(u);
         for (auto v: graph[u]) {
             if (visited.count(v) == 0) {
+                // perform backtrace
                 path.emplace_back(u, v);
                 if (dfs(v, end)) {
                     return true;
@@ -140,26 +142,26 @@ vector<double> Solution::calcEquation(vector<vector<string>>& equations, vector<
 
 
 /*
-    Given two sentences words1, words2 (each represented as an array of strings), and a list of similar word pairs pairs, determine if two sentences are similar.
+Given two sentences words1, words2 (each represented as an array of strings), and a list of similar word pairs pairs, determine if two sentences are similar.
 
-    For example, words1 = ["great", "acting", "skills"] and words2 = ["fine", "drama", "talent"] are similar, 
-    if the similar word pairs are pairs = [["great", "good"], ["fine", "good"], ["acting","drama"], ["skills","talent"]].
+For example, words1 = ["great", "acting", "skills"] and words2 = ["fine", "drama", "talent"] are similar, 
+if the similar word pairs are pairs = [["great", "good"], ["fine", "good"], ["acting","drama"], ["skills","talent"]].
 
-    Note that the similarity relation is transitive. For example, if “great” and “good” are similar, and “fine” and “good” are similar, then “great” and “fine” are similar.
-    Similarity is also symmetric. For example, “great” and “fine” being similar is the same as “fine” and “great” being similar. (bidirectonal graph)
+Note that the similarity relation is transitive. For example, if “great” and “good” are similar, and “fine” and “good” are similar, then “great” and “fine” are similar.
+Similarity is also symmetric. For example, “great” and “fine” being similar is the same as “fine” and “great” being similar. (bidirectonal graph)
 
-    Also, a word is always similar with itself. For example, the sentences words1 = ["great"], words2 = ["great"], 
-    pairs = [] are similar, even though there are no specified similar word pairs.
+Also, a word is always similar with itself. For example, the sentences words1 = ["great"], words2 = ["great"], 
+pairs = [] are similar, even though there are no specified similar word pairs.
 
-    Two sentences are similar if:
-        They have the same length (i.e., the same number of words)
-        sentence1[i] and sentence2[i] are similar.
+Two sentences are similar if:
+    They have the same length (i.e., the same number of words)
+    sentence1[i] and sentence2[i] are similar.
 */
-bool Solution::areSentencesSimilar_737(vector<string>& words1, vector<string>& words2, vector<vector<string>>& pairs) {
-    if (words1.size() != words2.size()) {
+bool Solution::areSentencesSimilar(vector<string>& words1, vector<string>& words2, vector<vector<string>>& pairs) {
+    if (words1.size() != words2.size()) { // two similar sentence must have the same length
         return false;
     }
-    // build graph
+    // build a bidirectional graph
     map<string, vector<string>> graph;
     for (auto& p: pairs) {
         graph[p[0]].push_back(p[1]);
@@ -183,7 +185,7 @@ bool Solution::areSentencesSimilar_737(vector<string>& words1, vector<string>& w
     };
     for (int i=0; i<(int)words1.size(); ++i) {
         visited.clear();
-        if (!dfs(words1[i], words2[i])) {
+        if (!dfs(words1[i], words2[i])) { // perform dfs for each pair
             return false;
         }
     }
@@ -192,24 +194,86 @@ bool Solution::areSentencesSimilar_737(vector<string>& words1, vector<string>& w
 
 
 /*
-    Given a list accounts, each element accounts[i] is a list of strings, 
-    where the first element accounts[i][0] is a name, and the rest of 
-    elements are emails representing emails of the account. ([name: email_list])
+Given a list accounts, each element accounts[i] is a list of strings, 
+where the first element accounts[i][0] is a name, and the rest of 
+elements are emails representing emails of the account. ([name: email_list])
 
-    Now, we would like to merge these accounts. Two accounts definitely belong to the same person
-    if there is some email that is common to both accounts. Note that even if two accounts have the same name, 
-    they may belong to different people as people could have the same name. 
-    A person can have any number of accounts initially, but all of their accounts definitely have the same name.
+Now, we would like to merge these accounts. **Two accounts definitely belong to the same person
+if there is some email that is common to both accounts.** Note that even if two accounts have the same name, 
+they may belong to different people as people could have the same name. 
+A person can have any number of accounts initially, but all of their accounts definitely have the same name.
 
-    After merging the accounts, return the accounts in the following format: 
-    the first element of each account is the name, and the rest of the elements are emails in sorted order. 
-    The accounts themselves can be returned in any order.
+After merging the accounts, return the accounts in the following format: 
+the first element of each account is the name, and the rest of the elements are emails in sorted order. 
+The accounts themselves can be returned in any order.
 
-    Hint: 
-        solution one: use dfs to find connected components
-        solution two: use disjoint_set to find connected components
+Hint: 
+    solution one: use dfs to find connected components
+    solution two: use disjoint_set to find connected components
 */
 vector<vector<string>> Solution::accountsMerge(vector<vector<string>>& accounts) {
+
+{ // dfs solution
+    int account_num = accounts.size();
+    map<string, vector<int>> email_map; // email, account ids
+    for (int i=0; i<account_num; i++) {
+        int sz = accounts[i].size();
+        for (int j=1; j<sz; j++) {
+            email_map[accounts[i][j]].push_back(i);
+        }
+    }
+    // build a bidirectional graph
+    vector<vector<int>> graph(accounts.size());
+    for (auto p: email_map) {
+        int sz = p.second.size();
+        if (sz < 2) {
+            continue;
+        }
+        int u = p.second[0];
+        for (int i=1; i<sz; i++) {
+            int v = p.second[i];
+            graph[u].push_back(v);
+            graph[v].push_back(u);
+            u = v;
+        }
+    }
+    // find CCs
+    vector<int> path;
+    vector<int> visited(account_num, 0);
+    function<void(int)> dfs = [&] (int u) {
+        visited[u] = 1;
+        for (auto v: graph[u]) {
+            if (visited[v] == 0) {
+                dfs(v);
+            }
+        }
+        visited[u] = 2;
+        path.push_back(u);
+    };
+    // cluster groups
+    map<int, vector<int>> groups;
+    for (int u=0; u<account_num; u++) {
+        if (visited[u] == 0) {
+            dfs(u);
+            groups[u] = path;
+            path.clear();
+        }
+    }
+    // merge groups
+    vector<vector<string>> ans;
+    for (auto p: groups) {
+        string name = accounts[p.first][0];
+        set<string> emails;
+        for (auto n: p.second) {
+            emails.insert(std::next(accounts[n].begin()), accounts[n].end());
+        }
+        vector<string> one_user;
+        one_user.push_back(name);
+        one_user.insert(one_user.end(), emails.begin(), emails.end());
+        ans.push_back(one_user);
+    }
+    return ans;
+}
 
 { // dis-joint set solution
     auto is_same_account = [&] (int i, int j) {
@@ -254,59 +318,19 @@ vector<vector<string>> Solution::accountsMerge(vector<vector<string>>& accounts)
     return ans;
 }
 
-{ // dfs solution
-    map<string,int> emails; // <email, account_id>
-    map<string, vector<string>> graph;
-    for (int i=0; i<(int)accounts.size(); ++i) {
-        int sz = accounts[i].size();
-        for (int j=1; j<sz; ++j) {
-            emails.emplace(accounts[i][j], i);
-            graph[accounts[i][j]].push_back(accounts[i][j]); // in case for user(s) with only one email
-            if (j < sz-1) {
-                graph[accounts[i][j]].push_back(accounts[i][j+1]);
-                graph[accounts[i][j+1]].push_back(accounts[i][j]);
-            }
-        }
-    }
-
-    set<string> visited;
-    vector<string> path;
-    std::function<void(string)> dfs = [&] (string u) {
-        visited.insert(u);
-        path.push_back(u);
-        for (auto& v: graph[u]) {
-            if (visited.count(v) == 0) {
-                dfs(v);
-            }
-        }
-    };
-
-    vector<vector<string>> ans;
-    for (auto& e: emails) {
-        if (visited.count(e.first) == 0) {
-            path.push_back(accounts[e.second][0]);
-            dfs(e.first);
-            std::sort(path.begin()+1, path.end());
-            ans.push_back(path); 
-            path.clear();
-        }
-    }
-    return ans;
-}
-
 }
 
 
 /*
-    Two strings X and Y are similar if we can swap two letters (in different positions) of X, so that it equals Y.
-    For example, "tars" and "rats" are similar (swapping at positions 0 and 2), and "rats" and "arts" are similar, but "star" is not similar to "tars", "rats", or "arts".
+Two strings X and Y are similar if we can swap two letters (in different positions) of X, so that it equals Y.
+For example, "tars" and "rats" are similar (swapping at positions 0 and 2), and "rats" and "arts" are similar, but "star" is not similar to "tars", "rats", or "arts".
 
-    Together, these form two connected groups by similarity: {"tars", "rats", "arts"} and {"star"}. Notice that "tars" and "arts" are in the same group even though they are not similar.  
-    Formally, each group is such that a word is in the group if and only if it is similar to at least one other word in the group.
+Together, these form two connected groups by similarity: {"tars", "rats", "arts"} and {"star"}. Notice that "tars" and "arts" are in the same group even though they are not similar.  
+Formally, each group is such that a word is in the group if and only if it is similar to at least one other word in the group.
 
-    We are given a list A of strings. Every string in A is an anagram of every other string in A. How many groups are there?
+We are given a list A of strings. Every string in A is an anagram of every other string in A. How many groups are there?
 
-    Hint: use dfs/disjoint_set to find connected components
+Hint: use dfs/disjoint_set to find connected components
 */
 int Solution::numSimilarGroups(vector<string>& A) {
     auto is_similar = [&] (string u, string v) {
@@ -337,17 +361,19 @@ if (0) { // disjoint_set solution
 }
 
 { // dfs solution
-    // build graph
+    // build a bidirectional graph
     int sz = A.size();
     map<string, vector<string>> graph;
     for (int i=0; i<sz; ++i) {
         for (int j=i+1; j<sz; ++j) {
             if (is_similar(A[i], A[j])) {
+                // bidirectional edge
                 graph[A[i]].push_back(A[j]);
                 graph[A[j]].push_back(A[i]);
             }
         }
     }
+    // use dfs to find connnected components
     set<string> visited;
     std::function<void(string)> dfs = [&] (string u) {
         visited.insert(u);
@@ -371,12 +397,12 @@ if (0) { // disjoint_set solution
 
 
 /*
-    Given a non-empty array of unique positive integers A, consider the following graph:
-    There are A.length nodes, labelled A[0] to A[A.length - 1]; There is an edge between A[i] and A[j] if and only if A[i] and A[j] share a common factor greater than 1.
-    Return the size of the largest connected component in the graph.
-    Constraints:
-        All the values of nums are unique.
-    Hint: use dfs/disjoint_set to find connected components, and return node count of the largest component
+Given a non-empty array of unique positive integers A, consider the following graph:
+There are A.length nodes, labelled A[0] to A[A.length - 1]; There is an edge between A[i] and A[j] if and only if A[i] and A[j] share a common factor greater than 1.
+Return the size of the largest connected component in the graph.
+Constraints:
+    All the values of nums are unique.
+Hint: use dfs/disjoint_set to find connected components, and return node count of the largest component
 */
 int Solution::largestComponentSize(vector<int>& A) {
 if(1) { // disjoint_set solution
@@ -414,6 +440,7 @@ if(1) { // disjoint_set solution
     }
     // use dfs to find a connected component
     set<int> visited;
+    // return the number of nodes in the connected component containing node u
     std::function<int(int)> dfs = [&] (int u) {
         visited.insert(u);
         int node_count = 1;
@@ -438,26 +465,26 @@ if(1) { // disjoint_set solution
 
 
 /*
-    Given an array equations of strings that represent relationships between variables, 
-    each string equations[i] has length 4 and takes one of two different forms: "a==b" or "a!=b".  
-    Here, a and b are lowercase letters (not necessarily different) that represent one-letter variable names.
-    Return true if and only if it is possible to assign integers to variables so as to satisfy all the given equations.
-    Constraints:
-        equations[i].length == 4
-        equations[i][0] is a lowercase letter.
-        equations[i][1] is either '=' or '!'.
-        equations[i][2] is '='.
-        equations[i][3] is a lowercase letter.
+Given an array equations of strings that represent relationships between variables, 
+each string equations[i] has length 4 and takes one of two different forms: "a==b" or "a!=b".  
+Here, a and b are lowercase letters (not necessarily different) that represent one-letter variable names.
+Return true if and only if it is possible to assign integers to variables so as to satisfy all the given equations.
+Constraints:
+    equations[i].length == 4
+    equations[i][0] is a lowercase letter.
+    equations[i][1] is either '=' or '!'.
+    equations[i][2] is '='.
+    equations[i][3] is a lowercase letter.
 */
 bool Solution::equationsPossible(vector<string>& equations) {
     DisjointSet dsu(128);
-    for (auto& e: equations) {
+    for (const auto& e: equations) {
         // if a==b then put (a, b) into the same group
         if (e[1] == '=') {
             dsu.unionFunc(e[0], e[3]);
         }
     }
-    for (auto& e: equations) {
+    for (const auto& e: equations) {
         // if a!=b then (a, b) must not be in the same group
         if (e[1] == '!') {
             if (dsu.find(e[0]) == dsu.find(e[3])) {
@@ -470,18 +497,18 @@ bool Solution::equationsPossible(vector<string>& equations) {
 
 
 /*
-    In a network of nodes, each node i is directly connected to another node j if and only if graph[i][j] = 1 (adjacency-matrix representation).
+In a network of nodes, each node i is directly connected to another node j if and only if graph[i][j] = 1 (adjacency-matrix representation).
 
-    Some nodes `initial` are initially infected by malware. When two nodes are directly connected 
-    and at least one of those two nodes is infected by malware, both nodes will be infected by malware.  
-    This spread of malware will continue until no more nodes can be infected in this manner.
+Some nodes `initial` are initially infected by malware. When two nodes are directly connected 
+and at least one of those two nodes is infected by malware, both nodes will be infected by malware.  
+This spread of malware will continue until no more nodes can be infected in this manner.
 
-    Suppose M(initial) is the final number of infected nodes after the spread of malware stops.
+Suppose M(initial) is the final number of infected nodes after the spread of malware stops.
 
-    We will remove one node from the initial list. Return the node that if removed, would minimize M(initial).
-    If multiple nodes could be removed to minimize M(initial), return such a node with the smallest index. 
+We will remove one node from the initial list. Return the node that if removed, would minimize M(initial).
+If multiple nodes could be removed to minimize M(initial), return such a node with the smallest index. 
 
-    Note that if a node was removed from the initial list of infected nodes, it may still be infected later as a result of the malware spread.      
+Note that if a node was removed from the initial list of infected nodes, it may still be infected later as a result of the malware spread.      
 */
 int Solution::minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial) {
     // build dsu
@@ -500,19 +527,18 @@ int Solution::minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial)
         group_to_node_cnt_map[dsu.find(i)]++;
     }
     // cluster initial into groups
-    map<int, vector<int>> group_to_node_map; // component_id, node_idx_in_the_component_from_initial
+    map<int, int> group_to_node_map; // component_id, node_idx_in_the_component_from_initial
     for (int i=0; i<(int)initial.size(); ++i) {
-        group_to_node_map[dsu.find(initial[i])].push_back(i);
+        group_to_node_map[dsu.find(initial[i])]++;
     }
     int count = 0;
     int idx = INT32_MAX;
-    for (auto& p: group_to_node_map) {
-        if (p.second.size() == 1) { // make sure that the node cannot be infected later when removed
-            if (count < group_to_node_cnt_map[p.first]) {
-                idx = p.second[0];
-                count = group_to_node_cnt_map[p.first];
-            } else if (count == group_to_node_cnt_map[p.first]) {
-                idx = min(idx, p.second[0]); // choose node with smaller index when we got ties
+    for (int i=0; i<(int)initial.size(); i++) {
+        int g = dsu.find(initial[i]);
+        if (group_to_node_map[g] == 1) {
+            if (group_to_node_cnt_map[g] > count) {
+                count = group_to_node_cnt_map[g];
+                idx = i;
             }
         }
     }
@@ -540,7 +566,7 @@ void areSentencesSimilarTwo_scaffold(string s1, string s2, string dict, bool exp
     vector<string> words1 = stringTo1DArray<string>(s1);
     vector<string> words2 = stringTo1DArray<string>(s2);
     vector<vector<string>> pairs = stringTo2DArray<string>(dict);
-    bool actual = ss.areSentencesSimilar_737(words1, words2, pairs);
+    bool actual = ss.areSentencesSimilar(words1, words2, pairs);
     if (actual == expectedResult) {
         SPDLOG_INFO("Case({}, {}, {}, expectedResult={}) passed", s1, s2, dict, expectedResult);
     } else {
@@ -636,13 +662,13 @@ int main() {
     TIMER_STOP(calcEquation);
     SPDLOG_WARN("calcEquation tests use {} ms", TIMER_MSEC(calcEquation));
 
-    SPDLOG_WARN("Running areSentencesSimilar_737 tests:");
-    TIMER_START(areSentencesSimilar_737);
+    SPDLOG_WARN("Running areSentencesSimilar tests:");
+    TIMER_START(areSentencesSimilar);
     areSentencesSimilarTwo_scaffold("[great]", "[great]", "[]", true);
     areSentencesSimilarTwo_scaffold("[great]", "[doubleplus, good]", "[[great, good]]", false);
     areSentencesSimilarTwo_scaffold("[great, acting, skill]", "[fine, drama, talent]", "[[great, good], [fine, good], [acting, drama], [skill, talent]]", true);
-    TIMER_STOP(areSentencesSimilar_737);
-    SPDLOG_WARN("areSentencesSimilar_737 tests use {} ms", TIMER_MSEC(areSentencesSimilar_737));
+    TIMER_STOP(areSentencesSimilar);
+    SPDLOG_WARN("areSentencesSimilar tests use {} ms", TIMER_MSEC(areSentencesSimilar));
 
     SPDLOG_WARN("Running accountsMerge tests:");
     TIMER_START(accountsMerge);

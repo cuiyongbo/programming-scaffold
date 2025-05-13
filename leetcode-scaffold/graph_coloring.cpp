@@ -12,21 +12,21 @@ public:
 
 
 /*
-    Given an undirected graph, return true if and only if it is bipartite.
-    
-    Recall that a graph is bipartite if we can split its set of nodes into two independent subsets A and B such that every edge in the graph has one node in A and another node in B.
-    The graph is given in the following form: graph[i] is a list of indexes (0-index) j for which the edge between nodes i and j exists. 
-    There are no self edges or parallel edges: graph[i] does not contain i, and it doesn't contain any element twice.
+Given an undirected graph, return true if and only if it is bipartite.
 
-    The graph may not be connected, meaning there may be two nodes u and v such that there is no path between them.
+Recall that a graph is bipartite if we can split its set of nodes into two independent subsets A and B such that every edge in the graph has one node in A and another node in B.
+The graph is given in the following form: graph[i] is a list of indexes (0-index) j for which the edge between nodes i and j exists. 
+There are no self edges or parallel edges: graph[i] does not contain i, and it doesn't contain any element twice.
 
-    as wikipedia puts it: In the mathematical field of graph theory, a bipartite graph (or bigraph) 
-    is a graph whose vertices can be divided into two disjoint and independent sets U and V such that 
-    every edge connects a vertex in U to one in V. Vertex sets U and V are usually called the parts of the graph. 
-    Equivalently, a bipartite graph is a graph that does not contain any odd-length cycles. 
-    The two sets U and V may be thought of as a coloring of the graph with two colors: 
-    if one colors all nodes in U blue, and all nodes in V green, each edge has endpoints of differing colors, 
-    as is required in the graph coloring problem.
+The graph may not be connected, meaning there may be two nodes u and v such that there is no path between them.
+
+as wikipedia puts it: In the mathematical field of graph theory, a bipartite graph (or bigraph) 
+is a graph whose vertices can be divided into two disjoint and independent sets U and V such that 
+every edge connects a vertex in U to one in V. Vertex sets U and V are usually called the parts of the graph. 
+Equivalently, a bipartite graph is a graph that does not contain any odd-length cycles. 
+The two sets U and V may be thought of as a coloring of the graph with two colors: 
+if one colors all nodes in U blue, and all nodes in V green, each edge has endpoints of differing colors, 
+as is required in the graph coloring problem.
 */
 bool Solution::isBipartite(vector<vector<int>>& graph) {
     int n = graph.size();
@@ -60,17 +60,17 @@ bool Solution::isBipartite(vector<vector<int>>& graph) {
 
 
 /*
-    Given a set of N people (numbered 1, 2, ..., N), we would like to split everyone into two groups of any size.
-    Each person may dislike some other people, and they should not go into the same group.
-    Formally, if dislikes[i] = [a, b], it means it is not allowed to put the people numbered a and b into the same group.
-    Return true if and only if it is possible to split everyone into two groups in this way.
+Given a set of N people (numbered 1, 2, ..., N), we would like to split everyone into two groups of any size.
+Each person may dislike some other people, and they should not go into the same group.
+Formally, if dislikes[i] = [a, b], it means it is not allowed to put the people numbered a and b into the same group.
+Return true if and only if it is possible to split everyone into two groups in this way.
 */
 bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes) {
 
 { // dfs solution
-    // build graph with adjacent list representation
+    // build graph with adjacency list representation
     vector<vector<int>> graph(N);
-    for (auto& p: dislikes) {
+    for (const auto& p: dislikes) {
         graph[p[0]-1].push_back(p[1]-1);
         graph[p[1]-1].push_back(p[0]-1);
     }
@@ -109,22 +109,21 @@ bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes) {
 
 
 /*
-    You have N gardens, labelled 1 to N. In each garden, you want to plant one of 4 types of flowers.
-    paths[i] = [x, y] means there is a bidirectional path from garden x to garden y. Also, there is no garden that has more than 3 paths coming into or leaving it.
-    Your task is to choose a flower type for each garden such that, for any two gardens connected by a path, they have different types of flowers.
-    Return any such a choice as an array answer, where answer[i] is the type of flower planted in the (i+1)-th garden. The flower types are denoted 1, 2, 3, or 4.
-    It is guaranteed an answer exists.
+You have N gardens, labelled 1 to N. In each garden, you want to plant one of 4 types of flowers.
+paths[i] = [x, y] means there is a bidirectional path from garden x to garden y. Also, there is no garden that has more than 3 paths coming into or leaving it.
+Your task is to choose a flower type for each garden such that, for any two gardens connected by a path, they have different types of flowers.
+Return any such a choice as an array answer, where answer[i] is the type of flower planted in the (i+1)-th garden. The flower types are denoted 1, 2, 3, or 4.
+It is guaranteed an answer exists.
 */
 vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths) {
 { // dfs solution
-    // build a graph with adjacent list representation
+    // build a graph with adjacency list representation
     vector<vector<int>> graph(N);
     for (auto& p: paths) {
         graph[p[0]-1].push_back(p[1]-1);
         graph[p[1]-1].push_back(p[0]-1);
     }
     vector<int> color(N, 0);
-    vector<int> visited(N, 0);
     auto choose_color = [&] (int u) {
         vector<bool> mask(4, false); // brilliant!
         for (auto v: graph[u]) {
@@ -132,22 +131,23 @@ vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths) {
                 mask[color[v]-1] = true;
             }
         }
-        for (int i=0; i<mask.size(); ++i) {
+        for (int i=0; i<(int)mask.size(); ++i) {
             if (!mask[i]) {
                 return i+1;
             }
         }
         return 0;
     };
+    vector<int> visited(N, 0);
     function<void(int)> dfs = [&] (int u) {
-        visited[u] = 1;
+        visited[u] = 1; // visiting
         for (auto v: graph[u]) {
-            if (visited[v] == 0) {
+            if (visited[v] == 0) { // unvisited
                 color[v] = choose_color(v);
                 dfs(v);
             }
         }
-        visited[u] = 2;
+        visited[u] = 2; // visited
     };
     for (int u=0; u<N; ++u) {
         if (visited[u] == 0) {

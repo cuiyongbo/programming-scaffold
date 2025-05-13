@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 1192*/
-
 class Solution {
 public:
     vector<vector<int>> criticalConnections(int n, vector<vector<int>>& connections);
@@ -12,14 +10,14 @@ public:
 
 
 /*
-    There are n servers numbered from 0 to n-1 connected by undirected server-to-server connections forming a network where connections[i] = [a, b] 
-    represents a connection between servers a and b. Any server can reach any other server directly or indirectly through the network.
-    A critical connection is a connection that, if removed, will make some server unable to reach some other server.
-    Return all critical connections in the network in sorted order.
-    Note:
-        connections[i][0] != connections[i][1]
-        There are no repeated connections.
-    Hint: tarjan algorithm
+There are n servers numbered from 0 to n-1 connected by undirected server-to-server connections forming a network where connections[i] = [a, b]
+represents a connection between servers a and b. Any server can reach any other server directly or indirectly through the network.
+A critical connection is a connection that, if removed, will make some server unable to reach some other server.
+Return all critical connections in the network in sorted order.
+Note:
+    connections[i][0] != connections[i][1]
+    There are no repeated connections.
+Hint: tarjan algorithm
 */
 vector<vector<int>> Solution::criticalConnections(int n, vector<vector<int>>& connections) {
     // build a undirected graph
@@ -34,8 +32,8 @@ vector<vector<int>> Solution::criticalConnections(int n, vector<vector<int>>& co
     vector<int> ts(n, -1); // timestamp when a node is explored for the first time [discovering timestamp]
     // return the earliest timestamp of node(s) reachable from u, including u itself
     function<int(int, int)> tarjan = [&](int u, int parent) {
-        int min_u = ts[u] = t++; 
-        for (auto& v: graph[u]) {
+        int min_u = ts[u] = t++; // discovering time
+        for (const auto& v: graph[u]) {
             if (ts[v] == -1) { // node v is unvisited yet
                 int min_v = tarjan(v, u);
                 min_u = min(min_u, min_v);

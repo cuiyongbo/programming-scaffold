@@ -23,21 +23,22 @@ public:
 
 
 /*
-    Given a reference of a node in a connected undirected graph. Return a deep copy (clone) of the graph.
+Given a reference of a node in a connected undirected graph. Return a deep copy (clone) of the graph.
 */
 Node* Solution::cloneGraph(Node* node) {
     std::map<Node*, Node*> visited; // original node, doppelganger
+    // return the new node in the clone graph for node
     std::function<Node*(Node*)> dfs = [&] (Node* node) {
         if (node == nullptr) { // trivial case
             return node;
         }
         Node* np = new Node(node->val);
-        visited[node] = np;
+        visited[node] = np; // we must set node before traversing its neighbors
         for (auto c: node->neighbors) {
-            if (visited.count(c) != 0) {
-                np->neighbors.push_back(visited[c]);
-            } else {
+            if (visited.count(c) == 0) { // c is not visited yet
                 np->neighbors.push_back(dfs(c));
+            } else {
+                np->neighbors.push_back(visited[c]);
             }
         }
         return np;
@@ -47,11 +48,11 @@ Node* Solution::cloneGraph(Node* node) {
 
 
 /*
-    A linked list is given such that each node contains an additional random pointer which could point to any node in the list or null.
-    The Linked List is represented in the input/output as a list of n nodes. Each node is represented as a pair of [val, random_index] where:
-        val: an integer representing Node.val
-        random_index: the index of the node (0-index) where random pointer points to, or null if it does not point to any node.
-    Return a deep copy of the list.
+A linked list is given such that each node contains an additional random pointer which could point to any node in the list or null.
+The Linked List is represented in the input/output as a list of n nodes. Each node is represented as a pair of [val, random_index] where:
+    val: an integer representing Node.val
+    random_index: the index of the node (0-index) where random pointer points to, or null if it does not point to any node.
+Return a deep copy of the list.
 */
 RandomListNode* Solution::copyRandomList(RandomListNode* head) {
     std::map<RandomListNode*, RandomListNode*> visited; // original node, doppelganger
@@ -60,10 +61,11 @@ RandomListNode* Solution::copyRandomList(RandomListNode* head) {
             return node;
         }
         if (visited.count(node) == 0) {
-            visited[node] = new RandomListNode(node->val);
-            visited[node]->next = dfs(node->next);
-            visited[node]->random = dfs(node->random);
+            return visited[node];
         }
+        visited[node] = new RandomListNode(node->val);
+        visited[node]->next = dfs(node->next); // set next node
+        visited[node]->random = dfs(node->random); // set random node
         return visited[node];
     };
     return dfs(head);

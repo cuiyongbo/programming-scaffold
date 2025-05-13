@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 207, 210, 802 */
-
 class Solution {
 public:
     bool canFinish(int numCourses, vector<vector<int>>& prerequisites);
@@ -13,10 +11,10 @@ public:
 };
 
 /*
-    There are a total of n courses you have to take, labelled from 0 to n - 1. Some courses may have prerequisites, 
-    for example to take course 0 you have to take course 1 first, which is expressed as a pair: [0, 1]
-    Given the total number of courses and a list of prerequisite pairs, is it possible for you to finish all courses? (no cycle dependency found)
-    Hint: use dfs(coloring) to detect if there is a cycle in the graph. 
+There are a total of n courses you have to take, labelled from 0 to n - 1. Some courses may have prerequisites, 
+for example to take course 0 you have to take course 1 first, which is expressed as a pair: [0, 1]
+Given the total number of courses and a list of prerequisite pairs, is it possible for you to finish all courses? (no cycle dependency found)
+Hint: use dfs(coloring) to detect if there is a cycle in the graph. 
 */
 bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
     // build a DAG (Directed Acyclic Graph)
@@ -35,6 +33,12 @@ bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
                 }
             } else if (visited[v] == 1) { // found a cycle
                 return false;
+            } else if (visited[v] == 2) {
+                /* we may reach here when visiting 2 from 0
+                0: 1, 2
+                1: 2
+                2: null
+                */
             }
         }
         visited[u] = 2; // visited
@@ -52,10 +56,10 @@ bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
 }
 
 /*
-    There are a total of n courses you have to take, labelled from 0 to n - 1. Some courses may have prerequisites,
-    for example to take course 0 you have to take course 1 first, which is expressed as a pair: [0, 1]
-    Given the total number of courses and a list of prerequisite pairs, return the ordering of courses you should take to finish all courses.
-    There may be multiple correct orders, you just need to return one of them. If it is impossible to finish all courses, return an empty array.
+There are a total of n courses you have to take, labelled from 0 to n - 1. Some courses may have prerequisites,
+for example to take course 0 you have to take course 1 first, which is expressed as a pair: [0, 1]
+Given the total number of courses and a list of prerequisite pairs, return the ordering of courses you should take to finish all courses.
+There may be multiple correct orders, you just need to return one of them. If it is impossible to finish all courses, return an empty array.
 */
 vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisites) {
     // build a DAG (Directed Acyclic Graph)
@@ -73,7 +77,7 @@ vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisit
                 if (!dfs(v)) {
                     return false;
                 }
-            } else if (visited[v] == 1) { // found a cycle
+            } else if (visited[v] == 1) { // found a cycle, we cannot finish all lessons
                 return false;
             }
         }
@@ -82,7 +86,7 @@ vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisit
         visited[u] = 2; // visited
         return true;
     };
-    // traverse all nodes to see if there is a cycle
+    // traverse over all lessons
     for (int u=0; u<numCourses; ++u) {
         if (visited[u] == 0) {
             if (!dfs(u)) {
@@ -96,25 +100,23 @@ vector<int> Solution::findOrder(int numCourses, vector<vector<int>>& prerequisit
 
 
 /*
-    In a directed graph, we start at some node and walk along a directed edge of the graph at every turn.
-    If we reach a node that is terminal (that is, it has no outgoing directed edges), we stop.
-    Now, say our starting node is eventually safe if and only if we must eventually walk to a terminal node. More specifically,
-    there exists a natural number K so that for any choice of where to walk, we must have stopped at a terminal node in less than K steps.
+In a directed graph, we start at some node and walk along a directed edge of the graph at every turn.
+If we reach a node that is terminal (that is, it has no outgoing directed edges), we stop.
+Now, say our starting node is eventually safe if and only if we must eventually walk to a terminal node. More specifically,
+there exists a natural number K so that for any choice of where to walk, we must have stopped at a terminal node in less than K steps.
 
-    Which nodes are eventually safe? Return them as an array in sorted order.
+Which nodes are eventually safe? Return them as an array in sorted order.
 
-    The directed graph has N nodes with labels 0, 1, ..., N-1, where N is the length of graph.
-    The graph is given in the following form: graph[i] is a list of labels j such that (i, j) is a directed edge of the graph.
+The directed graph has N nodes with labels 0, 1, ..., N-1, where N is the length of graph.
+The graph is given in the following form: graph[i] is a list of labels j such that (i, j) is a directed edge of the graph.
 
-    Hint: remove nodes in a connected component which contains cycle(s) but note that a terminal node is always safe itself.
+Hint: remove nodes in a connected component which contains cycle(s) but note that a terminal node is always safe itself.
 */
 vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph) {
-
-// naive way
-{    
+    vector<int> ans;
     int n = graph.size();
     vector<int> visited(n, 0);
-    // return true if node u is eventually safe
+    // return true if node u is eventually safe, that is there is no cycle in the connected component node u belongs to
     function<bool(int)> dfs = [&] (int u) {
         visited[u] = 1; // visiting
         for (auto v: graph[u]) {
@@ -126,42 +128,8 @@ vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph) {
                 return false;
             }
         }
-        visited[u] = 2; // visited
-        return true;
-    };
-    for (int u=0; u<n; ++u) {
-        if (visited[u] == 0) {
-            dfs(u);
-        }
-    }
-    vector<int> ans;
-    for (int u=0; u<n; ++u) {
-        if (visited[u] == 2) {
-            ans.push_back(u);
-        }
-    }
-    return ans;
-}
-
-// naive way
-{    
-    vector<int> ans;
-    int n = graph.size();
-    vector<int> visited(n, 0);
-    // return true if node u is eventually safe
-    function<bool(int)> dfs = [&] (int u) {
-        visited[u] = 1; // visiting
-        for (auto v: graph[u]) {
-            if (visited[v] == 0) { // unvisited
-                if (!dfs(v)) {
-                    return false;
-                }
-            } else if (visited[v] == 1) { // found a cycle
-                return false;
-            }
-        }
+        visited[u] = 2; // visited. yes, node u is eventually safe
         ans.push_back(u);
-        visited[u] = 2; // visited
         return true;
     };
     for (int u=0; u<n; ++u) {
@@ -171,8 +139,6 @@ vector<int> Solution::eventualSafeNodes(vector<vector<int>>& graph) {
     }
     std::sort(ans.begin(), ans.end());
     return ans;
-}
-
 }
 
 

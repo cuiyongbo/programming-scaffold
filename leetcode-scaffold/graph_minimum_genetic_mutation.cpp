@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 433, 815, 863, 1129, 1263*/
-
 class Solution {
 public:
     int minMutation(string start, string end, vector<string>& bank);
@@ -20,16 +18,16 @@ private:
 
 
 /*
-    A gene string can be represented by an 8-character long string, with choices from "A", "C", "G", "T".
-    Suppose we need to investigate about a mutation (mutation from “start” to “end”), where ONE mutation 
-    is defined as ONE single character changed in the gene string. For example, "AACCGGTT" -> "AACCGGTA" is 1 mutation.
-    Also, there is a given gene “bank”, which records all the valid gene mutations. A gene must be in the bank to make it a valid gene string.
-    Now, given start, end, bank, your task is to determine what is the minimum number of mutations needed to mutate from “start” to “end”. 
-    If there is no such a mutation, return -1.
-    Note:
-        Starting point is assumed to be valid, so it might not be included in the bank.
-        If multiple mutations are needed, all mutations during in the sequence must be valid.
-        You may assume start and end string is not the same.
+A gene string can be represented by an 8-character long string, with choices from "A", "C", "G", "T".
+Suppose we need to investigate about a mutation (mutation from “start” to “end”), where ONE mutation 
+is defined as ONE single character changed in the gene string. For example, "AACCGGTT" -> "AACCGGTA" is 1 mutation.
+Also, there is a given gene “bank”, which records all the valid gene mutations. A gene must be in the bank to make it a valid gene string.
+Now, given start, end, bank, your task is to determine what is the minimum number of mutations needed to mutate from “start” to “end”. 
+If there is no such a mutation, return -1.
+Note:
+    Starting point is assumed to be valid, so it might not be included in the bank.
+    If multiple mutations are needed, all mutations during in the sequence must be valid.
+    You may assume start and end string is not the same.
 */
 int Solution::minMutation(string start, string end, vector<string>& bank) {
     auto is_valid = [&] (string u, string v) {
@@ -43,8 +41,11 @@ int Solution::minMutation(string start, string end, vector<string>& bank) {
     };
     // use bfs to find the minimum steps from start to end
     int steps = 0;
-    queue<string> q; q.push(start);
-    set<string> visited; visited.insert(start);
+    queue<string> q;
+    set<string> visited;
+    // initialization
+    q.push(start);
+    visited.insert(start);
     while (!q.empty()) {
         for (int k=q.size(); k!=0; --k) {
             auto u = q.front(); q.pop();
@@ -68,10 +69,10 @@ int Solution::minMutation(string start, string end, vector<string>& bank) {
 
 
 /*
-    We have a list of bus routes. Each routes[i] is a bus route that the i-th bus repeats forever. 
-    For example if routes[0] = [1, 5, 7], this means that the first bus (0-th indexed) travels in the sequence 1->5->7->1->5->7->1->… forever.
-    We start at bus stop S (initially not on a bus), and we want to go to bus stop T. 
-    Travelling by buses only, what is the least number of buses we must take to reach our destination? Return -1 if it is not possible. [最少换乘]
+We have a list of bus routes. Each routes[i] is a bus route that the i-th bus repeats forever. 
+For example if routes[0] = [1, 5, 7], this means that the first bus (0-th indexed) travels in the sequence 1->5->7->1->5->7->1->… forever.
+We start at bus stop S (initially not on a bus), and we want to go to bus stop T. 
+Travelling by buses only, what is the least number of buses we must take to reach our destination? Return -1 if it is not possible. [最少换乘]
 */
 int Solution::numBusesToDestination(vector<vector<int>>& routes, int S, int T) {
     return numBusesToDestination_bfs(routes, S, T);
@@ -129,16 +130,16 @@ int Solution::numBusesToDestination_napolen(vector<vector<int>>& routes, int S, 
 
 
 int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int T) {
-
 { // naive bfs
     int buses = routes.size();
     // build bus station map
-    map<int, vector<int>> bus_station_map;
+    map<int, vector<int>> station_2_buses_map; // statition, buses
     for (int i=0; i<buses; i++) {
         for (auto r: routes[i]) {
-            bus_station_map[r].push_back(i);
+            station_2_buses_map[r].push_back(i);
         }
     }
+    // if there is one common station at least in two buses
     auto is_intersected = [&] (int i, int j) {
         for (auto r: routes[i]) {
             for (auto l: routes[j]) {
@@ -150,35 +151,35 @@ int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int 
         return false;
     };
     // build a bus graph
-    map<int, vector<int>> graph;
+    map<int, vector<int>> bus_graph;
     for (int i=0; i<buses; i++) {
         for (int j=i+1; j<buses; j++) {
             if (is_intersected(i, j)) {
-                graph[i].push_back(j);
-                graph[j].push_back(i);
+                bus_graph[i].push_back(j);
+                bus_graph[j].push_back(i);
             }
         }
     }
     // use bfs to find the minimum bus to travel from S to T
     int steps = 0;
     queue<int> q;
-    for (auto r: bus_station_map[S]) {
+    for (auto r: station_2_buses_map[S]) {
         q.push(r);
     }
-    set<int> visited(bus_station_map[S].begin(), bus_station_map[S].end());
-    set<int> ends(bus_station_map[T].begin(), bus_station_map[T].end());
+    set<int> visited(station_2_buses_map[S].begin(), station_2_buses_map[S].end());
+    set<int> end_buses(station_2_buses_map[T].begin(), station_2_buses_map[T].end());
     while (!q.empty()) {
         for (int k=q.size(); k!=0; k--) {
             auto u = q.front(); q.pop();
-            if (ends.count(u)) {
+            if (end_buses.count(u)) {
                 return steps+1;
             }
-            for (auto v: graph[u]) {
+            for (auto v: bus_graph[u]) {
                 if (visited.count(v) == 0) {
                     q.push(v);
                     visited.insert(v);
                 }
-            }  
+            }
         }
         steps++;
     }
@@ -249,13 +250,13 @@ int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int 
 
 
 /*
-    We are given a binary tree (with root node root), a target node, and an integer value K.
-    Return a list of the values of all nodes that have a distance K from the target node. 
-    The answer can be returned in any order.
-    Constraints:
-        All the values Node.val are unique.
-        target is the value of one of the nodes in the tree.
-    Hint: convert the tree into a undirected graph, and perform bfs search from target, return the nodes at the Kth traversal.
+We are given a binary tree (with root node root), a target node, and an integer value K.
+Return a list of the values of all nodes that have a distance K from the target node. 
+The answer can be returned in any order.
+Constraints:
+    All the values Node.val are unique.
+    target is the value of one of the nodes in the tree.
+Hint: convert the tree into a undirected graph, and perform bfs search from target, return the nodes at the Kth traversal.
 */
 vector<int> Solution::distanceK(TreeNode* root, int target, int distance) {
     map<int, vector<int>> graph;
@@ -278,9 +279,12 @@ vector<int> Solution::distanceK(TreeNode* root, int target, int distance) {
     tree_to_graph(root);
     // perform bfs to find the destination nodes
     int steps = 0;
-    queue<int> q; q.push(target);
-    set<int> visited; visited.insert(target);
-    while (!q.empty() && steps!=distance) {
+    queue<int> q;
+    set<int> visited;
+    // initialization
+    q.push(target);
+    visited.insert(target);
+    while (!q.empty() && steps != distance) { // don't modify this test
         for (int k=q.size(); k!=0; --k) {
             auto u = q.front(); q.pop();
             for (auto v: graph[u]) {
@@ -301,12 +305,12 @@ vector<int> Solution::distanceK(TreeNode* root, int target, int distance) {
 
 
 /*
-    Consider a *directed* graph, with nodes labelled 0, 1, ..., n-1.
-    In this graph, each edge is either red or blue, and there could be self-edges or parallel edges.
-    Each [i, j] in red_edges denotes a red directed edge from node i to node j.  
-    Similarly, each [i, j] in blue_edges denotes a blue directed edge from node i to node j.
-    Return an array answer of length n, where each answer[X] is the length of the shortest path 
-    from node 0 to node X such that the edge colors alternate along the path (or -1 if such a path doesn’t exist).
+Consider a **directed** graph, with nodes labelled 0, 1, ..., n-1. (0-indexed)
+In this graph, each edge is either red or blue, and there could be self-edges or parallel edges.
+Each [i, j] in red_edges denotes a red directed edge from node i to node j.  
+Similarly, each [i, j] in blue_edges denotes a blue directed edge from node i to node j.
+Return an array answer of length n, where each answer[X] is the length of the shortest path 
+from node 0 to node X such that the edge colors alternate along the path (or -1 if such a path doesn’t exist).
 */
 vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_edges, vector<vector<int>>& blue_edges) {
     const int RED = 0;
@@ -325,10 +329,12 @@ vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_e
     }
     vector<int> ans(n, INT32_MAX);
     auto search = [&] (int color) {
-        int steps = 0;
+        queue<int> q;
         vector<vector<bool>> visited(2, vector<bool>(n, false));
+        // initialization
+        q.push(0);
         visited[color][0] = true;
-        queue<int> q; q.push(0);
+        int steps = 0;
         while (!q.empty()) {
             for (int k=q.size(); k!=0; --k) {
                 auto u = q.front(); q.pop();
@@ -353,18 +359,18 @@ vector<int> Solution::shortestAlternatingPaths(int n, vector<vector<int>>& red_e
 
 
 /*
-    Storekeeper is a game in which the player pushes boxes around in a warehouse trying to get them to target locations.
-    The game is represented by a grid of size n*m, where each element is a wall, floor, or a box.
-    Your task is move the box 'B' to the target position 'T' under the following rules:
-        Player is represented by character 'S' and can move up, down, left, right in the grid if it is a floor (empy cell).
-        Floor is represented by character '.' that means a free cell to walk.
-        Wall is represented by character '#' that means an obstacle (impossible to walk through). 
-        The box can be moved to an adjacent free cell by standing next to the box and then moving in the direction of the box. This is a push.
-        The player cannot walk through the box.
-    Return the minimum number of pushes to move the box to the target. If there is no way to reach the target, return -1.
-    Constraints:
-        grid contains only characters '.', '#', 'S', 'T', or 'B'.
-        There is only one character 'S', 'B', and 'T' in the grid.
+Storekeeper is a game in which the player pushes boxes around in a warehouse trying to get them to target locations.
+The game is represented by a grid of size n*m, where each element is a wall, floor, or a box.
+Your task is move the box 'B' to the target position 'T' under the following rules:
+    Player is represented by character 'S' and can move up, down, left, right in the grid if it is a floor (empy cell).
+    Floor is represented by character '.' that means a free cell to walk.
+    Wall is represented by character '#' that means an obstacle (impossible to walk through). 
+    The box can be moved to an adjacent free cell by standing next to the box and then moving in the direction of the box. This is a push.
+    The player cannot walk through the box.
+Return the minimum number of pushes to move the box to the target. If there is no way to reach the target, return -1.
+Constraints:
+    grid contains only characters '.', '#', 'S', 'T', or 'B'.
+    There is only one character 'S', 'B', and 'T' in the grid.
 */
 int Solution::minPushBox(vector<vector<char>>& grid) {
     int rows = grid.size();
@@ -385,12 +391,16 @@ int Solution::minPushBox(vector<vector<char>>& grid) {
     }
     // return true if `push_pos` is reachable from `player_pos`, otherwise false
     auto is_valid_move = [&] (Coordinate player_pos, Coordinate push_pos, Coordinate box_pos) {
-        queue<Coordinate> q; q.push(player_pos);
-        set<Coordinate> visited; visited.insert(player_pos);
+        // naive bfs search from player_pos to push_pos
+        queue<Coordinate> q;
+        set<Coordinate> visited;
+        // initialization
+        q.push(player_pos);
+        visited.insert(player_pos);
         while (!q.empty()) {
             for (int k=q.size(); k!=0; --k) {
                 auto u = q.front(); q.pop();
-                if (u == push_pos) {
+                if (u == push_pos) { // player can reach push_pos
                     return true;
                 }
                 for (auto d: directions) {
@@ -400,7 +410,7 @@ int Solution::minPushBox(vector<vector<char>>& grid) {
                         continue;
                     }
                     auto v = make_pair(nr, nc);
-                    if (v == box_pos // cannot walk through box, we may compact code by adding box_pos to visited
+                    if (v == box_pos // player cannot walk through box, we may compact code by adding box_pos to visited
                         || visited.count(v) != 0) {
                         continue;
                     }
@@ -413,19 +423,21 @@ int Solution::minPushBox(vector<vector<char>>& grid) {
     };
     // perform bfs search
     int steps = 0;
-    set<pair<Coordinate, Coordinate>> visited; // box_pos, direction from which box is pushed to box_pos
-    queue<pair<Coordinate, Coordinate>> q; q.emplace(box, player); // box_pos, player_pos
+    set<pair<Coordinate, Coordinate>> visited; // box_pos, direction in which box is pushed to box_pos
+    queue<pair<Coordinate, Coordinate>> q; // box_pos, player_pos
+    q.emplace(box, player);
     while (!q.empty()) {
         for (int k=q.size(); k!=0; --k) {
             auto candidate = q.front(); q.pop();
             auto player_pos = candidate.second;
             auto box_pos = candidate.first;
-            if (box_pos == dest) {
+            if (box_pos == dest) { // we reach the end
                 return steps;
             }
             for (auto d: directions) {
                 int nr = box_pos.first + d.first;
                 int nc = box_pos.second + d.second;
+                // new box position should stay in the grid and not be wall
                 if (nr<0 || nr>=rows || nc<0 || nc>=columns || grid[nr][nc]=='#') {
                     continue;
                 }
@@ -434,11 +446,13 @@ int Solution::minPushBox(vector<vector<char>>& grid) {
                 if (visited.count(pp) != 0) {
                     continue;
                 }
-                // to push box to `new_box`, player must goes to `push_pos` then push
+                // to push box to `new_box`, player must go to `push_pos` then push
                 auto push_pos = make_pair(box_pos.first-d.first, box_pos.second-d.second);
+                // new player position should stay in the grid and not be wall
                 if (push_pos.first<0 || push_pos.first>=rows || push_pos.second<0 || push_pos.second>=columns || grid[push_pos.first][push_pos.second]=='#') {
                     continue;
                 }
+                // can player reach the push_pos?
                 if (is_valid_move(player_pos, push_pos, box_pos)) {
                     visited.insert(pp); // DON'T move it out of `is_valid_move`
                     q.emplace(new_box, box_pos); // player takes the place of previous box position after pushing
