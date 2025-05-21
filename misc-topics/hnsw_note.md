@@ -45,7 +45,7 @@ struct CompareByFirst {
     }
 };
 std::priority_queue<std::pair<dist_t, tableint>, std::vector<std::pair<dist_t, tableint>>, CompareByFirst> top_candidates; // max-heap, 大根堆, 元素是 {dist, cand_id}, 最不相似结果排在top
-std::priority_queue<std::pair<dist_t, tableint>, std::vector<std::pair<dist_t, tableint>>, CompareByFirst> candidate_set; // max-heap, 大根堆, 元素是 {-dist, cand_id}, 最相似结果排在top
+std::priority_queue<std::pair<dist_t, tableint>, std::vector<std::pair<dist_t, tableint>>, CompareByFirst> candidate_set; // max-heap, 大根堆, 元素是 {-dist, cand_id}, 因为对距离取反, 所以最相似结果排在top
 std::priority_queue<std::pair<dist_t, labeltype >> result; // min-heap, 小根堆, 最相似的结果排在top
 /*
 检索过程中这三个 pq 的作用时:
@@ -63,7 +63,7 @@ std::priority_queue<std::pair<dist_t, labeltype >> result; // min-heap, 小根�
 
 ## 工程优化
 
-- 算法调参: m(节点的最大连接度), cef(构建时, 插入数据时优先队列里保持的最近邻数量), sef(类似cef, 用于检索), topk, space(距离类型: l2, ip, cosine), dim
+- 算法调参: m(节点的最大连接度), cef(构建时优先队列的最大长度), sef(类似cef, 用于检索), topk, space(距离类型: l2, ip, cosine), dim
 - 内存优化;
     - 使用 __mm_prefetch, 预取数据放入cache line, 减少 cache miss
     - 开启透明大页内存(Transparent Huge Page), 减少 TLB(保存虚拟内存地址到物理地址映射的 cache) Miss 和缺页中断
@@ -247,8 +247,6 @@ level 6: 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 Nodes Level Info: level[0]: 25245897, level[1]: 1260364, level[2]: 63518, level[3]: 3176, level[4]: 151, level[5]: 7, level[6]: 1, 
 # hnsw 包含多少层(一般在1-8层左右, 千万的数据量层数一般是7-8), 总元素个数(sum(level[i]))
 HierarchicalNSW::saveIndex cur_element_count = 26573114, maxlevel = 6
-
-
 HierarchicalNSW::saveIndex cur_element_count = 727, maxlevel = 2
 HierarchicalNSW::saveIndex cur_element_count = 440, maxlevel = 2
 HierarchicalNSW::saveIndex cur_element_count = 33, maxlevel = 1

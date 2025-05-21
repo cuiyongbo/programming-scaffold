@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 855, 917, 925, 986 */
 typedef vector<int> Interval;
@@ -33,7 +32,7 @@ string Solution::reverseOnlyLetters(string input) {
             ++i; --j;
         } else if (!is_letter(input[i])) {
             ++i;
-        } else {
+        } else if (!is_letter(input[j])) {
             --j;
         }
     }
@@ -52,22 +51,25 @@ bool Solution::isLongPressedName(string name, string typed) {
     int i=0, j=0; 
     while (i<len1&&j<len2) {
         if (name[i] != typed[j]) {
-            break;
+            return false;
         }
         int c = name[i];
+        // how many c in name?
         int p1 = i;
         while (i<len1 && name[i]==c) {
             ++i;
         }
+        // how many c in typed?
         int p2 = j;
         while (j<len2 && typed[j]==c) {
             ++j;
         }
-        // we may input certain character the same times as or more times than its occurrences in name but NOT LESS
+        // we may type certain character the same times as or more times than its occurrences in name but NOT LESS
         if (i-p1 > j-p2) {
-            break;
+            return false;
         }
     }
+    // no letter left for both name and typed
     return i==len1 && j==len2;
 }
 
@@ -108,29 +110,29 @@ vector<Interval> Solution::intervalIntersection(vector<Interval>& A, vector<Inte
 
 
 /*
-    The i-th person has weight people[i], and each boat can carry a maximum weight of `limit`.
-    Each boat carries at most 2 people at the same time, provided the maximum weight of those people is at most `limit`.
-    Return the minimum number of boats to carry every given person. (It is guaranteed each person can be carried by a boat.)
+The i-th person has weight people[i], and each boat can carry a maximum weight of `limit`.
+Each boat carries at most 2 people at the same time, provided the maximum weight of those people is at most `limit`. so It is guaranteed each person can be carried by a boat.
+Return the minimum number of boats to carry every given person.
 
-    Example 2:
-    Input: people = [3,2,2,1], limit = 3
-    Output: 3
-    Explanation: 3 boats (1, 2), (2) and (3)
+Example 2:
+Input: people = [3,2,2,1], limit = 3
+Output: 3
+Explanation: 3 boats (1, 2), (2) and (3)
 
-    Example 3:
-    Input: people = [3,5,3,4], limit = 5
-    Output: 4
-    Explanation: 4 boats (3), (3), (4), (5)
+Example 3:
+Input: people = [3,5,3,4], limit = 5
+Output: 4
+Explanation: 4 boats (3), (3), (4), (5)
 */
 int Solution::numRescueBoats(vector<int>& people, int limit) {
     // sort the weights in descending order since we need carry people with more weight first
     std::sort(people.begin(), people.end(), std::greater<int>());
     int ans = 0;
     int l = 0;
-    int r = people.size() - 1;
+    int r = people.size() - 1; // r is inclusive
     while (l <= r) {
         // can we take another people with less weight?
-        if (l != r && people[l]+people[r]<=limit) {
+        if (l != r && people[l]+people[r]<=limit) { // can we take two people?
             --r;
         }
         ++ans; ++l;
@@ -194,6 +196,8 @@ int main() {
     reverseOnlyLetters_scaffold("ab-cd", "dc-ba");
     reverseOnlyLetters_scaffold("a-bC-dEf-ghIj", "j-Ih-gfE-dCba");
     reverseOnlyLetters_scaffold("Test1ng-Leet=code-Q!", "Qedo1ct-eeLg=ntse-T!");
+    reverseOnlyLetters_scaffold("1a2", "1a2");
+    reverseOnlyLetters_scaffold("123ab", "123ba");
     TIMER_STOP(reverseOnlyLetters);
     SPDLOG_WARN("reverseOnlyLetters tests use {} ms", TIMER_MSEC(reverseOnlyLetters));
 

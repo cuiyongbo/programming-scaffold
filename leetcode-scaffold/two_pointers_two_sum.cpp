@@ -11,15 +11,15 @@ public:
 };
 
 
-vector<int> Solution::twoSum(vector<int>& nums, int target) {
 /*
-    Given an array of integers that is already **sorted in ascending order**, find two numbers such that they add up to a specific target number.
+Given an array of integers that is already **sorted in ascending order**, find two numbers such that they add up to a specific target number.
 
-    The function twoSum should return indices of the two numbers such that they add up to the target, where index1 must be less than index2.
-    Please note that your returned answers (both index1 and index2) are one-based. You may assume that each input would have exactly one solution and you may not use the same element twice.
+The function twoSum should return indices of the two numbers such that they add up to the target, where index1 must be less than index2.
+Please note that your returned answers (both index1 and index2) are one-based(1-indexed). You may assume that each input would have exactly one solution and you may not use the same element twice.
 
-    Given an input: numbers={2, 7, 11, 15}, target=9, Output: index1=1, index2=2
+Given an input: numbers={2, 7, 11, 15}, target=9, Output: index1=1, index2=2
 */
+vector<int> Solution::twoSum(vector<int>& nums, int target) {
     int l=0;
     int r=nums.size()-1;
     while (l != r) { // brilliant
@@ -35,23 +35,23 @@ vector<int> Solution::twoSum(vector<int>& nums, int target) {
     return {l+1, r+1};
 }
 
-vector<vector<int>> Solution::threeSum(vector<int>& nums) {
+
 /*
-    Given an array S of n integers, are there elements a, b, c in S such that a + b + c = 0? 
-    Find all unique triplets in the array which gives the sum of zero. Note: The solution set must not contain duplicate triplets.
-    For example, given array S = [-1, 0, 1, 2, -1, -4], A solution set is:
-        [
-            [-1, 0, 1],
-            [-1, -1, 2]
-        ]
+Given an array S of n integers, are there elements a, b, c in S such that a + b + c = 0? 
+Find all unique triplets in the array which gives the sum of zero. Note: The solution set must not contain duplicate triplets.
+For example, given array S = [-1, 0, 1, 2, -1, -4], A solution set is:
+    [
+        [-1, 0, 1],
+        [-1, -1, 2]
+    ]
 */
+vector<vector<int>> Solution::threeSum(vector<int>& nums) {
     // sort `num` in ascending order
     std::sort(nums.begin(), nums.end(), std::less<int>());
-    //print_vector(nums);
     vector<vector<int>> ans;
     int sz = nums.size();
     for (int i=0; i<sz-2; ++i) {
-        if (nums[i] > 0) { // prune useless branches. because num[i+1:] must be greater than or equal to nums[i]
+        if (nums[i] > 0) { // prune invalid branches. because num[i+1:] must be greater than or equal to nums[i]
             break;
         }
         if (i>0 && nums[i] == nums[i-1]) { // skip duplicates
@@ -60,7 +60,7 @@ vector<vector<int>> Solution::threeSum(vector<int>& nums) {
         // for each iteration, we fix i, and change l and r
         int l = i+1;
         int r = sz-1;
-        while (l < r) {
+        while (l < r) { // NOTE that don't change this test to (l!=r)
             int m = nums[i] + nums[l] + nums[r];
             //printf("i=%d, l=%d, r=%d, m=%d\n", i, l, r, m);
             if (m == 0) {
@@ -82,12 +82,13 @@ vector<vector<int>> Solution::threeSum(vector<int>& nums) {
     return ans;
 }
 
-int Solution::threeSumClosest(vector<int>& nums, int target) {
+
 /*
-    Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest to target. 
-    Return the sum of the three integers. You may assume that each input would have exactly one solution.
-    Example: Given array nums = [-1, 2, 1, -4], and target = 1. The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest to target. 
+Return the sum of the three integers. You may assume that each input would have exactly one solution.
+Example: Given array nums = [-1, 2, 1, -4], and target = 1. The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
 */
+int Solution::threeSumClosest(vector<int>& nums, int target) {
     // sort nums in ascending order
     std::sort(nums.begin(), nums.end(), std::less<int>());
     int ans = 0;

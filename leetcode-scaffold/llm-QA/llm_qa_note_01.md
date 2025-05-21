@@ -482,3 +482,168 @@ int main() {
 
 ### Summary
 This solution efficiently calculates the number of trailing zeroes in the factorial of \( n \) by focusing on the factors of 5. The time complexity is \( O(\log_5(n)) \), which is efficient even for large values of \( n \). The approach avoids computing the potentially very large factorial, which is computationally impractical for large \( n \).
+
+Q: 这是一道编程题, 请使用C++编写解题方法.
+题目: itemList 类型是 vector<int>, 是一个整形数组; eachPageSize 是每个子数组的最大元素个数. 希望实现一个算法, 返回分包后的list,尽可能让每个子数组的size均匀且总的子数组数量最小
+例子1: itemList = [1,2,3,4,5,6,7,8,9,10,11,12], eachPageSize=5, 返回 [[1,2,3,4], [5,6,7,8], [9,10,11,12]]
+例子1: itemList = [1,2,3], eachPageSize=5, 返回 [[1,2,3]]
+
+以下是用 C++ 编写的解题方法，旨在将 `itemList` 分成尽可能均匀的子数组，并且总的子数组数量最小：
+
+---
+
+### **解题思路**
+1. **输入参数**：
+   - `itemList`: 一个整型数组。
+   - `eachPageSize`: 每个子数组的最大元素个数。
+
+2. **目标**：
+   - 将 `itemList` 分成多个子数组，尽可能使每个子数组的大小均匀。
+   - 确保每个子数组的大小不超过 `eachPageSize`。
+
+3. **步骤**：
+   - 计算需要的子数组数量 `numPages`。
+   - 根据 `numPages`，将 `itemList` 均匀分配到子数组中。
+   - 确保每个子数组的大小不超过 `eachPageSize`。
+
+---
+
+### **代码实现**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+vector<vector<int>> paginate(const vector<int>& itemList, int eachPageSize) {
+    vector<vector<int>> result;
+
+    // 如果 itemList 为空，直接返回空结果
+    if (itemList.empty()) {
+        return result;
+    }
+
+    int totalItems = itemList.size();
+    
+    // 计算需要的子数组数量
+    int numPages = ceil((double)totalItems / eachPageSize);
+
+    // 计算每个子数组的平均大小（尽可能均匀分配）
+    int baseSize = totalItems / numPages; // 每个子数组的基础大小
+    int extraItems = totalItems % numPages; // 多余的元素，分配到前几个子数组
+
+    int index = 0; // 当前遍历的位置
+    for (int i = 0; i < numPages; ++i) {
+        int currentPageSize = baseSize + (i < extraItems ? 1 : 0); // 前 extraItems 个子数组多分配一个元素
+        vector<int> page;
+
+        for (int j = 0; j < currentPageSize; ++j) {
+            page.push_back(itemList[index++]);
+        }
+
+        result.push_back(page);
+    }
+
+    return result;
+}
+
+int main() {
+    // 示例 1
+    vector<int> itemList1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    int eachPageSize1 = 5;
+
+    vector<vector<int>> result1 = paginate(itemList1, eachPageSize1);
+
+    cout << "Example 1 Result:" << endl;
+    for (const auto& page : result1) {
+        cout << "[";
+        for (size_t i = 0; i < page.size(); ++i) {
+            cout << page[i] << (i < page.size() - 1 ? ", " : "");
+        }
+        cout << "]" << endl;
+    }
+
+    // 示例 2
+    vector<int> itemList2 = {1, 2, 3};
+    int eachPageSize2 = 5;
+
+    vector<vector<int>> result2 = paginate(itemList2, eachPageSize2);
+
+    cout << "Example 2 Result:" << endl;
+    for (const auto& page : result2) {
+        cout << "[";
+        for (size_t i = 0; i < page.size(); ++i) {
+            cout << page[i] << (i < page.size() - 1 ? ", " : "");
+        }
+        cout << "]" << endl;
+    }
+
+    return 0;
+}
+```
+
+---
+
+### **代码解释**
+
+1. **计算子数组数量**：
+   - `numPages = ceil((double)totalItems / eachPageSize)`：
+     - 计算需要的子数组数量，确保每个子数组的大小不超过 `eachPageSize`。
+
+2. **分配元素**：
+   - 每个子数组的基础大小为 `baseSize = totalItems / numPages`。
+   - 多余的元素 `extraItems = totalItems % numPages` 分配到前 `extraItems` 个子数组中，使它们多一个元素。
+
+3. **构造子数组**：
+   - 遍历 `itemList`，将元素逐一分配到子数组中，直到所有元素都被分配完。
+
+4. **输出结果**：
+   - 使用嵌套循环打印每个子数组的内容。
+
+---
+
+### **测试结果**
+
+#### 示例 1
+输入：
+```plaintext
+itemList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+eachPageSize = 5
+```
+
+输出：
+```plaintext
+Example 1 Result:
+[1, 2, 3, 4]
+[5, 6, 7, 8]
+[9, 10, 11, 12]
+```
+
+#### 示例 2
+输入：
+```plaintext
+itemList = [1, 2, 3]
+eachPageSize = 5
+```
+
+输出：
+```plaintext
+Example 2 Result:
+[1, 2, 3]
+```
+
+---
+
+### **复杂度分析**
+
+1. **时间复杂度**：
+   - 遍历 `itemList` 一次，时间复杂度为 **O(n)**，其中 `n` 是 `itemList` 的大小。
+
+2. **空间复杂度**：
+   - 结果存储在 `result` 中，空间复杂度为 **O(n)**。
+
+---
+
+这段代码可以处理各种输入情况，包括空数组、小数组以及较大的数组，并且始终确保子数组的大小尽可能均匀且不超过 `eachPageSize`。

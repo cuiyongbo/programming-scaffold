@@ -11,6 +11,7 @@ public:
     int preimageSizeFZF(int K);
 };
 
+
 /*
 Given an array of integers A sorted in non-decreasing order, return an array of the squares of each number, also in sorted non-decreasing order.
 for example:
@@ -24,19 +25,24 @@ vector<int> Solution::sortedSquares(vector<int>& A) {
     // perform lower_bound to find the first non-negative element
     int sz = A.size();
     int l = 0;
-    int r = sz;
+    int r = sz; // r is not inclusive
+    int target = 0;
     while (l < r) {
         int m = (l+r)/2;
-        if (A[m] < 0) {
+        if (A[m] < target) {
             l = m+1;
         } else {
             r = m;
         }
     }
-    //SPDLOG_WARN("l={}, A[l]={}", l, A[l]);
     // 2. merge two partitions by squared values
-    int i = l-1;
-    int j = l;
+    /* cases:
+     1. 0 exists in A. nums[:l-1]<0, nums[l] = 0, nums[l+1:]>=0
+     2. A[sz-1] < 0. l=sz
+     3. A[0] > 0. l = 0
+    */
+    int i = l-1; // go to left
+    int j = l; // go to right
     vector<int> ans(sz);
     for (int k=0; k<sz; k++) {
         if ((j==sz) || (i>=0 && A[i]*A[i]<A[j]*A[j])) {
@@ -89,7 +95,9 @@ int Solution::subarraysWithKDistinct(vector<int>& nums, int K) {
                     distinct_nums--;
                 }
             }
+            assert(distinct_nums<=k);
             ans += (i-j+1);
+            // nums[j:i] 1, 2, (i-j+1)
         }
         return ans;
     };
@@ -115,10 +123,11 @@ Explanation: 0! = 1, no trailing zero.
 */
 int Solution::trailingZeroes(int n) {
 /*
-the number of trailing zeros in the factorial of an integer n is equal to the number of times 10 is a factor in the product sequence.
+the number of trailing zeros in the factorial of an integer n is equal to the number of times in which 10 is a factor in the product sequence.
 and a factor of 10 is proudced by a pair of factors 2 and 5, since there are more factors of 2 than 5 in a product sequence. so the number of trailing zeros
 is determined by the number of times 5.
 */
+    // still do not understand
     int ans = 0;
     for (; n>0; n/=5) {
         ans += n/5;
@@ -127,21 +136,21 @@ is determined by the number of times 5.
 }
 
 
-int Solution::preimageSizeFZF(int K) {
 /*
-    Let f(x) be the number of zeroes at the end of x!. (Recall that x! = 1 * 2 * 3 * ... * x, and by convention, 0! = 1.)
-    For example, f(3) = 0 because 3! = 6 has no zeroes at the end, while f(11) = 2 because 11! = 39916800 has 2 zeroes at the end. 
-    Given K, find how many non-negative integers x have the property that f(x) = K.
-    Example 1:
-        Input: K = 0
-        Output: 5
-        Explanation: 0!, 1!, 2!, 3!, and 4! end with K = 0 zeroes.
-    Example 2:
-        Input: K = 5
-        Output: 0
-        Explanation: There is no x such that x! ends in K = 5 zeroes.
-    Hint: https://www.cnblogs.com/grandyang/p/9214055.html
+Let f(x) be the number of zeroes at the end of x!. (Recall that x! = 1 * 2 * 3 * ... * x, and by convention, 0! = 1.)
+For example, f(3) = 0 because 3! = 6 has no zeroes at the end, while f(11) = 2 because 11! = 39916800 has 2 zeroes at the end. 
+Given K, find how many non-negative integers x have the property that f(x) = K.
+Example 1:
+    Input: K = 0
+    Output: 5
+    Explanation: 0!, 1!, 2!, 3!, and 4! end with K = 0 zeroes.
+Example 2:
+    Input: K = 5
+    Output: 0
+    Explanation: There is no x such that x! ends in K = 5 zeroes.
+Hint: https://www.cnblogs.com/grandyang/p/9214055.html
 */
+int Solution::preimageSizeFZF(int K) {
     // Oops!, the answer is either 0 or 5.
     auto numOfTrailingZeros = [&] (long m) {
         long res = 0;
@@ -150,8 +159,9 @@ int Solution::preimageSizeFZF(int K) {
         }
         return res;
     };
+    // perform lower_bound search to find the smallest number n which satisfies f(n)=K
     long l = 0;
-    long r = 5L * (K+1);
+    long r = 5L * (K+1); // r is not inclusive
     while (l < r) {
         long m = (l+r)/2;
         // if candidates exist, there must be 5 of them: i, i+1, i+2, i+3, i+4
@@ -166,6 +176,7 @@ int Solution::preimageSizeFZF(int K) {
     }
     return 0;
 }
+
 
 void sortedSquares_scaffold(string input, string expectedResult) {
     Solution ss;
