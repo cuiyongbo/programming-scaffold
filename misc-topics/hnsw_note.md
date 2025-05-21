@@ -10,7 +10,7 @@
 
 - refer to [ALGO_PARAMS](https://github.com/nmslib/hnswlib/ALGO_PARAMS.md)
 - search parameters
-    - ef 检索过程中寻找最相似候选的有限队列大小. 影响检索精度和耗时. 推荐取值范围 300-1500
+    - ef 检索过程中寻找最相似候选的优先队列的容量. 影响检索精度和耗时. 推荐取值范围 300-1500
     - topk 要召回的候选数. topk越大, 检索越耗时
 - index construction parameters
     - ef_construction, 含义同 ef, 作用于索引构建过程, 影响构建时间和索引精度. 推荐取值范围 100-500

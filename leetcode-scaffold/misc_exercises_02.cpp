@@ -28,7 +28,7 @@ Output: 1
 
 Hint: 
 
-Approach: The given problem can be solved by counting the number of set bits at each corresponding bits position for all array elements and then the count of the maximum of set bits at any position is the maximum count of subset required because the Bitwise AND of all those elements is always positive
+Approach: The given problem can be solved by counting the number of set bits at each corresponding bits position for all array elements and then the count of the maximum of set bits at any position is the maximum count of subset because the Bitwise AND of all those elements is always positive
 
 7 -->  00111
 13 --> 01101
@@ -44,7 +44,7 @@ where combinations are listed below as follows:
 {7,2,3}
 */
 int Solution::largestSubset(vector<int>& A) {
-    vector<int> bit_count(32, 0);
+    vector<int> bit_count(32, 0); // the input is of type int32
     for (auto n: A) {
         int x = 0;
         while (n > 0) {
@@ -79,7 +79,7 @@ Output: 1
 Explanation: 1 is the smallest positive number missing from the array.
 */
 int Solution::missingNumber(vector<int> &A) {
-    std::sort(A.begin(), A.end());
+    std::sort(A.begin(), A.end(), std::less<int>());
     int ans = 1;
     for (int i=0; i<(int)A.size(); i++) {
         if (A[i] == ans) {
@@ -116,9 +116,6 @@ no patient has two preferences for the same slot, L.e. A[i] != B[i].
 */
 bool Solution::appointmentSlots(vector<int>& A, vector<int>& B, int S) {
     int patients = A.size();
-    if (patients > S) {
-        return false;
-    }
     vector<bool> visited(S, false);
     std::function<bool(int)> backtrace = [&] (int u) {
         if (u == patients) {
@@ -145,7 +142,7 @@ bool Solution::appointmentSlots(vector<int>& A, vector<int>& B, int S) {
 
 
 /*
-You are given a tree (i.e. a connected, undirected graph that has no cycles) rooted at node 0 consisting of n nodes numbered from 0 to n - 1. The tree is represented by a 0-indexed array parent of size n, where parent[i] is the parent of node i. Since node 0 is the root, parent[0] == -1.
+You are given a tree (i.e. a connected, undirected graph that has no cycles) rooted at node 0 consisting of n nodes numbered from 0 to n-1. The tree is represented by a 0-indexed array parent of size n, where parent[i] is the parent of node i. Since node 0 is the root, parent[0] == -1.
 
 You are also given a string s of length n, where s[i] is the character assigned to node i.
 
@@ -165,33 +162,37 @@ Explanation: The longest path where each two adjacent nodes have different chara
 Constraints:
     n == parent.length == s.length
     1 <= n <= 105
-    0 <= parent[i] <= n - 1 for all i >= 1
+    0 <= parent[i] <= n-1 for all i >= 1
     parent[0] == -1
     parent represents a valid tree.
     s consists of only lowercase English letters.
 */
 int Solution::longestPath(vector<int>& parent, string s) {
-    map<int, vector<int>> graph;
-    for (int i=0; i<(int)parent.size(); i++) {
-        if (parent[i] != -1) {
-            graph[parent[i]].push_back(i);
-        }
+    // construct a directed graph
+    int n = parent.size();
+    vector<vector<int>> graph(n);
+    for (int i=1; i<n; i++) {
+        graph[parent[i]].push_back(i);
     }
     int ans = 0;
+    vector<bool> visited(n, false);
     // return the maximum length of one parent-to-child path without node u, where no pair of adjacent nodes with the same letter
-    std::function<int(int)> dfs = [&] (int u) {
-        int mx = 0;
+    function<int(int)> dfs = [&] (int u) {
+        visited[u] = true;
+        int max_leg = 0;
         for (auto v: graph[u]) {
-            int x = dfs(v) + 1;
-            if (s[u] != s[v]) {
-                ans = max(ans, mx+x);
-                mx = max(mx, x);
+            if (!visited[v]) {
+                int x = dfs(v) + 1;
+                if (s[u] != s[v]) {
+                    ans = max(ans, max_leg+x);
+                    max_leg = max(max_leg, x);
+                }
             }
         }
-        return mx;
+        return max_leg;
     };
     dfs(0);
-    return ans+1;
+    return ans + 1;
 }
 
 

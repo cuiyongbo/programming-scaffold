@@ -71,7 +71,9 @@ void LRUCache::put(int key, int value) {
 
 void LRUCache::put_without_lock(int key, int value) {
     if (m_node_map.count(key)) { // key already exists
+        // first remove key from list
         m_nodes.erase(m_node_map[key]);
+        // then from map
         m_node_map.erase(key);
     } else { // key doesn't exist
         // remove the oldest element if capacity reaches
