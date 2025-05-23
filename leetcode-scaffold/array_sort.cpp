@@ -50,11 +50,11 @@ class Solution {
 public:
     void sortArray(vector<int>& nums, AlgorithmType type=AlgorithmType_none); 
     void quickSort(vector<int>& nums);
-    void countingSort(vector<int>& nums);
     void heapSort(vector<int>& nums);
     void mergeSort(vector<int>& nums);
     void bstSort(vector<int>& nums);
     void insertionSort(vector<int>& nums);
+    void countingSort(vector<int>& nums);
     void radixSort(vector<int>& nums);
 
 private:
@@ -83,12 +83,11 @@ void Solution::sortArray(vector<int>& nums, AlgorithmType type) {
 }
 
 /*
-// runtime complexity O(nlogn) on average case
+runtime complexity O(nlogn) on average case
 1. pick and element, called a pivot, from the array
 2. partitioning: reorder the array so that the elements with values less than the pivot come before the pivot, and the elements with values greater than the pivot come after it (equal values can go either way). after the partition, the pivot is in its final position
 3. recursively apply the above steps to all sub-arrays
 */
-
 void Solution::quickSort(vector<int>& nums) {
     // l, r are inclusive
     auto naive_partitioner = [&] (int l, int r) {
@@ -123,16 +122,18 @@ void Solution::quickSort(vector<int>& nums) {
     dac(0, nums.size()-1);
 }
 
-// \Theta(k) [k = max(array) - min(array)]
-void Solution::countingSort(vector<int>& nums) {
+
 /* 
-    NOT suitable for sparse arrays whose elements split in a large domain,
-    such as [INT_MIN, INT_MAX], suffering to range overflow
+\Theta(k) [k = max(array) - min(array)]
+NOT suitable for sparse arrays whose elements split in a large domain,
+such as [INT_MIN, INT_MAX], suffering to range overflow
 */
+void Solution::countingSort(vector<int>& nums) {
+    // 1. find the range of the elements
     auto p = minmax_element(nums.begin(), nums.end());
     int l = *(p.first);
     int r = *(p.second);
-    long range = r-l+1;
+    long range = r-l+1; // we have to use long type to store range in case of range overflow
     SPDLOG_DEBUG("CountingSort(min={}, max={}, range={})", l, r, range);
     vector<int> count(range, 0);
     for (auto n: nums) {
@@ -168,7 +169,7 @@ void Solution::radixSort(vector<int>& nums) {
     int l = *(p.first);
     int r = *(p.second);
     // map array elements to [0, r-l], NON-NEGATIVE
-    std::transform(nums.begin(), nums.end(), nums.begin(), [&](int a) {return a-l;});
+    std::transform(nums.begin(), nums.end(), nums.begin(), [&](int a) {return a-l;}); // watch out! nums[i] may overflow during transforming
 
     /*
     # ./array_sort 10000
@@ -204,7 +205,7 @@ void Solution::radixSort(vector<int>& nums) {
     */
     auto sort_by_counting_sort = [&] (int base) {
         int sz = nums.size();
-        vector<vector<int>> count(10);
+        vector<vector<int>> count(10); // digit: element values
         for (int i=0; i<sz; i++) {
             int ni = nums[i]/base%10; // this operation takes time
             count[ni].push_back(nums[i]);
@@ -263,7 +264,7 @@ void Solution::radixSort(vector<int>& nums) {
 
 // O(nlogn) for worst-case running time
 void Solution::heapSort(vector<int>& nums) {
-{
+if (1) {
     // r is not inclusive
     auto sift_down = [&] (int l, int r) {
         int root = l;
@@ -301,11 +302,10 @@ void Solution::heapSort(vector<int>& nums) {
 
 { // std solution
     // in `std::priority_queue` template, we perform `compare(child, root)` test to see whether root, left-child, right-child are in heap-order or not
-    std::priority_queue<int, std::vector<int>, std::greater<int>> min_heap(nums.begin(), nums.end()); // minHeap
+    std::priority_queue<int, std::vector<int>, std::greater<int>> min_heap(nums.begin(), nums.end());
     nums.clear();
     while (!min_heap.empty()) {
-        nums.push_back(min_heap.top());
-        min_heap.pop();
+        nums.push_back(min_heap.top()); min_heap.pop();
     }
     return;
 }
@@ -320,16 +320,16 @@ void Solution::heapSort(vector<int>& nums) {
 */
 void Solution::mergeSort(std::vector<int>& nums) {
     std::vector<int> twins = nums;
-    // l, r in inclusive
+    // l, r are inclusive
     std::function<void(int, int)> dac = [&] (int l, int r) {
         if (l >= r) { // trivial case
             return;
         }
         // std::vector<int> twins = nums;
         int m = (l+r)/2;
-        // divide
+        // divide and conquer
         dac(l, m); dac(m+1, r);
-        // conquer
+        // merge
         int i=l;
         int j=m+1;
         for (int k=l; k<=r; k++) {
@@ -339,7 +339,7 @@ void Solution::mergeSort(std::vector<int>& nums) {
                 twins[k] = nums[j++];
             }
         }
-        // swap elements in [l, r]
+        // swap elements in [l, r]. NOTE that dac(l, r) only operates on nums[l:r], you cannot call `nums=twins;`, which will break the work done by other routines
         std::copy(twins.begin()+l, twins.begin()+r+1, nums.begin()+l);
         // don't call `swap(twins, nums);` here, it will overwrite work by other subroutine unless you create a new twins for every subroutine
     };
@@ -350,6 +350,7 @@ void Solution::mergeSort(std::vector<int>& nums) {
 // \Theta(nlogn)
 void Solution::bstSort(vector<int>& nums) {
     // `std::multiset` maybe implemented with red-black tree
+    // the hash of int type is itself. refer to [Why std::hash<int> seems to be identity function](https://stackoverflow.com/questions/38304877/why-stdhashint-seems-to-be-identity-function)
     std::multiset<int> s(nums.begin(), nums.end());
     std::copy(s.begin(), s.end(), nums.begin());
 }
@@ -366,19 +367,22 @@ void Solution::bstSort(vector<int>& nums) {
 */
 void Solution::insertionSort(vector<int>& nums) {
     int l = 0;
-    int r = nums.size();
+    int r = nums.size(); // r is not inclusive
     for (int i=l; i<r; i++) {
         int p = nums[i]; // we must save nums[i] for later assignment
         for (int j=l; j<i; j++) {
-            if (p < nums[j]) {
-                // p should be placed at nums[j]
-                // but before that we need shift nums[j, i-1] to right by one
-                for (int k=i; k>j; k--) { // watch out, nums[i] has been changed
-                    nums[k] = nums[k-1];
-                }
-                nums[j] = p;
-                break;
+            // find the first index j, at which nums[j] > p, meaning nums[i] should be inserted before nums[j]
+            // we use (nums[j] <= p) test to make insertionSort to be a stable sort
+            if (nums[j] <= p) {
+                continue;
             }
+            // p should be placed at nums[j]
+            // but before doing that we need shift nums[j, i-1] to right by one
+            for (int k=i; k>j; k--) { // watch out, nums[i] has been replaced
+                nums[k] = nums[k-1];
+            }
+            nums[j] = p;
+            break;
         }
     }
     return;
@@ -465,7 +469,7 @@ void basic_test() {
 int main(int argc, char* argv[]) {
     //basic_test();
 
-    int array_size = 100;
+    int array_size = 1000;
     if (argc > 1) {
         array_size = std::atoi(argv[1]);
         if (array_size <= 0) {

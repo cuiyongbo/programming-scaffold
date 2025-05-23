@@ -2,12 +2,65 @@
 
 using namespace std;
 
-/* leetcode: 455, 209 */
+/* leetcode: 455, 209, 560 */
 class Solution {
 public:
     int findContentChildren(vector<int>& g, vector<int>& s);
     int minSubArrayLen(int s, vector<int>& nums);
+    int subarraySum(vector<int>& nums, int k);
 };
+
+
+/*
+Given an array of integers nums and an integer k, return the total number of subarrays whose sum equals to k.
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+Example 1:
+    Input: nums = [1,1,1], k = 2
+    Output: 2
+
+Example 2:
+    Input: nums = [1,2,3], k = 3
+    Output: 2
+
+Constraints:
+    1 <= nums.length <= 2 * 104
+    -1000 <= nums[i] <= 1000
+    -107 <= k <= 107
+*/
+int Solution::subarraySum(vector<int>& nums, int k) {
+
+if (0) { // naive solution
+    int ans = 0;
+    int sz = nums.size();
+    for (int i=0; i<sz; i++) {
+        int sum = 0;
+        for (int j=i; j<sz; j++) {
+            sum += nums[j];
+            if (sum == k) {
+                ans++;
+            }
+        }
+    }
+    return ans;
+}
+
+{ // trick solution
+    int ans = 0;
+    int sum = 0;
+    std::unordered_map<int, int> sum_map; // val, the number of subarrays whose sum are equal to k
+    sum_map[0] = 1; // initialization
+    for(auto n: nums) {
+        sum += n;
+        if(sum_map.find(sum-k) != sum_map.end()) { // given k=2, i=7, sum=5, sum_map[5-2]=4, so there are 4 subarrays whose sum are equal to k ending with nums[i]
+            ans += sum_map[sum-k];
+        }
+        sum_map[sum]++;
+    }
+    return ans;
+}
+
+}
 
 /*
 Assume you are an awesome parent and want to give your children some cookies. 
@@ -58,7 +111,7 @@ int Solution::minSubArrayLen(int s, vector<int>& nums) {
         }
         assert(sum>=s);
         //printf("ans=%d, j=%d, i=%d\n", ans, j, i);
-        ans = min(ans, j-i); // why not j-i+1, because j is not inclusive when calculating sum
+        ans = min(ans, j-i); // why not j-i+1? because j is not inclusive when calculating sum
         sum -= nums[i]; // excluse nums[i] from next iteration, but we can reuse sum{nums[i+1:j]}
     }
     return ans==INT32_MAX ? 0 : ans;
@@ -90,6 +143,18 @@ void minSubArrayLen_scaffold(int input1, string input2, int expectedResult) {
 }
 
 
+void subarraySum_scaffold(int input1, string input2, int expectedResult) {
+    Solution ss;
+    vector<int> nums = stringTo1DArray<int>(input2);
+    int actual = ss.subarraySum(nums, input1);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
+    }
+}
+
+
 int main() {
     SPDLOG_WARN("Running findContentChildren tests:");
     TIMER_START(findContentChildren);
@@ -106,4 +171,13 @@ int main() {
     minSubArrayLen_scaffold(9, "[2,3,1,2,4,3]", 3);
     TIMER_STOP(minSubArrayLen);
     SPDLOG_WARN("minSubArrayLen tests use {} ms", TIMER_MSEC(minSubArrayLen));
+
+    SPDLOG_WARN("Running subarraySum tests:");
+    TIMER_START(subarraySum);
+    subarraySum_scaffold(2, "[1,1,1]", 2);
+    subarraySum_scaffold(2, "[1,2,3]", 1);
+    subarraySum_scaffold(3, "[1,2,3]", 2);
+    TIMER_STOP(subarraySum);
+    SPDLOG_WARN("subarraySum tests use {} ms", TIMER_MSEC(subarraySum));
+
 }

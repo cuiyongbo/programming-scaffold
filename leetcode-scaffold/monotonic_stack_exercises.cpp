@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 84, 496, 503, 901, 907, 1019 */
-
 class Solution {
 public:
     int largestRectangleArea(vector<int>& height);
@@ -15,25 +13,24 @@ public:
 };
 
 
-int Solution::sumSubarrayMins(vector<int>& A) {
 /*
-    Given an array of integers A, find the sum of min(B), where B ranges over every (contiguous) subarray of A.
-    Since the answer may be large, return the answer modulo 10^9 + 7.
+Given an array of integers A, find the sum of min(B), where B ranges over every (contiguous) subarray of A.
+Since the answer may be large, return the answer modulo 10^9 + 7.
 
-    Example 1:
-        Input: [3,1,2,4]
-        Output: 17
-        Explanation: Subarrays are [3], [1], [2], [4], [3,1], [1,2], [2,4], [3,1,2], [1,2,4], [3,1,2,4]. 
-        Minimums are 3, 1, 2, 4, 1, 1, 2, 1, 1, 1.  Sum is 17.
+Example 1:
+    Input: [3,1,2,4]
+    Output: 17
+    Explanation: Subarrays are [3], [1], [2], [4], [3,1], [1,2], [2,4], [3,1,2], [1,2,4], [3,1,2,4]. 
+    Minimums are 3, 1, 2, 4, 1, 1, 2, 1, 1, 1.  Sum is 17.
 */
+int Solution::sumSubarrayMins(vector<int>& A) {
     stack<pair<int, int>> st; // element value, frequency
     int sz = A.size();
     for (int i=0; i<sz; ++i) {
-        for (int j=i; j<sz; ++j) {
+        st.emplace(A[i], 1);
+        for (int j=i+1; j<sz; ++j) {
             // subarray: A[i, j]
-            if (i == j) { // start a new round
-                st.emplace(A[j], 1);
-            } else if(A[j] < st.top().first) { // find an element which is smaller than the last smallest one
+            if(A[j] < st.top().first) { // find an element which is smaller than the last smallest one
                 st.emplace(A[j], 1);
             } else /*if (A[j] >= st.top().first)*/ {
                 st.top().second += 1;
@@ -50,66 +47,63 @@ int Solution::sumSubarrayMins(vector<int>& A) {
 }
 
 
-vector<int> Solution::nextLargerNodes(ListNode* head) {
 /*
-    We are given a linked list with head as the first node.  Let’s number the nodes in the list: node_1, node_2, node_3, ... etc.
+We are given a linked list with head as the first node.  Let’s number the nodes in the list: node_1, node_2, node_3, ... etc.
 
-    Each node may have a next larger value: for node_i, next_larger(node_i) is the node_j.val such that j > i, node_j.val > node_i.val, 
-    and j is the **smallest** possible choice. If such a j does not exist, the next larger value is 0.
+Each node may have a next larger value: for node_i, next_larger(node_i) is the node_j.val such that j > i, node_j.val > node_i.val, 
+and j is the **smallest** possible choice. If such a j does not exist, the next larger value is 0.
 
-    Return an array of integers answer, where answer[i] = next_larger(node_{i+1}).
+Return an array of integers answer, where answer[i] = next_larger(node_{i+1}).
 
-    Note that in the example inputs below, arrays such as [2,1,5] represent the serialization of a 
-    linked list with a head node value of 2, second node value of 1, and third node value of 5.
+Note that in the example inputs below, arrays such as [2,1,5] represent the serialization of a 
+linked list with a head node value of 2, second node value of 1, and third node value of 5.
 
-    Example 1:
-    Input: [2,1,5]
-    Output: [5,5,0]   
+Example 1:
+Input: [2,1,5]
+Output: [5,5,0]   
 */
+vector<int> Solution::nextLargerNodes(ListNode* head) {
     // calculate the length of the link list
     int sz = 0;
     for (ListNode* p=head; p!=nullptr; p=p->next) {
         ++sz;
     }
-    int i=0;
+    int idx=0;
     vector<int> ans(sz, 0);
     stack<pair<int, int>> st; // node val, node index
     for (ListNode* p=head; p!=nullptr; p=p->next) {
         while (!st.empty() && p->val>st.top().first) {
             ans[st.top().second] = p->val; st.pop();
         }
-        st.emplace(p->val, i++);
+        st.emplace(p->val, idx); idx++;
     }
     return ans;
 }
 
 
-vector<int> Solution::nextGreaterElement_503(vector<int>& nums) {
 /*
-    Given a circular array (the next element of the last element is the first element of the array), 
-    print the Next Greater Number for every element. The Next Greater Number of a number x is the first greater
-    number to its traversing-order next in the array, which means you could search circularly to find its next greater number. 
-    If it doesn’t exist, output -1 for this number. for example, 
+Given a circular array (the next element of the last element is the first element of the array), 
+print the Next Greater Number for every element. The Next Greater Number of a number x is the first greater
+number to its traversing-order next in the array, which means you could search circularly to find its next greater number. 
+If it doesn’t exist, output -1 for this number. for example, 
 
-    Input: [1,2,1]
-    Output: [2,-1,2]
-    Explanation: The first 1's next greater number is 2;   
-    The number 2 can't find next greater number;   
-    The second 1's next greater number needs to search circularly, which is also 2.
+Input: [1,2,1]
+Output: [2,-1,2]
+Explanation: The first 1's next greater number is 2; The number 2 can't find next greater number; The second 1's next greater number needs to search circularly, which is also 2.
 */
-    stack<int> st;
+vector<int> Solution::nextGreaterElement_503(vector<int>& nums) {
+    stack<int> st; // element index
     int sz = nums.size();
     vector<int> ans(sz, -1);
     for (int i=0; i<sz; ++i) {
         while (!st.empty() && nums[i]>nums[st.top()]) {
-            ans[st.top()] = nums[i];
-            st.pop();
+            ans[st.top()] = nums[i]; st.pop();
         }
         st.push(i);
     }
     while (!st.empty()) {
         auto t = st.top(); st.pop();
-        for (int i=0; i<t; i++) {
+        for (int i=0; i<t; i++) { // find a possible larger element in naive way
             if (nums[i]>nums[t]) {
                 ans[t] = nums[i];
                 break;
@@ -120,28 +114,27 @@ vector<int> Solution::nextGreaterElement_503(vector<int>& nums) {
 }
 
 
-vector<int> Solution::nextGreaterElement_496(vector<int>& nums1, vector<int>& nums2) {
 /*
-    You are given two arrays (without duplicates) nums1 and nums2 where nums1’s elements are subset of nums2. 
-    Find all the next greater numbers for nums1‘s elements in the corresponding places of nums2.
+You are given two arrays (without duplicates) nums1 and nums2 where nums1’s elements are subset of nums2. 
+Find all the next greater numbers for nums1‘s elements in the corresponding places of nums2.
 
-    The Next Greater Number of a number x in nums1 is the first greater number to its right in nums2. 
-    If it does not exist, output -1 for this number. for example,
+The Next Greater Number of a number x in nums1 is the first greater number to its right in nums2. 
+If it does not exist, output -1 for this number. for example,
 
-    Input: nums1 = [4,1,2], nums2 = [1,3,4,2].
-    Output: [-1,3,-1]
-    Explanation:
-        For number 4 in the first array, you cannot find the next greater number for it in the second array, so output -1.
-        For number 1 in the first array, the next greater number for it in the second array is 3.
-        For number 2 in the first array, there is no next greater number for it in the second array, so output -1.
+Input: nums1 = [4,1,2], nums2 = [1,3,4,2].
+Output: [-1,3,-1]
+Explanation:
+    For number 4 in the first array, you cannot find the next greater number for it in the second array, so output -1.
+    For number 1 in the first array, the next greater number for it in the second array is 3.
+    For number 2 in the first array, there is no next greater number for it in the second array, so output -1.
 */
+vector<int> Solution::nextGreaterElement_496(vector<int>& nums1, vector<int>& nums2) {
     stack<int> st;
     map<int, int> mp; // nums2[i], next greater element for nums2[i]
     int sz2 = nums2.size();
     for (int i=0; i<sz2; ++i) {
         while (!st.empty() && nums2[i] > st.top()) {
-            mp[st.top()] = nums2[i];
-            st.pop();
+            mp[st.top()] = nums2[i]; st.pop();
         }
         st.push(nums2[i]);
     }
@@ -156,15 +149,14 @@ vector<int> Solution::nextGreaterElement_496(vector<int>& nums1, vector<int>& nu
 }
 
 
-int Solution::largestRectangleArea(vector<int>& height) {
 /*
-    Given n non-negative integers representing the histogram’s bar height where the width of each bar is 1, 
-    find the area of largest rectangle in the histogram. for example, given height = [2,1,5,6,2,3], return 10.
+Given n non-negative integers representing the histogram’s bar height where the width of each bar is 1, 
+find the area of largest rectangle in the histogram. for example, given height = [2,1,5,6,2,3], return 10.
 */
-
+int Solution::largestRectangleArea(vector<int>& height) {
 if (0) { // dp solution
-    // dp[i] means largestRectangleArea ending with  height[i]
-    // dp[i] = max((i-j+1)*min(height[j:i])) 0<=j<=i
+    // dp[i] means largestRectangleArea ending with height[i]
+    // dp[i] = max{(i-j+1)*min(height[j:i])} 0<=j<=i
     int ans = INT32_MIN;
     vector<int> dp = height; // initialization
     for (int i=0; i<(int)height.size(); i++) {
