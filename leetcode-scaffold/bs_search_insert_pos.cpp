@@ -5,9 +5,9 @@ using namespace std;
 /* leetcode: 34, 35, 704, 981 */
 class Solution {
 public:
+    int binary_search(vector<int>& nums, int target);
     int searchInsert(vector<int>& nums, int target);
     vector<int> searchRange(vector<int>& nums, int target);
-    int binary_search(vector<int>& nums, int target);
 
 private:
     int lower_bound(vector<int>& nums, int target);
@@ -36,7 +36,7 @@ int Solution::binary_search(vector<int>& nums, int target) {
     return -1;
 }
 
-
+// find the first element which is greater than or equal to target in nums
 int Solution::lower_bound(vector<int>& nums, int target) {
     int l = 0; // l is inclusive
     int r = nums.size(); // r is not inclusive
@@ -53,6 +53,7 @@ int Solution::lower_bound(vector<int>& nums, int target) {
 }
 
 
+// find the first element which is greater than target in nums
 int Solution::upper_bound(vector<int>& nums, int target) {
     int l = 0; // l is inclusive
     int r = nums.size(); // r is not inclusive
@@ -86,21 +87,22 @@ int Solution::searchInsert(vector<int>& nums, int target) {
 /*
 Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value.
 Your algorithm’s runtime complexity must be in the order of O(log n). If the target is not found in the array, return [-1, -1].
-Hint: perform lower_bound to find the left boundray, and upper_bound for right boundary (not inclusive).
+Hint: perform lower_bound to find the left boundary, and upper_bound for right boundary (not inclusive).
 */
 vector<int> Solution::searchRange(vector<int>& nums, int target) {
-    if (0) { // std solution
-        auto it1 = std::lower_bound(nums.begin(), nums.end(), target);
-        auto it2 = std::upper_bound(nums.begin(), nums.end(), target);
-        if (it1 == it2) {
-            return {-1, -1};
-        } else {
-            int l = std::distance(nums.begin(), it1);
-            int r = std::distance(nums.begin(), it2);
-            return {l, r-1};
-        }
+if (0) { // std solution
+    auto it1 = std::lower_bound(nums.begin(), nums.end(), target);
+    auto it2 = std::upper_bound(nums.begin(), nums.end(), target);
+    if (it1 == it2) {
+        return {-1, -1};
+    } else {
+        int l = std::distance(nums.begin(), it1);
+        int r = std::distance(nums.begin(), it2);
+        return {l, r-1};
     }
+}
 
+{ // naive solution
     // return the first element index that is greater than or equal to target
     int l = lower_bound(nums, target);
     // return the first element index that is greater than target
@@ -110,6 +112,7 @@ vector<int> Solution::searchRange(vector<int>& nums, int target) {
     } else {
         return {l, r-1};
     }
+}
 }
 
 
@@ -176,7 +179,7 @@ class TimeMap {
         Stores the key and value, along with the given timestamp.
     2. get(string key, int timestamp)
         Returns a value such that set(key, value, timestamp_prev) was called previously, with timestamp_prev <= timestamp.
-        If there are multiple such values, it returns the one with the largest timestamp_prev. (upper_bound)
+        If there are multiple such values, it returns the one with the largest timestamp_prev. (to find some maximum means we need to perform upper_bound search)
         If there are no values, it returns the empty string ("").
 
     Input: inputs = ["TimeMap","set","get","get","set","get","get"], 
@@ -213,43 +216,11 @@ void TimeMap::set(string key, string val, int timestamp) {
 
 
 string TimeMap::get(string key, int timestamp) {
-if (0) {
-    // upper_bound is much more concise
-    if (m_data_store.empty()) {
-        return "";
-    }
-    time_map_key_t k(key, timestamp);
-    auto it = m_data_store.lower_bound(k);
-    if (it != m_data_store.end()) {
-        SPDLOG_INFO("key={}, timestamp={}, it:({}, {}), value: {}", key, timestamp, it->first.key, it->first.timestamp, it->second);
-        if (it->first.key == key && it->first.timestamp == timestamp) {
-            return it->second;
-        } else if (it == m_data_store.begin()) {
-            return "";
-        } else {
-            auto p = std::prev(it);
-            if (p->first.key == key) {
-                return p->second;
-            } else {
-                return "";
-            }
-        }
-    } else {
-        auto p = std::prev(it);
-        if (p->first.key == key) {
-            return p->second;
-        } else {
-            return "";
-        }
-    }
-    return "";
-}
-
-{
     string ans = "";
     time_map_key_t k(key, timestamp);
-    // find the first iterator with map_key larger than <key, timestamp>
+    // find the first iterator with map_key larger than <key, timestamp>.
     auto it = m_data_store.upper_bound(k);
+    // Note that it is not inclusive so we need check its first predecessor.
     if (it != m_data_store.begin()) {
         auto p = std::prev(it);
         if (p->first.key == key) {
@@ -257,8 +228,6 @@ if (0) {
         }
     }
     return ans;
-}
-
 }
 
 
@@ -290,6 +259,7 @@ int main() {
     TIMER_START(searchInsert);
     searchInsert_scaffold("[1]", 2, 1);
     searchInsert_scaffold("[1]", 0, 0);
+    searchInsert_scaffold("[1,1,1,1,1,1]", 1, 0);
     searchInsert_scaffold("[1,3,5,6]", 5, 2);
     searchInsert_scaffold("[1,3,5,5,5,6]", 5, 2);
     searchInsert_scaffold("[1,3,5,6]", 4, 2);

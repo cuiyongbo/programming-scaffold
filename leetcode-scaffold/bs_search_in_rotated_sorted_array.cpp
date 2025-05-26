@@ -38,7 +38,7 @@ int Solution::search_33(std::vector<int>& nums, int target) {
                 r = m-1;
             }
             return dac(l, r);
-        } else { // target may reside in either part, so we search both of them
+        } else { // target may reside in either part, so we need search both of them
             // since nums[m] != target, we exclude nums[m] from further search
             int i = dac(l, m-1);
             if (i == -1) {
@@ -90,6 +90,7 @@ The array may contain duplicates. Your algorithm's runtime complexity must be in
 bool Solution::search_81(std::vector<int>& nums, int target) {
 
 { // recursive version
+    // l, r are inclusive
     std::function<bool(int, int)> dac = [&] (int l, int r) {
         if (l > r) { // trivial case
             return false;
@@ -108,6 +109,7 @@ bool Solution::search_81(std::vector<int>& nums, int target) {
             }
             return dac(l, r);
         } else {
+            // we need exclude nums[m] from futher search
             return dac(l, m-1) || dac(m+1, r);
         }
     };
@@ -162,7 +164,7 @@ int Solution::findMin(std::vector<int>& nums) {
             return nums[l];
         } else {
             int m = (l+r)/2;
-            // split nums[l:r] by nums[m]
+            // split nums[l:r] by nums[m]. Note that nums[m] may be the answer and it is not tested, so we include nums[m] in further search
             return std::min(dac(l, m), dac(m+1, r));
         }
     };
@@ -194,51 +196,53 @@ int Solution::findMin(std::vector<int>& nums) {
 
 
 /*
-    A peak element is an element that is greater than its neighbors.
-    Given an input array nums, where nums[i] != nums[i+1], find a peak element and return its index.
-    The array may contain multiple peaks, in that case return the index to any one of the peaks is fine.
-    Note:
-        You may imagine that nums[-1] = nums[n] = -inf.
-        You must write an algorithm that runs in O(log n) time.
-    Example 1:
-        Input: nums = [1,2,3,1]
-        Output: 2
-    Example 2:
-        Input: nums = [1,2,1,3,5,6,4]
-        Output: 1 or 5 
+A peak element is an element that is greater than its neighbors.
+Given an input array nums, where nums[i] != nums[i+1], find a peak element and return its index.
+The array may contain multiple peaks, in that case return the index to any one of the peaks is fine.
+Note:
+    You may imagine that nums[-1] = nums[n] = -inf.
+    You must write an algorithm that runs in O(log n) time.
+Example 1:
+    Input: nums = [1,2,3,1]
+    Output: 2
+Example 2:
+    Input: nums = [1,2,1,3,5,6,4]
+    Output: 1 or 5 
 */
 int Solution::findPeakElement(std::vector<int>& nums) {
 
 { // trick version
-    if (nums.empty()) {
+    if (nums.empty()) { // trivial case
         return -1;
     }
     int sz = nums.size();
-    if (sz == 1) {
+    if (sz == 1) { // trivial case
         return 0;
-    } else {
-        if (nums[0] > nums[1]) {
-            return 0;
-        } else if (nums[sz-1] > nums[sz-2]) {
-            return sz-1;
-        }
-        // l, r are inclusive
-        std::function<int(int, int)> dac = [&] (int l, int r) {
-            if (l > r) {
-                return -1;
-            }
-            int m = (l+r)/2;
-            if (nums[m]>nums[m-1] && nums[m]>nums[m+1]) {
-                return m;
-            }
-            int i = dac(l, m-1);
-            if (i == -1){
-                i = dac(m+1, r);
-            }
-            return i;
-        };
-        return dac(1, sz-2);
+    } 
+    // test boundary first to facilitate later search
+    if (nums[0] > nums[1]) { // trivial case
+        return 0;
+    } else if (nums[sz-1] > nums[sz-2]) {
+        return sz-1;
     }
+    // l, r are inclusive
+    std::function<int(int, int)> dac = [&] (int l, int r) {
+        if (l > r) {
+            return -1;
+        }
+        int m = (l+r)/2;
+        if (nums[m]>nums[m-1] && nums[m]>nums[m+1]) {
+            return m;
+        }
+        // exclude nums[m] from further search
+        int i = dac(l, m-1);
+        if (i == -1){
+            i = dac(m+1, r);
+        }
+        return i;
+    };
+    // exclude both ends from further search
+    return dac(1, sz-2);
 }
 
 { // naive solution
@@ -249,13 +253,16 @@ int Solution::findPeakElement(std::vector<int>& nums) {
             return -1;
         }
         int m = (l+r)/2;
-        // what if nums[0] or nums[sz-1] is INT32_MIN??
+        // what if nums[0] or nums[sz-1] is INT32_MIN? yes, it doesn't matter, since INT32_MIN isn't larger than any int32 number even itself, nums[0] or nums[sz-1] cannot be the answer in that case
         //int left = (m==0) ? INT32_MIN : nums[m-1];
         //int right = (m==sz-1) ? INT32_MIN : nums[m+1];
         //if (nums[m]>left && nums[m]>right) {
-        if ((m==0||nums[m]>nums[m-1]) && (m==sz-1||nums[m]>nums[m+1])) {
+        if ((m==0||nums[m]>nums[m-1]) // left
+             && (m==sz-1||nums[m]>nums[m+1]) // right
+            ) {
             return m;
         } else {
+            // exclude nums[m] from further search
             int i = dac(l, m-1);
             if (i == -1) {
                 i = dac(m+1, r);
@@ -274,12 +281,13 @@ Let’s call an array A a mountain if the following properties hold:
     A.length >= 3
     There exists some **0 < i < A.length-1** such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length-1]
 Given an array that is definitely a mountain, return such index.
+(A is sorted in ascending order, but has been rotated at some pivot. and we need find the pivot position. the routine can be used to test whether a sorted array is rotated or not)
 */
 int Solution::peakIndexInMountainArray(std::vector<int>& nums) {
 
 { // iterative version solution, a variant of upper_bound search
     // find the largest index `i`, where `nums[i]<nums[i+1]`
-    // find the first index `i`, where `nums[i]>nums[i+1]`
+    // find the first index `i`, where `nums[i]>nums[i+1]`. failed for case A=[2,1,3,1], but A is not a mountain in that case
     int l = 0;
     int r = nums.size(); // r is not inclusive
     while (l < r) {
@@ -300,15 +308,18 @@ int Solution::peakIndexInMountainArray(std::vector<int>& nums) {
             return -1;
         }
         int m = (l+r)/2;
+        // test whether nums[m] is the peak or not
         if (nums[m-1]<nums[m] && nums[m]>nums[m+1]) {
             return m;
         }
+        // if not, test both partitions
         int ans = dac(l, m-1);
         if (ans == -1) {
             ans = dac(m+1, r);
         }
         return ans;
     };
+    // we don't need include left and right boundary since they wouldn't be the answer
     return dac(1, sz-2);
 }
 

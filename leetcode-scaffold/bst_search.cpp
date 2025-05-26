@@ -42,32 +42,8 @@ It is guaranteed that the new value does not exist in the original BST.
 Note that there may exist multiple valid ways for the insertion, as long as the tree remains a BST after insertion. You can return any of them.
 */
 TreeNode* Solution::insertIntoBST(TreeNode* root, int val) {
-{
     TreeNode* x = root;
-    TreeNode* px = nullptr;
-    while (x != nullptr) {
-        px = x;
-        if (x->val < val) {
-            x = x->right;
-        } else {
-            x = x->left;
-        }
-    }
-    TreeNode* node = new TreeNode(val);
-    if (px == nullptr) {
-        return node;
-    } else {
-        if (px->val > val) {
-            px->left = node;
-        } else {
-            px->right = node;
-        }
-        return root;
-    }
-}
-
-    TreeNode* x = root;
-    TreeNode* px = nullptr;
+    TreeNode* px = nullptr; // parent of x
     while (x != nullptr) {
         px = x;
         if (x->val > val) {
@@ -96,7 +72,7 @@ Note that You may assume k is always valid, 1 ≤ k ≤ BST’s total elements.
 Hint: The answer is the value of kth node when performing inoder traversal
 */
 int Solution::kthSmallest(TreeNode* root, int k) {
-{ // recursive solution
+if (0) { // recursive solution
     int ans = 0;
     int idx = 0; // number of nodes we have traversed so far
     std::function<void(TreeNode*)> inorder_traversal = [&] (TreeNode* node) {
@@ -144,6 +120,8 @@ Given a binary search tree, write a function to find the kth largest element in 
 Note that You may assume k is always valid, 1 ≤ k ≤ BST’s total elements.
 */
 int Solution::kthLargest(TreeNode* root, int k) {
+
+{
     // what if we need to find the kth largest element in the tree?
     // we can get a sequence in ascending order when we traverse the tree in `left->root->right` order
     // then we can get a sequence in descending order when we traverse the tree in `right->root->left` order
@@ -164,6 +142,31 @@ int Solution::kthLargest(TreeNode* root, int k) {
     dfs(root);
     return ans;
 }
+
+{
+    int ans = 0;
+    int idx = 0;
+    auto p = root;
+    stack<TreeNode*> st;
+    while (p!=nullptr || !st.empty()) {
+        while (p != nullptr) {
+            st.push(p);
+            p = p->right;
+        }
+        // st.top()->right == nullptr
+        auto t = st.top(); st.pop();
+        ans = t->val;
+        ++idx;
+        if (idx == k) {
+            break;
+        }
+        p = t->left;
+    }
+    return ans;
+}
+
+}
+
 
 
 /*
@@ -208,7 +211,7 @@ Given an array where elements are sorted in ascending order, convert it to a hei
 For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.
 */
 TreeNode* Solution::sortedArrayToBST(vector<int>& nums) {
-    //r is not inclusive
+    // r is inclusive
     std::function<TreeNode*(int, int)> dfs = [&] (int l, int r) {
         if (l > r) { // trivial case
             return (TreeNode*)nullptr;
@@ -271,14 +274,14 @@ if (0) { // naive method
         } else {
             cur_freq = 1;
         }
+        predecessor = node;
         if (cur_freq > max_freq) {
             ans.clear();
             ans.push_back(node->val);
             max_freq = cur_freq;
-        } else if (cur_freq == max_freq) {
+        } else if (cur_freq == max_freq) { // ties
             ans.push_back(node->val);
         }
-        predecessor = node;
     
         dfs(node->right);
     };
@@ -290,31 +293,31 @@ if (0) { // naive method
 
 
 /*
-    Given a root node reference of a BST and a key, delete the node with the given key in the BST. 
-    Return the root node reference (possibly updated) of the BST.
-    Basically, the deletion can be divided into two stages:
-        Search for a node to remove.
-        If the node is found, delete the node.
-    for example, 
-        root:
-               4
-          1          6
-        0   2     5     8
-              3 n   n  7  
-    key = 0,3,5,7; leaf node; pass
-    key = 2,8; node with only one child; pass
-    key = 1,6; node with two children; pass
-    key = 4; node is root; pass
+Given a root node reference of a BST and a key, delete the node with the given key in the BST. 
+Return the root node reference (possibly updated) of the BST.
+Basically, the deletion can be divided into two stages:
+    Search for a node to remove.
+    If the node is found, delete the node.
+for example, 
+    root:
+            4
+        1          6
+    0   2     5     8
+            3 n   n  7  
+key = 0,3,5,7; leaf node; pass
+key = 2,8; node with only one child; pass
+key = 1,6; node with two children; pass
+key = 4; node is root; pass
 */
 TreeNode* Solution::deleteNode(TreeNode* root, int key) {
 
 if (0) { // simplified solution. the result tree may be not height-balanced even if it is still a BST
     if (root == nullptr) {
         return nullptr;
-    } else if (root->val < key) {
+    } else if (root->val < key) { // go to right
         root->right = deleteNode(root->right, key);
         return root;
-    } else if (root->val > key) {
+    } else if (root->val > key) { // go to left
         root->left = deleteNode(root->left, key);
         return root;
     } else /*if (root->val == key)*/ {
@@ -489,6 +492,7 @@ if (0) { // simplified solution. the result tree may be not height-balanced even
 }
 
 }
+
 
 void searchBST_scaffold(string input, int val, bool expectedResult) {
     TreeNode* root = stringToTreeNode(input);

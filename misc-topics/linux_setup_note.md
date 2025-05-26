@@ -219,6 +219,12 @@ sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.ta
 sudo systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target
 ```
 
+## VPN
+
+**当您不为商品付费时, 那么您自己就是商品**
+
+
+
 ## Miscellaneous Topics
 
 - [VSCode](hello-world/my_wiki/computer_glossary/os_problem/vscode_faq_note.md)

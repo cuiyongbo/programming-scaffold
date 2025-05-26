@@ -14,27 +14,11 @@ public:
 /*
 Implement ``int sqrt(int x)``. Compute and return the square root of x. x is guaranteed to be a non-negative integer.
 since the return type is an integer, the decimal digits are truncated and only the integer part of the result is returned.
-Hint: perform lower_bound search to find the first integer k such than k*k >= x
+Hint: perform lower_bound search to find the first integer k so that k*k >= x
 */
 int Solution::mySqrt(int x) {
-if (0) {
-    long l = 0;
-    long r = x;
-    while (l <= r) {
-        long m = (l+r)/2;
-        if (m*m == x) {
-            return m;
-        } else if (m*m < x) {
-            l = m+1;
-        } else {
-            r = m-1;
-        }
-    }
-    return (l*l > x) ? (l-1) : l;
-}
-
     assert(x>=0);
-    // perform lower_bound search to find the least integer k that satisfy k*k >=x
+    // perform lower_bound search to find the least integer k so that k*k >= x
     // to prevent intermediates from range overflow, we have to use long type for l, r, m
     long l = 0; // l is inclusive
     long r = long(x)+1; // r is not inclusive
@@ -46,15 +30,15 @@ if (0) {
             r = m;
         }
     }
-    return l*l>x ? (l-1) : l;
+    return (l*l>x) ? (l-1) : l;
 }
 
 
 /*
-    Koko loves to eat bananas. There are N piles of bananas, the i-th pile has piles[i] bananas. The guards have gone and will come back in H hours.
-    Koko can decide her bananas-per-hour eating speed of K. Each hour she chooses some pile of bananas, and eats K bananas from that pile. If the pile has less than K bananas, she eats all of them instead, and won’t eat any more bananas during this hour. (each hour Koko can eat K bananas at most, and one pile at most)
-    Koko likes to eat slowly, but still wants to finish eating all the bananas before the guards come back. Return the minimum integer K such that she can eat all the bananas within H hours.
-    you may assume that piles.length<=H.
+Koko loves to eat bananas. There are N piles of bananas, the i-th pile has piles[i] bananas. The guards have gone and will come back in H hours.
+Koko can decide her bananas-per-hour eating speed of K. Each hour she chooses some pile of bananas, and eats K bananas from that pile. If the pile has less than K bananas, she eats all of them instead, and won’t eat any more bananas during this hour. (each hour Koko can eat K bananas at most, and one pile at most)
+Koko likes to eat slowly, but still wants to finish eating all the bananas before the guards come back. Return the minimum integer K such that she can eat all the bananas within H hours. (to find some minimums means we need perform lower_bound search)
+you may assume that piles.length<=H.
 */
 int Solution::minEatingSpeed(std::vector<int>& piles, int H) {
     //Hint: perform lower_bound search to find the minimum K which satisfies the requirement
@@ -62,7 +46,7 @@ int Solution::minEatingSpeed(std::vector<int>& piles, int H) {
     auto can_koko_finish_eating = [&] (int speed) {
         int hours = 0;
         for (auto p: piles) {
-            hours += (p+speed-1)/speed; // how many hours does it take to eat up piles[i] with eating speed of speed
+            hours += (p+speed-1)/speed; // how many hours does it take to eat up `piles[i]` with eating speed of speed. Note that each hour Koko can eat speed bananas at most, and one pile at most
             if (hours > H) {
                 return false;
             }
@@ -84,13 +68,13 @@ int Solution::minEatingSpeed(std::vector<int>& piles, int H) {
 
 
 /*
-    A conveyor belt has packages that must be shipped from one port to another within D days.
-    The i-th package on the conveyor belt has a weight of weights[i]. Each day we load the ship with packages on the conveyor belt (*in the order given by weights*). 
-    We may not load more weight than the maximum weight capacity of the ship and we can't split one package.
-    Return the least weight capacity of the ship that will result in all the packages on the conveyor belt being shipped within D days.
-    Constraints:
-        1 <= D <= weights.length <= 5 * 104
-        1 <= weights[i] <= 500
+A conveyor belt has packages that must be shipped from one port to another within D days.
+The i-th package on the conveyor belt has a weight of weights[i]. Each day we load the ship with packages on the conveyor belt *in the order given by weights*. 
+We may not load more weight than the maximum weight capacity of the ship and we can't split one package.
+Return the least weight capacity of the ship that will result in all the packages on the conveyor belt being shipped within D days.
+Constraints:
+    1 <= D <= weights.length <= 5 * 104
+    1 <= weights[i] <= 500
 */
 int Solution::shipWithinDays(std::vector<int>& weights, int D) {
     // use lower_bound search to find the least weight capacity of the ship that satisfies the condition
@@ -104,6 +88,7 @@ int Solution::shipWithinDays(std::vector<int>& weights, int D) {
                 sum += weights[i];
                 i++;
             }
+            assert(i>=sz || sum+weights[i] > capacity);
             days++;
             if (days > D) {
                 return false;
@@ -111,8 +96,8 @@ int Solution::shipWithinDays(std::vector<int>& weights, int D) {
         }
         return true;
     };
-    int l = *(std::max_element(weights.begin(), weights.end())); // we cann't split one package
-    int r = std::accumulate(weights.begin(), weights.end(), 1); // load all packages in one day
+    int l = *(std::max_element(weights.begin(), weights.end())); // we cann't split one package, so the minimum capacity of the ship is the weight of the maximum package
+    int r = std::accumulate(weights.begin(), weights.end(), 1); // load all packages in one day. Note that r is not inclusive in lower_bound search
     //int r = l*D + 1; // it is not right, for example given weights=[10,10,10], D=1
     while (l < r) {
         int m = (l+r)/2;
