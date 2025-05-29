@@ -101,7 +101,4 @@ The `numactl` command can be used to control the NUMA policy for running applica
 - **NUMA-Aware Systems**: Operating systems and applications can be designed to be NUMA-aware to optimize memory access patterns and improve performance.
 
 By understanding and leveraging NUMA, you can optimize the performance of multiprocessor systems, particularly for memory-intensive applications.
-
-
-
 ```
