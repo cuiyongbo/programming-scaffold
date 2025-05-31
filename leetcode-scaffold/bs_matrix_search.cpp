@@ -15,7 +15,7 @@ public:
 
 
 /*
-Given an integer array (unsorted) nums and an integer k, return the kth largest element in the array.
+Given an integer array (unsorted) nums and an integer k, return the kth (1-indexed) largest element in the array.
 Note that it is the kth largest element in the sorted order, not the kth distinct element.
 Example 1:
     Input: nums = [3,2,1,5,6,4], k = 2
@@ -23,7 +23,7 @@ Example 1:
 Example 2:
     Input: nums = [3,2,3,1,2,4,5,5,6], k = 4
     Output: 4
-Hint: you may use quicksort like algorithm to sort the array partially, then fetch the kth element
+Hint: you may use quicksort-like algorithm to sort the array partially, then fetch the kth element
 */
 int Solution::findKthLargest(std::vector<int>& nums, int k) {
 
@@ -33,6 +33,7 @@ if (0) { // std solution
 }
 
 { // iterative version
+    // l, r are inclusive
     auto partitioner = [&] (int l, int r) {
         int pivot = nums[r];
         int j = l-1;
@@ -54,7 +55,7 @@ if (0) { // std solution
             break;
         } else if (count < k) { // target resides in right part
             l = m+1;
-            k = k - count; // skip elements which are larger than target but may not necessarily be sorted
+            k = k - count; // skip elements which are larger than target but not necessarily be sorted
         } else { // target resides in left part
             r = m-1;
             //k = k;
@@ -78,9 +79,9 @@ if (0) { // std solution
         std::swap(nums[++j], nums[r]);
         int diff = j-l+1;
         //printf("l: %d, r: %d, j: %d, diff: %d, d: %d\n", l, r, j, diff, d);
-        if (diff > d) {
+        if (diff > d) { // go left
             return worker(l, j-1, d);
-        } else if (diff < d) {
+        } else if (diff < d) { // go right
             return worker(j+1, r, d-diff);
         } else {
             return;
@@ -104,9 +105,10 @@ bool Solution::searchMatrix(std::vector<std::vector<int>>& matrix, int target) {
     int columns = matrix[0].size();
     int l = 0;
     int r = rows*columns-1; // r is inclusive
+    // l, r are indexes
     while (l <= r) {
         int m = (l+r)/2;
-        // convert m to (row,cloumn)
+        // convert m to (row, cloumn)
         int a = matrix[m/columns][m%columns];
         if (a == target) {
             return true;
@@ -131,7 +133,7 @@ in the virtual left subarray split by the indices
 double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2) {
 
 { // naive solution
-    vector<int> target_positions; // Note that target_positions are 1-index position(s)
+    vector<int> target_positions; // Note that elements of target_positions are 1-index position(s)
     int total_count = nums1.size() + nums2.size();
     if (total_count % 2 == 0) {
         int k = total_count/2;
@@ -139,8 +141,8 @@ double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int
         target_positions.push_back(k+1);
 
     } else {
-        int k = (total_count+1)/2;
-        target_positions.push_back(k);
+        int k = total_count/2;
+        target_positions.push_back(k+1);
     }
     // perform upper_bound search to find the number of elements which are no larger than target
     auto worker = [](const std::vector<int>& nums, int target) {
@@ -170,7 +172,6 @@ double Solution::findMedianSortedArrays(std::vector<int>& nums1, std::vector<int
     }
     return sum/target_positions.size();
 }
-
 
 {
     // for case: nums1=[2], nums2=[]
@@ -231,7 +232,7 @@ int Solution::kthSmallest(std::vector<std::vector<int>>& matrix, int k) {
     };
     // perform lower_bound search to find the answer
     int l = 0;
-    int r = matrix[rows-1][columns-1] + 1;
+    int r = matrix[rows-1][columns-1] + 1; // r is not inclusive
     while (l<r) {
         int m = (l+r)/2;
         // perform upper_bound search to find the number of elements that are no larger than target in matrix

@@ -55,7 +55,7 @@ if (0) { // naive solution, O(n^2)
                     r = m;
                 }
             }
-            ans += (l-i-1); // the number of elements is (l-i), and the number of pairs is (l-i-1)
+            ans += (l-i-1); // the number of elements is (l-i), and the number of pairs is (l-i-1). note that l is not inclusive when calculating ans
         }
         return ans;
     };
@@ -65,7 +65,7 @@ if (0) { // naive solution, O(n^2)
         int m = (r+l)/2;
         // perform upper_bound search to figure out the number of pairs whose distance is no larger than m
         int pair_num = calc_num_pairs(m);
-        // perform lower_bound search to find the first m such that total is no less than k
+        // perform lower_bound search to find the first m such that pair_num is no less than k
         if (pair_num < k) {
             l = m+1;
         } else { // when diff==key we move r to left to find the leftmost element that is greater than or equal to key
@@ -79,7 +79,7 @@ if (0) { // naive solution, O(n^2)
 
 
 /*
-A **sorted** list A contains 1, plus some number of primes. Then for every p < q in the list, we consider the fraction p/q.
+A sorted list A in acending order contains 1, plus some number of primes. Then for every p < q in the list, we consider the fraction p/q.
 What is the K-th smallest fraction considered?  Return your answer as an array of ints, where answer[0] = p and answer[1] = q. 
 
 Examples:
@@ -97,12 +97,12 @@ std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int 
         double max_f = 0;
         for (int i=0; i<sz; ++i) {
             int l = i+1;
-            int r = sz;
+            int r = sz; // r is not inclusive
             while (l < r) {
                 int j = (l+r)/2;
-                if (nums[i] >= m*nums[j]) {
+                if (nums[i] >= m*nums[j]) { // go right
                     l=j+1;
-                } else {
+                } else { // go left
                     r=j;
                 }
             }
@@ -112,7 +112,8 @@ std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int 
                 max_f = double(nums[i])/nums[l];
                 ret[0] = nums[i]; ret[1] = nums[l];
             }
-            ans += (sz-l); // note that nums[i] is not included in nums[l:sz], so the number of pairs is (sz-l)
+            // the pairs are (nums[i], nums[j]) for j in [l:sz], sz is not inclsive. so the number of pairs is (sz-l)
+            ans += (sz-l); 
         }
         return ans;
     };
@@ -122,9 +123,10 @@ std::vector<int> Solution::kthSmallestPrimeFraction(std::vector<int>& nums, int 
     while (l < r) {
         double m = (l+r)/2;
         int num_less = calc_num_less(m);
-        if (num_less < k) {
+        // there is no truncation in float-point division, no need to add l, r by one during runtime
+        if (num_less < k) { // go to left
             l=m;
-        } else if (num_less > k) {
+        } else if (num_less > k) { // go to right
             r=m;
         } else {
             break;
