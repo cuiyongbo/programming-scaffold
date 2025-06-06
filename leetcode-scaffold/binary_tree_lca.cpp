@@ -36,7 +36,7 @@ int Solution::getDistance(TreeNode* root, TreeNode* p, TreeNode* q) {
                 ans += steps;
                 found_node_cnt += 1;
             }
-            if (found_node_cnt == 2) {
+            if (found_node_cnt == 2) { // termination
                 return ans;
             }
             if (t->left != nullptr) {
@@ -87,11 +87,11 @@ if(0) { // iterative solution
     int a = std::min(p->val, q->val);
     int b = std::max(p->val, q->val);
     while (x != nullptr) {
-        if (x->val < a) {
+        if (x->val < a) { // go to right
             x = x->right;
-        } else if (x->val > b) {
+        } else if (x->val > b) { // go to left
             x = x->left;
-        } else {
+        } else { // p, q reside in both subtrees of x, then x is their ancestor
             break;
         }
     }
@@ -134,7 +134,7 @@ TreeNode* Solution::subtreeWithAllDeepest(TreeNode* root) {
         // perform post-order traversal
         auto l = dfs(node->left, depth+1);
         auto r = dfs(node->right, depth+1);
-        if (l.second == r.second) { // left, right subtrees got the same max depth, take node as intermediate node
+        if (l.second == r.second) { // left, right subtrees got the same depth, take node as intermediate node
             return make_pair(node, l.second);
         } else { // return either subtree with larger depth
             return l.second > r.second ? l : r;

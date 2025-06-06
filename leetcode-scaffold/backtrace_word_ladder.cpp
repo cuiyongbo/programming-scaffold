@@ -38,10 +38,9 @@ Note:
     All words contain only lowercase alphabetic characters.
     You may assume no duplicates in the word list.
     You may assume beginWord and endWord are non-empty and are not the same.
-Hint: use bfs(recommended)/dfs to find the shortest path from beginWord to endWord
+Hint: use bfs(**recommended**)/dfs to find the shortest path from beginWord to endWord
 */
 int Solution::ladderLength(string beginWord, string endWord, vector<string>& wordList) {
-
 { // a more delicate version of bfs solution
     int steps = 0;
     int sz = wordList.size();
@@ -129,10 +128,6 @@ vector<vector<string>> Solution::findLadders(string beginWord, string endWord, v
             return;
         }
         if (u == endWord) {
-            if ((int)path.size() < best_path_len) {
-                ans.clear();
-                best_path_len = path.size();
-            }
             ans.push_back(path);
             return;
         }
@@ -170,7 +165,6 @@ Note:
 Hint: BFS or Bidirectional BFS
 */
 int Solution::openLock(vector<string>& deadends, string target) {
-
 if (0) { // naive bfs
     int steps = 0;
     string start("0000");
@@ -288,9 +282,11 @@ int Solution::racecar(int target) {
             element_t p;
             // accelerate
             p = std::make_pair(t.first+t.second, t.second*2);
-            // we won't choose acceleration if we would surpassed target after accelerating next time
+            // we won't choose acceleration if we would surpass target after accelerating next time
             // we may surpass target once, but should not do it twice
+            // if we already surpass target, then we wouldn't accelerate the car the next time
             if (p.first <= 2*target && visited.count(p) == 0) {
+            //if (visited.count(p) == 0) { // also ok, but would take longer time to finish
                 q.push(p);
                 visited.insert(p);
             }
@@ -340,7 +336,7 @@ void ladderLength_scaffold(string input1, string input2, string input3, int expe
     if (actual == expectedResult) {
         SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
-        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: ", input1, input2, expectedResult, actual);
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
     }
 }
 
@@ -423,6 +419,7 @@ int main() {
     racecar_scaffold(3, 2);
     racecar_scaffold(6, 5);
     racecar_scaffold(100, 19);
+    racecar_scaffold(200, 22);
     TIMER_STOP(racecar);
     SPDLOG_WARN("racecar using {} ms", TIMER_MSEC(racecar));
 

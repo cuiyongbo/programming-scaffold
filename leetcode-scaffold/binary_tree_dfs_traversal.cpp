@@ -43,6 +43,7 @@ public:
     std::vector<std::vector<int>> verticalTraversal(TreeNode* root);
 };
 
+
 // traversal order: left -> root -> right
 std::vector<int> Solution::inOrderTraversal_recursion(TreeNode* root) {
     std::vector<int> ans;
@@ -57,6 +58,7 @@ std::vector<int> Solution::inOrderTraversal_recursion(TreeNode* root) {
     return ans;
 }
 
+
 // traversal order: root -> left -> right
 std::vector<int> Solution::preOrderTraversal_recursion(TreeNode* root) {
     std::vector<int> ans;
@@ -70,6 +72,7 @@ std::vector<int> Solution::preOrderTraversal_recursion(TreeNode* root) {
     dfs(root);
     return ans;
 }
+
 
 // traversal order: left -> right -> root
 std::vector<int> Solution::postOrderTraversal_recursion(TreeNode* root) {
@@ -104,6 +107,7 @@ std::vector<int> Solution::inOrderTraversal_iteration(TreeNode* root) {
     return ans;
 }
 
+
 // traversal order: root -> left -> right
 std::vector<int> Solution::preOrderTraversal_iteration(TreeNode* root) {
     std::vector<int> ans;
@@ -115,7 +119,7 @@ std::vector<int> Solution::preOrderTraversal_iteration(TreeNode* root) {
         auto t = st.top(); st.pop();
         ans.push_back(t->val); // root
         // stack: last in first out
-        // we need push right child first
+        // Note that we need push right child first
         if (t->right != nullptr) {
             st.push(t->right);
         }
@@ -125,6 +129,7 @@ std::vector<int> Solution::preOrderTraversal_iteration(TreeNode* root) {
     }
     return ans;    
 }
+
 
 std::vector<int> Solution::postOrderTraversal_iteration(TreeNode* root) {
     // Hint: left->right->root is the inversion of root->right->left
@@ -152,13 +157,14 @@ std::vector<int> Solution::postOrderTraversal_iteration(TreeNode* root) {
 
 
 /*
-    Consider all the leaves of a binary tree, from left to right order, the values of leaves form a leaf value sequence.
-    For example, for a tree with node [3,5,1,6,2,9,8,null,null,7,4], the leaf value sequence is (6, 7, 4, 9, 8).
-    Two binary trees are considered leaf-similar if their leaf value sequence is the same. Return true if and only if the two given trees with head nodes root1 and root2 are leaf-similar.
+Consider all the leaves of a binary tree, from left to right order, the values of leaves form a leaf value sequence.
+For example, for a tree with node [3,5,1,6,2,9,8,null,null,7,4], the leaf value sequence is (6, 7, 4, 9, 8).
+Two binary trees are considered leaf-similar if their leaf value sequence is the same. Return true if and only if the two given trees with head nodes root1 and root2 are leaf-similar.
 
-    Hint: perform a preorder/inorder/postorder traversal to get the leaf value sequence
+Hint: perform a preorder/inorder/postorder traversal to get the leaf value sequence
 */
 bool Solution::leafSimilar(TreeNode* root1, TreeNode* root2) {
+    //preorder traversal
     std::function<void(TreeNode*, std::vector<int>&)> dfs = [&] (TreeNode* node, std::vector<int>& seq) {
         if (node != nullptr) {
             if (node->left == nullptr && node->right == nullptr) {
@@ -258,7 +264,7 @@ std::vector<std::vector<int>> Solution::verticalTraversal(TreeNode* root) {
 }
 
 { // if root is a binary search tree    
-    typedef std::pair<int, int> Coordinate;
+    using Coordinate = std::pair<int, int>;
     std::map<int, std::vector<int>> mp;
     std::function<void(TreeNode*, Coordinate)> dfs = [&] (TreeNode* node, Coordinate coor) { // inorder traversal
         if (node != nullptr) {

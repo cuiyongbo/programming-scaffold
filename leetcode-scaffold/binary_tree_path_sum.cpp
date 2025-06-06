@@ -60,9 +60,10 @@ std::vector<std::string> Solution::binaryTreePaths(TreeNode* root) {
     std::vector<TreeNode*> buffer;
     // traverse the tree in pre-order way
     std::function<void(TreeNode*)> dfs = [&] (TreeNode* node) {
-        if (node == nullptr) {
+        if (node == nullptr) { // trivial case
             return;
         }
+        // perform backtrace to record the path
         buffer.push_back(node);
         if (node->is_leaf()) {
             make_path(buffer);
@@ -80,7 +81,6 @@ std::vector<std::string> Solution::binaryTreePaths(TreeNode* root) {
 /*
 Given a binary tree and a sum, determine if the tree has a root-to-leaf path 
 such that adding up all the values along the path equals the given sum.
-Hint: preorder traversal
 */
 bool Solution::hasPathSum(TreeNode* root, int sum) {
     // traverse the tree in pre-order way
@@ -108,6 +108,7 @@ std::vector<std::vector<int>> Solution::pathSum(TreeNode* root, int sum) {
         if (node == nullptr) {
             return;
         }
+        // dfs with backtrace
         path.push_back(node->val);
         cur += node->val;
         // test whether the root meets the condition
@@ -132,13 +133,14 @@ You are given a binary tree in which each node contains an integer value. Find t
 The path does not need to start or end at the root or a leaf, but it must go downwards (traveling only from parent nodes to child nodes).
 */
 int Solution::pathSum_437(TreeNode* root, int sum) {
-    // return the number of paths starting from node, where the sum of nodes is equal to the K
+    // return the number of paths starting from node, whose sum of nodes is equal to the K
     // traverse the tree in pre-order way
     std::function<int(TreeNode*, int)> dfs = [&] (TreeNode* node, int K) {
         if (node == nullptr) {
             return 0;
         }
         int count = 0;
+        // node is not necessarily a leaf
         if (node->val == K) {
             count++;
         }
@@ -169,7 +171,7 @@ dfs(node) return max path sum:
 */
 int Solution::maxPathSum(TreeNode* root) {
     int ans = INT32_MIN;
-    // return the maxPathSum for tree rooted at node, using at most one child subtree
+    // return the maxPathSum for tree rooted at node, using at most one child subtree (neither would be used if their path sum is negative)
     std::function <int (TreeNode*)> dfs = [&] (TreeNode* node) { // post-order traversal
         if (node == nullptr) {
             return INT32_MIN; // Note that 0 cannot be used as INVALID VALUE

@@ -17,17 +17,16 @@ Two binary trees are considered the same if they are structurally identical and 
 bool Solution::isSameTree(TreeNode* l, TreeNode* r) {
 
 { // recursive solution, traverse both trees in pre-order way
-    if (l==nullptr && r==nullptr) { // trivial case
+    if (l==nullptr && r==nullptr) { // trivial case: both trees are null
         return true;
-    } else if (l==nullptr || r==nullptr) { // trivial case
+    } else if (l==nullptr || r==nullptr) { // trivial case: one of the trees is null
         return false;
-    } else if (l->val != r->val) { // trivial case
+    } else if (l->val != r->val) { // trivial case: the values of current node are not equal
         return false;
     } else {
         return isSameTree(l->left, r->left) && isSameTree(l->right, r->right);
     }
 }
-
 
 { // iterative solution
     std::queue<TreeNode*> q;
@@ -59,7 +58,6 @@ A subtree of s is a tree consists of a node in s and all of this node's descenda
 The tree s could also be considered as a subtree of itself.
 */
 bool Solution::isSubtree(TreeNode* s, TreeNode* t)  {
-
 { // recursive solution, traverse s in pre-order way
     return isSameTree(s, t) ||
             (s!=nullptr && isSubtree(s->left, t)) || 
@@ -98,6 +96,7 @@ if (1) { // recursive solution
         } else if (l->val != r->val) {
             return false;
         } else {
+            // Note we compare subtrees in a symmetric way
             return dfs(l->left, r->right) && dfs(r->left, l->right);
         }
     };

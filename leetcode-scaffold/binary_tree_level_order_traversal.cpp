@@ -152,9 +152,9 @@ std::vector<int> Solution::rightSideView(TreeNode* root) {
         q.push(root);
     }
     while (!q.empty()) {
-        for (int i=q.size(); i!=0; --i) {
+        for (int k=q.size(); k!=0; --k) {
             auto t = q.front(); q.pop();
-            if (i == 1) { // record the last node in each level
+            if (k == 1) { // record the last node in each level
                 ans.push_back(t->val);
             }
             if (t->left != nullptr) {
@@ -181,9 +181,9 @@ std::vector<int> Solution::leftSideView(TreeNode* root) {
     }
     while (!q.empty()) {
         int size = q.size();
-        for (int i=0; i<size; ++i) {
+        for (int k=0; k<size; ++k) {
             auto t = q.front(); q.pop();
-            if (i == 0) { // record the first node in each level
+            if (k == 0) { // record the first node in each level
                 ans.push_back(t->val);
             }
             if (t->left != nullptr) {

@@ -27,6 +27,8 @@ bool Solution::wordBreak_139(string input, vector<string>& wordDict) {
             return sub_solution[u];
         }
         sub_solution[u] = false;
+        // u is not in wordDict
+        // Note that we start from i=1
         for (int i=1; i<(int)u.size(); i++) {
             // split u at index i
             auto lu = u.substr(0, i);
@@ -49,10 +51,10 @@ add spaces in s to construct a sentence where each word is a valid dictionary wo
 You may assume the dictionary does not contain duplicate words. Return all such possible sentences.
 */
 vector<string> Solution::wordBreak_140(string input, vector<string>& wordDict) {
-    set<string> word_set (wordDict.begin(), wordDict.end());
     using string_1d_vec_t = vector<string>;
     using string_2d_vec_t = vector<string_1d_vec_t>;
-    map<string, string_2d_vec_t> sub_solution;
+    map<string, string_2d_vec_t> sub_solution; // substring, splits
+    std::set<string> word_set (wordDict.begin(), wordDict.end());
     function<string_2d_vec_t(string)> dfs = [&] (string u) {
         if (sub_solution.count(u)) { // memoization
             return sub_solution[u];

@@ -58,7 +58,7 @@ ListNode* Solution::detectCycle(ListNode* head) {
     if (fast == nullptr) {
         return nullptr;
     }
-    // 2. if there is, find the node where the cycle begins 
+    // 2. if there is a cycle, find the node where the cycle begins 
     // PS: try to prove why fast and slow would rendezvous at the starting node
     /*
         x = distance(head, intersection)
@@ -110,10 +110,12 @@ void hasCycle_scaffold(const std::vector<int>& input1, int pos) {
     }
 }
 
+
 void hasCycle_scaffold(std::string input1, int pos) {
     std::vector<int> vi = stringTo1DArray<int>(input1);
     hasCycle_scaffold(vi, pos);
 }
+
 
 void detectCycle_scaffold(const std::vector<int>& input1, int pos) {
     ListNode* l1 = vectorToListNode(input1);
@@ -150,10 +152,12 @@ void detectCycle_scaffold(const std::vector<int>& input1, int pos) {
     }
 }
 
+
 void detectCycle_scaffold(std::string input1, int pos) {
     std::vector<int> vi = stringTo1DArray<int>(input1);
     detectCycle_scaffold(vi, pos);
 }
+
 
 void basic_test() {
     SPDLOG_WARN("Running hasCycle tests:");
@@ -181,6 +185,7 @@ void basic_test() {
     SPDLOG_WARN("detectCycle using {} ms", TIMER_MSEC(detectCycle));
 }
 
+
 void detectCycle_batch_test(int test_array_scale) {
     int pos = -1;
     vector<int> vi; vi.reserve(test_array_scale);
@@ -196,6 +201,7 @@ void detectCycle_batch_test(int test_array_scale) {
         hasCycle_scaffold(vi, pos);
     }
 }
+
 
 int main(int argc, char* argv[]) {
     basic_test();

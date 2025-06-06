@@ -327,9 +327,9 @@ add_executable(binary_tree_serialization_and_deserializaiton binary_tree_seriali
 target_compile_features(binary_tree_serialization_and_deserializaiton PUBLIC cxx_auto_type)
 target_link_libraries(binary_tree_serialization_and_deserializaiton spdlog::spdlog_header_only)
 
-add_executable(binary_tree_misc_exercises binary_tree_misc_exercises.cpp ${PUB_UTIL_FILES})
-target_compile_features(binary_tree_misc_exercises PUBLIC cxx_auto_type)
-target_link_libraries(binary_tree_misc_exercises spdlog::spdlog_header_only)
+add_executable(binary_tree_post_order_traversal binary_tree_post_order_traversal.cpp ${PUB_UTIL_FILES})
+target_compile_features(binary_tree_post_order_traversal PUBLIC cxx_auto_type)
+target_link_libraries(binary_tree_post_order_traversal spdlog::spdlog_header_only)
 
 # LIST
 

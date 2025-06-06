@@ -3,7 +3,6 @@
 using namespace std;
 
 /*leetcode: 508, 968, 337, 979*/
-
 class Solution {
 public:
     std::vector<int> findFrequentTreeSum(TreeNode* root);
@@ -21,13 +20,13 @@ So what is the most frequent subtree sum value?
 If there is a tie, return all the values with the highest frequency in any order.
 Examples 1
     Input:
-        5
+      5
     /  \
     2   -3
     return [2, -3, 4], since all the values happen only once, return all of them in any order.
 Examples 2
     Input:
-    5
+     5
     /  \
     2   -5
     return [2], since 2 happens twice, however -5 only occur once.
@@ -113,7 +112,7 @@ After a tour, the smart thief realized that “all houses in this place forms a 
 Determine the maximum amount of money the thief can rob tonight without alerting the police.
 
 Example 1: Maximum amount of money the thief can rob = 3 + 3 + 1 = 7.
-        3
+     3
     / \
     2   3
     \   \ 
@@ -132,7 +131,7 @@ int Solution::rob(TreeNode* root) {
         if (mp.count(node)) {
             return mp[node];
         }
-        // rob current node
+        // 1. rob current node
         int p1 = node->val;
         if (node->left != nullptr) {
             p1 += rob(node->left->left);
@@ -142,10 +141,10 @@ int Solution::rob(TreeNode* root) {
             p1 += rob(node->right->left);
             p1 += rob(node->right->right);
         }
-        // skip current node
+        // 2. skip current node
         int p2 = rob(node->left) + rob(node->right);
         mp[node] = max(p1, // how much money the thief could rob if he robbed node
-                p2 // how much money the thief could rob if he didn't rob node
+                p2 // how much money the thief could rob if he didn't
             );
         return mp[node];
     };

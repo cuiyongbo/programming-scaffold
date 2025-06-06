@@ -8,6 +8,7 @@ public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2);
     ListNode* addTwoNumber_445(ListNode* l1, ListNode* l2);
     ListNode* reverseList(ListNode* head);
+    ListNode* reverseBetween(ListNode* head, int left, int right);
     ListNode* swapPairs(ListNode* head);
     ListNode* reverseKGroup(ListNode* head, int k);
     ListNode* getIntersectionNode(ListNode* l1, ListNode* l2);
@@ -20,7 +21,6 @@ public:
 
 
 ListNode* Solution::reverseList(ListNode* head) {
-{
     ListNode dummy;
     ListNode* p = &dummy;
     while (head != nullptr) {
@@ -32,6 +32,53 @@ ListNode* Solution::reverseList(ListNode* head) {
     return dummy.next;
 }
 
+
+/*
+Given the head of a singly linked list and two integers left and right where left <= right (1-indexed), reverse the nodes of the list from position left to position right, and return the reversed list.
+
+Example 1:
+Input: head = [1,2,3,4,5], left = 2, right = 4
+Output: [1,4,3,2,5]
+
+Example 2:
+Input: head = [5], left = 1, right = 1
+Output: [5]
+
+Constraints:
+The number of nodes in the list is n.
+1 <= n <= 500
+-500 <= Node.val <= 500
+1 <= left <= right <= n
+*/
+ListNode* Solution::reverseBetween(ListNode* head, int left, int right) {
+    if (head == nullptr || left==right) { // trivial case
+        return head;
+    }
+    int i = 0;
+    ListNode dummy1;
+    ListNode* p1 = &dummy1;
+    ListNode dummy2;
+    ListNode* p2 = &dummy2;
+    ListNode dummy3;
+    ListNode* p3 = &dummy3;
+    while (head != nullptr) {
+        i++;
+        ListNode* tmp = head->next; head->next = nullptr;
+        if (i<left) {
+            p1->next = head; p1 = p1->next; // push_back
+        } else if (left<=i && i<=right) {
+            head->next = p2->next; p2->next = head; // push_front;
+        } else {
+            p3->next = head; p3 = p3->next; // push_back
+        }
+        head = tmp;
+    }
+    p1->next = dummy2.next;
+    while (p2->next != nullptr) {
+        p2 = p2->next;
+    }
+    p2->next = dummy3.next;
+    return dummy1.next;
 }
 
 
@@ -47,8 +94,6 @@ Examples:
     Output: [3,2,1,4,5]
 */
 ListNode* Solution::reverseKGroup(ListNode* head, int k) {
-
-{
     ListNode dummy;
     ListNode* p = &dummy;
     std::stack<ListNode*> st;
@@ -72,8 +117,6 @@ ListNode* Solution::reverseKGroup(ListNode* head, int k) {
         node->next = p->next; p->next = node; // push_front
     }
     return dummy.next;
-}
-
 }
 
 
@@ -159,7 +202,7 @@ Examples:
     Output: []
 */
 ListNode* Solution::deleteDuplicates_082(ListNode* head) {
-    std::stack<std::pair<ListNode*, int>> st;
+    std::stack<std::pair<ListNode*, int>> st; // node, count of nodes with the same value
     while (head != nullptr) {
         ListNode* tmp = head->next; head->next = nullptr;
         if (st.empty()) {
@@ -200,7 +243,7 @@ ListNode* Solution::deleteDuplicates_083(ListNode* head) {
         if  (p == &dummy) {
             p->next = head; p = p->next;
         } else if (p->val != head->val) {
-            p->next = head; p = p->next;
+            p->next = head; p = p->next; // push_back
         } else /*if (p->val == head->val)*/ {
             // do nothing
         }
@@ -210,7 +253,7 @@ ListNode* Solution::deleteDuplicates_083(ListNode* head) {
 }
 
 {
-    std::stack<std::pair<ListNode*, int>> st;
+    std::stack<std::pair<ListNode*, int>> st; // node, count of nodes with the same value
     while (head != nullptr) {
         ListNode* tmp = head->next; head->next = nullptr;
         if (st.empty()) {
@@ -272,7 +315,6 @@ Example:
     Explanation: 342 + 465 = 807.
 */
 ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
-
     int carry = 0;
     ListNode dummy(-1);
     ListNode* p = &dummy;
@@ -289,12 +331,12 @@ ListNode* Solution::addTwoNumbers(ListNode* l1, ListNode* l2) {
             p2 = p2->next;
         }
         val += carry;
+        // reset carry
+        carry = 0;
         // re-calculate carry
         if (val >= 10) {
             val -= 10;
             carry = 1;
-        } else {
-            carry = 0;
         }
         ListNode* node = new ListNode(val);
         p->next = node; p = p->next; // push_back
@@ -313,6 +355,13 @@ Example:
     Output: 7 -> 8 -> 0 -> 7
 */
 ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
+
+if (0) {
+    ListNode* p1 = this->reverseList(l1);
+    ListNode* p2 = this->reverseList(l2);
+    ListNode* p3 = this->addTwoNumbers(p1, p2);
+    return this->reverseList(p3);
+}
 
 {
     std::stack<int> st1;
@@ -359,56 +408,56 @@ ListNode* Solution::addTwoNumber_445(ListNode* l1, ListNode* l2) {
 
 
 /*
-    Write a program to find the node at which the intersection of two singly linked lists begins.
-    Hint: 
-        suppose we concatenate two lists together respectively, then we get two virtual lists as followings:
-            [3][2,3]
-            [2,3][3]
-            loop 1: 3,2 --> not equal --> null, 3 
-            loop 2: null, 3 --> not equal --> 2, null
-            loop 3: 2, null --> not equal --> 3, 3   
-            loop 4: 3, 3 -> equal,  ok, we got the intersected node
-        then traverse these two virtual lists step by step, and we will coincide at the intersected node
+Write a program to find the node at which the intersection of two singly linked lists begins.
+Hint: 
+    suppose we concatenate two lists together respectively, then we get two virtual lists as followings:
+        [3][2,3]
+        [2,3][3]
+        loop 1: 3,2 --> not equal --> null, 3 
+        loop 2: null, 3 --> not equal --> 2, null
+        loop 3: 2, null --> not equal --> 3, 3   
+        loop 4: 3, 3 -> equal,  ok, we got the intersected node
+    then traverse these two virtual lists step by step, and we will coincide at the intersected node
 
-    Examples:
+Examples:
 
-    Input: intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
-    Output: Reference of the node with value = 8
-    Input Explanation: The intersected node's value is 8 (note that this must not be 0 if the two lists intersect). 
-    From the head of A, it reads as [4,1,8,4,5]. From the head of B, it reads as [5,0,1,8,4,5]. 
-    There are 2 nodes before the intersected node in A; There are 3 nodes before the intersected node in B.
+Input: intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
+Output: Reference of the node with value = 8
+Input Explanation: The intersected node's value is 8 (note that this must not be 0 if the two lists intersect). 
+From the head of A, it reads as [4,1,8,4,5]. From the head of B, it reads as [5,0,1,8,4,5]. 
+There are 2 nodes before the intersected node in A; There are 3 nodes before the intersected node in B.
 
-             4+------> 1+---+
-                            |
-                            v
-                            8+------->4+----->5
-                            ^
-                            |
-    5+------->0+-------->1+--
+        4+------> 1+---+
+                        |
+                        v
+                        8+------->4+----->5
+                        ^
+                        |
+5+------->0+-------->1+--
 
-    1: 4, 5 -> x -> 1, 0
-    2: 1, 0 -> x -> 8, 1
-    3: 8, 1 -> x -> 4, 8
-    4: 4, 8 -> x -> 5, 4
-    5: 5, 4 -> x -> null, 5
-    6: null, 5 -> x -> 5, null
-    6: 5, null -> x -> 0, 4
-    7: 0, 4 -> x -> 1, 1
-    8: 1, 1 -> x -> 8, 8
-    9: 8, 8 -> o -> return
+1: 4, 5 -> x -> 1, 0
+2: 1, 0 -> x -> 8, 1
+3: 8, 1 -> x -> 4, 8
+4: 4, 8 -> x -> 5, 4
+5: 5, 4 -> x -> null, 5
+6: null, 5 -> x -> 5, null
+6: 5, null -> x -> 0, 4
+7: 0, 4 -> x -> 1, 1
+8: 1, 1 -> x -> 8, 8
+9: 8, 8 -> o -> return
 
-    Input: intersectVal = 2, listA = [1,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
-    Output: Intersected at '2'
+Input: intersectVal = 2, listA = [1,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
+Output: Intersected at '2'
 
-    Input: intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
-    Output: null
+Input: intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
+Output: null
 
-    Notes:
+Notes:
 
-    If the two linked lists have no intersection at all, return null.
-    The linked lists must retain their original structure after the function returns.
-    You may assume there are no cycles anywhere in the entire linked structure.
-    Your code should preferably run in O(n) time and use only O(1) memory.
+If the two linked lists have no intersection at all, return null.
+The linked lists must retain their original structure after the function returns.
+You may assume there are no cycles anywhere in the entire linked structure.
+Your code should preferably run in O(n) time and use only O(1) memory.
 */
 ListNode* Solution::getIntersectionNode(ListNode* l1, ListNode* l2) {
 // 1. iterate over one list, and save nodes into a set, test node existence against the set when iterating the other list. however, it failed to meet the requirement of the running time and space complexity
@@ -467,13 +516,25 @@ void addTwoNumbers_scaffold(std::string input1, std::string input2, std::string 
 void reverseList_scaffold(std::string input1, std::string expectedResult) {
     ListNode* l1 = stringToListNode(input1);
     ListNode* l3 = stringToListNode(expectedResult);
-
     Solution ss;
     ListNode* ans = ss.reverseList(l1);
     if(list_equal(ans, l3)) {
         SPDLOG_INFO("Case({}, {}) passed", input1, expectedResult);
     } else {
         SPDLOG_ERROR("Case({}, {}) failed", input1, expectedResult);
+    }
+}
+
+
+void reverseBetween_scaffold(std::string input1, int input2, int input3, std::string expectedResult) {
+    ListNode* l1 = stringToListNode(input1);
+    ListNode* l3 = stringToListNode(expectedResult);
+    Solution ss;
+    ListNode* ans = ss.reverseBetween(l1, input2, input3);
+    if(list_equal(ans, l3)) {
+        SPDLOG_INFO("Case({}, {}, {}, expectedResult={}) passed", input1, input2, input3, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, {}, expectedResult={}) failed", input1, input2, input3, expectedResult);
     }
 }
 
@@ -582,6 +643,18 @@ int main() {
     reverseList_scaffold("[]", "[]");
     TIMER_STOP(reverseList);
     SPDLOG_WARN("Running reverseList tests uses {} ms", TIMER_MSEC(reverseList));
+
+    SPDLOG_WARN("Running reverseBetween tests:");
+    TIMER_START(reverseBetween);
+    reverseBetween_scaffold("[1,2,3,4,5]", 2, 4, "[1,4,3,2,5]");
+    reverseBetween_scaffold("[1,2,3,4,5]", 1, 1, "[1,2,3,4,5]");
+    reverseBetween_scaffold("[1,2,3,4,5]", 2, 2, "[1,2,3,4,5]");
+    reverseBetween_scaffold("[1,2,3,4,5]", 1, 2, "[2,1,3,4,5]");
+    reverseBetween_scaffold("[1,2,3,4,5]", 4, 5, "[1,2,3,5,4]");
+    reverseBetween_scaffold("[1,2,3,4,5]", 1, 5, "[5,4,3,2,1]");
+    reverseBetween_scaffold("[5]", 1, 1, "[5]");
+    TIMER_STOP(reverseBetween);
+    SPDLOG_WARN("Running reverseBetween tests uses {} ms", TIMER_MSEC(reverseBetween));
 
     SPDLOG_WARN("Running swapPairs tests:");
     TIMER_START(swapPairs);

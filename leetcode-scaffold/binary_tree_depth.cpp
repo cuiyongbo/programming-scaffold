@@ -17,7 +17,6 @@ A height-balanced binary tree is defined as: a binary tree in which the left and
 Note that the **height** of a node in a tree is the number of edges on the longest simple downward path from the node to a leaf, and **the height of a tree is the height of its root.**
 */
 bool Solution::isBalanced(TreeNode* root) {
-
 if (0) { // more compact solution, p.first is true if the subtree rooted at node is height-balanced, otherwise false
     std::function<std::pair<bool, int>(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node == nullptr) {
@@ -35,7 +34,7 @@ if (0) { // more compact solution, p.first is true if the subtree rooted at node
 }
 
 { // naive solutoin
-    if (root == nullptr) {
+    if (root == nullptr) { // trivial case
         return true;
     } else {
         int l = maxDepth(root->left);
@@ -57,9 +56,8 @@ Given a binary tree, find its maximum depth. The maximum depth is the number of 
 Note: A leaf is a node with no children.
 */
 int Solution::maxDepth(TreeNode* root) {
-
-if (0) {
-    if (root == nullptr) {
+if (0) { // post-order traversal
+    if (root == nullptr) { // trivial case
         return 0;
     } else {
         auto l = maxDepth(root->left);

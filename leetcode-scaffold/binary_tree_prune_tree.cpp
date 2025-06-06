@@ -19,15 +19,16 @@ Example:
     Output: [1,null,0,null,1]
 */
 TreeNode* Solution::pruneTree(TreeNode* root) {
-// return the tree root at node with 0 nodes removed
-// traverse the tree in post-order way
+// return the tree root at node with leaf nodes whose value is 0 removed
 {
+    // traverse the tree in post-order way
     std::function<TreeNode*(TreeNode*)> dfs = [&] (TreeNode* node) {
         if (node == nullptr) {
             return node;
         }
         node->left = dfs(node->left);
         node->right = dfs(node->right);
+        // remove leaf node whose value is 0
         if (node->is_leaf() && node->val == 0) {
             node = nullptr;
         }
@@ -71,16 +72,16 @@ if (0) { // iterative solution
 
 
 /*
-Given the root of a binary search tree and the lowest and highest boundaries as low and high, 
+Given the root of a **binary search tree** and the lowest and highest boundaries as low and high, 
 trim the tree so that all its elements lies in [low, high].
 You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
 */
 TreeNode* Solution::trimBST(TreeNode* root, int L, int R) {
     if (root == nullptr) { // trivial case
         return nullptr;
-    } else if (root->val > R) {
+    } else if (root->val > R) { // keep left subtree
         return trimBST(root->left, L, R);
-    } else if (root->val < L) {
+    } else if (root->val < L) { // keep right subtree
         return trimBST(root->right, L, R);
     } else { // post-order traversal
         root->left = trimBST(root->left, L, R);
@@ -161,6 +162,7 @@ int main() {
     prune_tree_scaffold("[1,null,0,0,1]", "[1,null,0,null,1]");
     prune_tree_scaffold("[1,0,1,0,0,0,1]", "[1,null,1,null,1]");
     prune_tree_scaffold("[1,1,0,1,1,0,1,0]", "[1,1,0,1,1,null,1]");
+    prune_tree_scaffold("[1,1]", "[1,1]");
     prune_tree_scaffold("[0]", "[]");
     prune_tree_scaffold("[0,0]", "[]");
     prune_tree_scaffold("[0,0,0]", "[]");

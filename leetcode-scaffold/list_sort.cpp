@@ -38,6 +38,15 @@ ListNode* Solution::mergeTwoLists(ListNode* l1, ListNode* l2) {
 Merge k sorted linked lists and return it as one sorted list.
 */
 ListNode* Solution::mergeKLists(std::vector<ListNode*>& lists) {
+if (0) {
+    ListNode* tmp = nullptr;
+    for (int i=0; i<(int)lists.size(); i++) {
+        tmp = mergeTwoLists(tmp, lists[i]);
+    }
+    return tmp;
+}
+
+{
     ListNode dummy;
     ListNode* p = &dummy;
     // min-heap ordered by `ListNode::val`
@@ -58,6 +67,7 @@ ListNode* Solution::mergeKLists(std::vector<ListNode*>& lists) {
         }
     }
     return dummy.next;
+}
 }
 
 
@@ -132,7 +142,7 @@ ListNode* Solution::sortList(ListNode* head) {
     // find the middle node with fast-slow pointer
     ListNode* fast = head;
     ListNode* slow = head;
-    ListNode* p = slow;
+    ListNode* p = slow; // split original list at node p
     while (fast != nullptr) {
         fast = fast->next;
         if (fast != nullptr) {
