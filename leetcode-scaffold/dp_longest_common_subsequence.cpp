@@ -44,7 +44,6 @@ int Solution::lengthOflongestCommonSubsequence(string x, string y) {
             }
         }
     }
-    // answer
     return dp[m][n];
 }
 
@@ -104,10 +103,10 @@ if (1) { // iterative solution
 
 { // recursive version
     string candidate;
-    set<string> ans;
-    function<void(int, int)> dfs = [&] (int i, int j) {
-        if (i==0 || j==0) {
-            if (!candidate.empty()) {
+    set<string> ans; // Note that there may be duplicates
+    function<void(int, int)> backtrace = [&] (int i, int j) {
+        if (i==0 || j==0) { // terminate
+            if (!candidate.empty()) { // omit invalid candidate(s)
                 ans.emplace(candidate);
             }
             return;
@@ -115,19 +114,19 @@ if (1) { // iterative solution
         if (x[i-1] == y[j-1]) {
             // perform backtrace here
             candidate.push_back(x[i-1]);
-            dfs(i-1, j-1);
+            backtrace(i-1, j-1);
             candidate.pop_back();
         } else if (dp[i-1][j] > dp[i][j-1]) {
-            dfs(i-1, j);
+            backtrace(i-1, j);
         } else if (dp[i-1][j] < dp[i][j-1]){
-            dfs(i, j-1);
-        } else {
-            dfs(i-1, j);
-            dfs(i, j-1);
+            backtrace(i, j-1);
+        } else { // traverse both routes
+            backtrace(i-1, j);
+            backtrace(i, j-1);
         }
     };
 
-    dfs(m, n);
+    backtrace(m, n);
     
     if (ans.empty()) {
         return "";

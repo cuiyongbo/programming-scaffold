@@ -49,7 +49,7 @@ public:
             }
             p = p->children[c];
         }
-        return p->is_end;
+        return p->is_end; // it has to be a leaf node
     }
     
     bool startsWith(string prefix) {
@@ -122,7 +122,7 @@ public:
                 dfs(cur*10 + i);
             }
         };
-        // traverse a number from MSB to LSB. NOTE that MSB can't be zero
+        // NOTE that MSB can't be zero
         for (int i=1; i<=9; i++) {
             dfs(i);
         }

@@ -27,7 +27,6 @@ Example 2:
     Explanation: Intervals [1,4] and [4,5] are considered overlapping.
 */
 vector<vector<int>> Solution::merge(vector<vector<int>>& intervals) {
-{
     // sort interval by left boundary then right boundary in ascending order
     std::sort(intervals.begin(), intervals.end(), [](const vector<int>& l, const vector<int>& r) {
         if (l[0] < r[0]) {
@@ -45,7 +44,7 @@ vector<vector<int>> Solution::merge(vector<vector<int>>& intervals) {
         if (b[1] < intervals[i][0]) { // not overlapped
             ans.push_back(intervals[i]);
         } else { // overlapped, merge two intervals
-            b[1] = intervals[i][1];
+            b[1] = std::max(b[1], intervals[i][1]);
         }
     }
     return ans;
@@ -306,6 +305,7 @@ int main() {
     TIMER_START(merge);
     merge_scaffold("[[1,3],[2,6],[8,10],[15,18]]", "[[1,6],[8,10],[15,18]]");
     merge_scaffold("[[1,4],[4,5]]", "[[1,5]]");
+    merge_scaffold("[[1,10],[4,5],[6, 8]]", "[[1,10]]");
     TIMER_STOP(merge);
     SPDLOG_WARN("merge tests use {} ms", TIMER_MSEC(merge));
 }

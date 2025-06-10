@@ -24,7 +24,7 @@ Example:
     Output: 6
 */
 int Solution::maxRectangle(vector<vector<int>>& grid) {
-    // dp[i][j] means maxLen of all 1 sequence ending with grid[i][j] at row i
+    // dp[i][j] means maxLen of all 1-sequence ending with grid[i][j] at row i
     // dp[i][j] = dp[i][j-1]+1 if grid[i][j] == 1 else 0
     int rows = grid.size();
     int columns = grid[0].size();
@@ -41,9 +41,9 @@ int Solution::maxRectangle(vector<vector<int>>& grid) {
         for (int c=1; c<=columns; ++c) {
             int len = INT32_MAX;
             for (int k=r; k<=rows; ++k) {
-                // maxRectangle in grid[r:, c]
+                // maxRectangle in grid[r:, c]. (r, c) as top-right corner
                 len = min(len, dp[k][c]);
-                if (len == 0) { // stop when encountering a zero-row
+                if (len == 0) { // stop when meeting a zero-row
                     break;
                 }
                 ans = max(ans, len*(k-r+1));
@@ -53,22 +53,22 @@ int Solution::maxRectangle(vector<vector<int>>& grid) {
     return ans;
 }
 
-int Solution::maxSquare(vector<vector<int>>& grid) {
 /*
-    Given a 2D binary grid filled with 0’s and 1’s, find the largest square containing only 1’s and return its area.
-    Example:
-        Input:
-        [
-            ["1","0","1","0","0"],
-            ["1","0","1","1","1"],
-            ["1","1","1","1","1"],
-            ["1","0","0","1","0"]
-        ]
-        Output: 4
+Given a 2D binary grid filled with 0’s and 1’s, find the largest square containing only 1’s and return its area.
+Example:
+    Input:
+    [
+        ["1","0","1","0","0"],
+        ["1","0","1","1","1"],
+        ["1","1","1","1","1"],
+        ["1","0","0","1","0"]
+    ]
+    Output: 4
 */
+int Solution::maxSquare(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
-    // dp[i][j] emans maximum length of all 1 sequence ending with grid[i][j] at row i
+    // dp[i][j] means maximum length of all 1 sequence ending with grid[i][j] at row i
     // dp[i][j] = dp[i][j-1]+1 if grid[i][j]==1 else 0
     vector<vector<int>> dp(rows+1, vector<int>(columns+1, 0));
     for (int r=1; r<=rows; ++r) {

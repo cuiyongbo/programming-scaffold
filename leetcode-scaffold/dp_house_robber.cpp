@@ -3,7 +3,6 @@
 using namespace std;
 
 /* leetcode: 198, 213, 740, 790, 801 */
-
 class Solution {
 public:
     int rob_198(vector<int>& moneys);
@@ -58,8 +57,8 @@ int Solution::rob_213(vector<int>& moneys) {
         }
         return dp[r-1];        
     };
-    return max(worker(0, n-1), // steal hourses[0, n-1]
-                worker(1, n)); // steal hourses[1, n]
+    return max(worker(0, n-1), // steal houses[0, n-1]
+                worker(1, n)); // steal houses[1, n]
 }
 
 
@@ -132,7 +131,8 @@ int Solution::minSwap(vector<int>& A, vector<int>& B) {
         }
         // 2. we may swap at position either i-1 or i
         if (A[i-1]<B[i] && B[i-1]<A[i]) {
-            exchange[i] = std::min(exchange[i], keep[i-1]+1); // we swap only at position i and leave position i-1 unchanged
+            // `keep[i-1]+1` means we perform a swap a position i
+            exchange[i] = std::min(exchange[i], keep[i-1]+1); // we swap at position i and leave position i-1 unchanged
             keep[i] = std::min(keep[i], exchange[i-1]); // we swap only at position i-1 and leave position i unchanged
         }
     }

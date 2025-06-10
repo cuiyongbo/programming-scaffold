@@ -3,7 +3,6 @@
 using namespace std;
 
 /* leetcode: 300, 673, 674, 1048, 128, 1218 */
-
 class Solution {
 public:
     int longestSubsequence(vector<int>& arr, int d);
@@ -195,7 +194,7 @@ int Solution::longestConsecutive(vector<int>& nums) {
 
 { // dp solution
     // sort the array in ascending order
-    std::sort(nums.begin(), nums.end());
+    std::sort(nums.begin(), nums.end(), std::less<int>());
     int n = nums.size();
     // dp[i] means the length of the longest consecutive sequence ending with nums[i]
     vector<int> dp(n, 1);
@@ -203,7 +202,7 @@ int Solution::longestConsecutive(vector<int>& nums) {
     for (int i=1; i<n; ++i) {
         if ((nums[i-1]+1 == nums[i])) {
             dp[i] = dp[i-1]+1;
-        } else if (nums[i-1] == nums[i]) {
+        } else if (nums[i-1] == nums[i]) { // we have to record former state when there are duplicates. for example give input [1,3,3,4], dp[2] should be 3 rather than 1
             dp[i] = dp[i-1];
         }
         ans = max(ans, dp[i]);

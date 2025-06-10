@@ -43,15 +43,16 @@ Given the five integers m, n, maxMove, startRow, startColumn, return the number 
 */
 int Solution::findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
     const int mod = 10^9 + 7;
+    // we may traverse a cell multiple times
     function<int(int, int, int)> dfs = [&] (int r, int c, int move) {
-        if (move >= maxMove) {
+        if (move >= maxMove) { // termination
             return 0;
         }
         int count = 0;
         for (auto& d: directions) {
             int nr = r + d.first;
             int nc = c + d.second;
-            if (nr<0 || nr>=m || nc<0 || nc>=n) {
+            if (nr<0 || nr>=m || nc<0 || nc>=n) { // out of grid
                 count = (count+1)%mod;
                 continue;
             }
@@ -83,7 +84,9 @@ Example 1:
 int Solution::coinChange(vector<int>& coins, int amount) {
     // dp[i] means the minimum number of coins to make up amount i
     // dp[i] = min{dp[i-coin]+1} for coin in coins
-    vector<int> dp(amount+1, INT32_MAX); dp[0] = 0;
+    // NOTE that we use INT32_MAX as invalid value, NOT -1
+    vector<int> dp(amount+1, INT32_MAX);
+    dp[0] = 0; // initialization
     for (int coin: coins) {
         for (int i=coin; i<=amount; ++i) {
             if (dp[i-coin] != INT32_MAX) {
@@ -106,10 +109,11 @@ Given inputs: nums = [1, 2, 3], target = 4, The possible combination ways are:
     (2, 2)
     (3, 1)
 Note that different sequences are counted as different combinations. Therefore the output is 7.
+I don't think this is combination
 */
 int Solution::combinationSum_322(vector<int>& nums, int target) {
     // dp[i] means the number of combination in nums whose sum up to i
-    // dp[i] = sum(dp[i-n]) for n in nums if (i-n)>0
+    // dp[i] = sum(dp[i-n]) for n in nums if (i-n)>=0
     vector<int> dp(target+1, 0);
     dp[0] = 1; // for case n==target
     for (int i=1; i<=target; ++i) {

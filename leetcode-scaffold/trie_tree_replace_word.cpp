@@ -10,6 +10,7 @@ public:
     string longestWord(vector<string>& words);
 };
 
+
 /*
 In English, we have a concept called root, which can be followed by some other words to form another longer word – let’s call this word successor. 
 For example, the root `an`, followed by `other`, which can form another word `another`.
@@ -28,7 +29,7 @@ string Solution::replaceWords(vector<string>& dict, string sentence) {
         string root;
         for (auto c: word) {
             if (p->children[c] == nullptr) { // there is not root for word in the tree
-                break;
+                return word;
             }
             root.push_back(c);
             p = p->children[c];
@@ -49,6 +50,7 @@ string Solution::replaceWords(vector<string>& dict, string sentence) {
     return ans;
 }
 
+
 /*
 Given a list of strings words representing an English Dictionary, find the longest word in words that can be built one character at 
 a time by other words in words. If there is more than one possible answer, return the longest word with the smallest lexicographical order.
@@ -65,6 +67,7 @@ string Solution::longestWord(vector<string>& words) {
     string ans;
     string buffer;
     function<void(TrieNode*)> backtrace = [&] (TrieNode* p) {
+        // we already travere the words in trie tree in lexicographical order
         if (ans.size() < buffer.size()) {
             ans = buffer;
         }
@@ -83,6 +86,7 @@ string Solution::longestWord(vector<string>& words) {
     return ans;
 }
 
+
 void replaceWords_scaffold(string input1, string input2, string expectedResult) {
     Solution ss;
     vector<string> dict = stringTo1DArray<string>(input1);
@@ -94,6 +98,7 @@ void replaceWords_scaffold(string input1, string input2, string expectedResult) 
     }
 }
 
+
 void longestWord_scaffold(string input1, string expectedResult) {
     Solution ss;
     vector<string> dict = stringTo1DArray<string>(input1);
@@ -104,6 +109,7 @@ void longestWord_scaffold(string input1, string expectedResult) {
         SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input1, expectedResult, actual);
     }
 }
+
 
 int main() {
     SPDLOG_WARN("Running replaceWords tests:");

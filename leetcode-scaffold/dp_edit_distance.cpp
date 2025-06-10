@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 10, 72 */
-
 class Solution {
 public:
     bool isMatch(string s, string p);
@@ -15,8 +13,7 @@ private:
 };
 
 /*
-Given two words word1 and word2, find the minimum number of steps required 
-to convert word1 to word2. (each operation is counted as 1 step.)
+Given two words word1 and word2, find the minimum number of steps required to convert word1 to word2. (each operation is counted as 1 step.)
 You have the following 3 operations permitted on a word:
     a) Insert a character
     b) Delete a character
@@ -36,10 +33,10 @@ int Solution::minDistance_dp(string word1, string word2) {
     vector<vector<int>> dp(m+1, vector<int>(n+1, INT32_MAX));
     // trivial cases:
     for (int i=0; i<=n; i++) {
-        dp[0][i] = i; // insertion
+        dp[0][i] = i; // insertion. word1 is empty
     }
     for (int i=0; i<=m; i++) {
-        dp[i][0] = i; // deletion
+        dp[i][0] = i; // deletion. word2 is empty
     }
     // recursion: 
     for (int i=1; i<=m; ++i) {
@@ -48,8 +45,8 @@ int Solution::minDistance_dp(string word1, string word2) {
                 dp[i][j] = dp[i-1][j-1]; // no operation
             } else {
                 dp[i][j] = min(dp[i][j], dp[i-1][j-1]+1); // replacement
-                dp[i][j] = min(dp[i][j], dp[i][j-1]+1); // insertion
-                dp[i][j] = min(dp[i][j], dp[i-1][j]+1); // deletion
+                dp[i][j] = min(dp[i][j], dp[i][j-1]+1); // insertion. we insert word2[j] to word1, then we consider how to convert word1[:i] to word2[:j-1]
+                dp[i][j] = min(dp[i][j], dp[i-1][j]+1); // deletion. we delete word1[i] from word1, then we consider how to convert word1[:i-1] to word2[:j]
             }
         }
     }
@@ -83,7 +80,8 @@ int Solution::minDistance_memoization(string word1, string word2) {
 
 /*
 Given an input string (s) and a pattern (p), implement regular expression matching with support for '.' and '*'.
-'.' Matches any single character. and '*' Matches zero or more of the preceding element. The matching should cover the entire input string (not partial).
+'.' Matches any single character. and '*' Matches zero or more of the preceding element.
+The matching should cover the entire input string (not partial).
 Note:
     s could be empty or contains only lowercase letters a-z.
     p could be empty or contains only lowercase letters a-z, and characters like . or  *.
@@ -91,12 +89,12 @@ For example, given an input: s = "ab", p = ".*", output: true, explanation: ".*"
 */
 bool Solution::isMatch(string s, string p) {
     int m = s.size(), n = p.size();
-    // dp[i][j] means whether p[:j] matches s[:i] or not (**the right ends are inclusive**)
+    // dp[i][j] means whether p[:j] matches s[:i] or not (**the right ends are not inclusive**)
     vector<vector<bool>> dp(m+1, vector<bool>(n+1, false));
     // initialization:
-    dp[0][0] = true; // trivial case
+    dp[0][0] = true; // both s, p are empty
     for (int j=2; j<=n; ++j) {
-        if (p[j-1] == '*') { // trivial cases to match an empty string
+        if (p[j-1] == '*') { // trivial cases: p matches an empty string
             dp[0][j] = dp[0][j-2];
         }
     }
@@ -106,13 +104,17 @@ bool Solution::isMatch(string s, string p) {
             if (p[j-1] == '.') { // a "." matches all possible characters
                 dp[i][j] = dp[i-1][j-1];
             } else if (p[j-1] == '*') {
-                // 1. Use '*' to match zero character in s
-                dp[i][j] = dp[i][j-2];
-                // 2. Use '*' to match one or more characters in s
-                if (s[i-1] == p[j-2] || p[j-2]=='.') {
-                    dp[i][j] = dp[i][j] || dp[i-1][j];
+                if (j>=2) {
+                    // 1. Use '*' to match zero character in s
+                    dp[i][j] = dp[i][j-2];
+                    // 2. Use '*' to match one or more characters in s
+                    if (s[i-1] == p[j-2] || p[j-2]=='.') {
+                        dp[i][j] = dp[i][j] || dp[i-1][j];
+                    }
+                } else {
+                    // no preceding element in p
                 }
-            } else { // case needing an exact match
+            } else { // cases require an exact match
                 dp[i][j] = (s[i-1] == p[j-1]) ? dp[i-1][j-1] : false;
             }
         }

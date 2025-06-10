@@ -90,7 +90,7 @@ int WordFilter::filter(const string& prefix, const string& suffix) {
             }
         }
         for (char c='a'; c<='z'; ++c) {
-            if (node->children[c] != nullptr) {
+            if (node->children[c] == nullptr) { // prune invalid branches
                 continue;
             }
             // perform backtrace

@@ -43,6 +43,7 @@ private:
     MapNode m_root;
 };
 
+
 void MapSum::insert(const string& key, int val) {
     MapNode* p = &m_root;
     for (auto c: key) {
@@ -55,6 +56,7 @@ void MapSum::insert(const string& key, int val) {
     p->is_leaf = true;
     p->val = val;
 }
+
 
 int MapSum::sum(const string& prefix) {
     if (prefix.empty()) { // trivial case

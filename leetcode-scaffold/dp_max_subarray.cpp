@@ -1,10 +1,8 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 53, 121, 309, 1013 */
-
 class Solution {
 public:
     int maxSubArray(vector<int>& nums);
@@ -24,6 +22,7 @@ Example:
 int Solution::threePartsEqualSumCount(vector<int>& arr) {
     int total = std::accumulate(arr.begin(), arr.end(), 0);
     int target = total/3;
+    // test if sum(arr) can be divided by 3
     if (target*3 != total) {
         return 0;
     }
@@ -54,6 +53,7 @@ int Solution::threePartsEqualSumCount(vector<int>& arr) {
 /*
 Given an array of integers arr, return true if we can partition the array into three non-empty parts with equal sums.
 Formally, we can partition the array if we can find indexes i + 1 < j with (arr[0] + arr[1] + ... + arr[i] == arr[i + 1] + arr[i + 2] + ... + arr[j - 1] == arr[j] + arr[j + 1] + ... + arr[arr.length - 1])
+Hint: refer to canPartitionKSubsets exercise
 */
 bool Solution::canThreePartsEqualSum(vector<int>& arr) {
     int total = std::accumulate(arr.begin(), arr.end(), 0);
@@ -98,8 +98,7 @@ int Solution::maxSubArray(vector<int>& nums) {
     int sz = nums.size();
     vector<int> dp = nums; // initialize trivial cases
     for (int i=1; i<sz; ++i) {
-        dp[i] = max(dp[i-1]+nums[i], dp[i]);
-        //dp[i] = i==0 ? nums[i] : max(dp[i-1]+nums[i], nums[i]);
+        dp[i] = max(dp[i-1]+nums[i], nums[i]);
         ans = max(ans, dp[i]);
     }
     return ans;
@@ -138,9 +137,9 @@ if (0) {
 }
 
 { // solution with optimization of space usage
-    int n = prices.size();
     int ans = 0;
     int purchase_price = prices[0];
+    int n = prices.size();
     for (int i=1; i<n; ++i) {
         ans = max(ans, prices[i]-purchase_price);
         purchase_price = min(purchase_price, prices[i]);
@@ -183,7 +182,7 @@ int Solution::maxProfit_309(vector<int>& prices) {
         // you can sell the stock on day i if you were holding the stock the day before
         sell[i] = buy[i-1] + prices[i];
         // you can be in a cooldown period on day i if you were in a cooldown period or you just sell the stock the day before
-        cooldown[i] = max(cooldown[i-1], sell[i-1]);
+        cooldown[i] = max(cooldown[i-1], sell[i-1]); // passed
     }
     // The result is the maximum profit on the last day being in sell or cooldown states
     return max(sell[n-1], cooldown[n-1]);
