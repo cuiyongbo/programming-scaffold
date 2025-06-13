@@ -12,7 +12,7 @@ public:
 /*
 There are n servers numbered from 0 to n-1 connected by undirected server-to-server connections forming a network where connections[i] = [a, b]
 represents a connection between servers a and b. Any server can reach any other server directly or indirectly through the network.
-A critical connection is a connection that, if removed, will make some server unable to reach some other server.
+A critical connection is a connectioneventualSafeNodes that, if removed, will make some server unable to reach some other server.
 Return all critical connections in the network in sorted order.
 Note:
     connections[i][0] != connections[i][1]
@@ -36,12 +36,12 @@ vector<vector<int>> Solution::criticalConnections(int n, vector<vector<int>>& co
         for (const auto& v: graph[u]) {
             if (ts[v] == -1) { // node v is unvisited yet
                 int min_v = tarjan(v, u);
-                min_u = min(min_u, min_v);
+                min_u = std::min(min_u, min_v);
                 if (ts[u] < min_v) {
                     ans.push_back({u, v});
                 }
             } else if (v != parent) {
-                min_u = min(min_u, ts[v]);
+                min_u = std::min(min_u, ts[v]);
             }
         }
         return min_u;

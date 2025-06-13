@@ -49,7 +49,7 @@ int Solution::minMutation(string start, string end, vector<string>& bank) {
     while (!q.empty()) {
         for (int k=q.size(); k!=0; --k) {
             auto u = q.front(); q.pop();
-            if (u == end) { // we reach the end
+            if (u == end) { // early stop
                 return steps;
             }
             for (auto& v: bank) {
@@ -163,6 +163,7 @@ int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int 
     // use bfs to find the minimum bus to travel from S to T
     int steps = 0;
     queue<int> q;
+    // initialization
     for (auto r: station_2_buses_map[S]) {
         q.push(r);
     }
@@ -171,7 +172,7 @@ int Solution::numBusesToDestination_bfs(vector<vector<int>>& routes, int S, int 
     while (!q.empty()) {
         for (int k=q.size(); k!=0; k--) {
             auto u = q.front(); q.pop();
-            if (end_buses.count(u)) {
+            if (end_buses.count(u)) { // early stop
                 return steps+1;
             }
             for (auto v: bus_graph[u]) {
@@ -260,13 +261,11 @@ Hint: convert the tree into a undirected graph, and perform bfs search from targ
 */
 vector<int> Solution::distanceK(TreeNode* root, int target, int distance) {
     map<int, vector<int>> graph;
-    // perform post-order traversal to build a undirected graph
+    // perform pre-order traversal to build a undirected graph
     function<void(TreeNode*)> tree_to_graph = [&] (TreeNode* node) {
         if (node == nullptr) {
             return;
         }
-        tree_to_graph(node->left);
-        tree_to_graph(node->right);
         if (node->left != nullptr) {
             graph[node->val].push_back(node->left->val);
             graph[node->left->val].push_back(node->val);
@@ -275,6 +274,8 @@ vector<int> Solution::distanceK(TreeNode* root, int target, int distance) {
             graph[node->val].push_back(node->right->val);
             graph[node->right->val].push_back(node->val);
         }
+        tree_to_graph(node->left);
+        tree_to_graph(node->right);
     };
     tree_to_graph(root);
     // perform bfs to find the destination nodes

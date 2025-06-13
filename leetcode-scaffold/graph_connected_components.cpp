@@ -22,7 +22,7 @@ Return the number of connected components in the graph.
 */
 int Solution::countComponents(int n, vector<vector<int>>& edges) {
 
-{ // dfs solution
+if (0) { // dfs solution
     vector<vector<int>> graph(n);
     for (auto& e: edges) {
         graph[e[0]].push_back(e[1]);
@@ -33,7 +33,7 @@ int Solution::countComponents(int n, vector<vector<int>>& edges) {
     function<void(int)> dfs = [&] (int u) {
         visited[u] = 1; // visiting
         for (auto v: graph[u]) {
-            if (visited[v] == 0) {
+            if (visited[v] == 0) { // unvisited
                 dfs(v);
             }
             // it doesn't matter whether there is a cycle or not
@@ -41,6 +41,7 @@ int Solution::countComponents(int n, vector<vector<int>>& edges) {
         visited[u] = 2; // visited
     };
     int ans = 0;
+    // iterate over all nodes
     for (int i=0; i<n; ++i) {
         if (visited[i] == 0) {
             dfs(i);
@@ -66,14 +67,14 @@ int Solution::countComponents(int n, vector<vector<int>>& edges) {
 
 
 /*
-    Equations are given in the format A / B = k, where A and B are variables represented as strings, and k is a real number (floating point number). 
-    Given some queries, return the answers. If the answer does not exist, return -1.0.
-    Example:
-        Given a / b = 2.0, b / c = 3.0.
-        queries are: a / c = ?, b / a = ?, a / e = ?, a / a = ?, x / x = ? .
-        return [6.0, 0.5, -1.0, 1.0, -1.0].
-    The input is: vector<pair<string, string>> equations, vector<double>& values, vector<pair<string, string>> queries,
-    where equations.size() == values.size(), and the values are positive. This represents the equations. Return vector<double>.
+Equations are given in the format A / B = k, where A and B are variables represented as strings, and k is a real number (floating point number). 
+Given some queries, return the answers. If the answer does not exist, return -1.0.
+Example:
+    Given a / b = 2.0, b / c = 3.0.
+    queries are: a / c = ?, b / a = ?, a / e = ?, a / a = ?, x / x = ? .
+    return [6.0, 0.5, -1.0, 1.0, -1.0].
+The input is: vector<pair<string, string>> equations, vector<double>& values, vector<pair<string, string>> queries,
+where equations.size() == values.size(), and the values are positive. This represents the equations. Return vector<double>.
 */
 vector<double> Solution::calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries) {
     // build a bidirectional graph
@@ -527,15 +528,15 @@ int Solution::minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial)
         group_to_node_cnt_map[dsu.find(i)]++;
     }
     // cluster initial into groups
-    map<int, int> group_to_node_map; // component_id, node_idx_in_the_component_from_initial
+    map<int, int> group_to_initial_node_map; // component_id, node_idx_in_the_component_from_initial
     for (int i=0; i<(int)initial.size(); ++i) {
-        group_to_node_map[dsu.find(initial[i])]++;
+        group_to_initial_node_map[dsu.find(initial[i])]++;
     }
     int count = 0;
     int idx = INT32_MAX;
     for (int i=0; i<(int)initial.size(); i++) {
         int g = dsu.find(initial[i]);
-        if (group_to_node_map[g] == 1) {
+        if (group_to_initial_node_map[g] == 1) {
             if (group_to_node_cnt_map[g] > count) {
                 count = group_to_node_cnt_map[g];
                 idx = i;

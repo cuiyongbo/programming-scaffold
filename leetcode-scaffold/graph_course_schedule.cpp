@@ -34,7 +34,7 @@ bool Solution::canFinish(int numCourses, vector<vector<int>>& prerequisites) {
             } else if (visited[v] == 1) { // found a cycle
                 return false;
             } else if (visited[v] == 2) {
-                /* we may reach here when visiting 2 from 0
+                /* we may reach here when visiting node 2 from node 0
                 0: 1, 2
                 1: 2
                 2: null
