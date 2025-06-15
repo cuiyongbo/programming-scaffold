@@ -139,7 +139,7 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
 
     keys /= 2; // number of the pairs of key/lock
     int steps = 0;
-    set<int> visited_locks;
+    set<int> pending_locks;
     set<int> visited_keys;
     const int diff = 'a' - 'A';
     Coordinate start = coors[(int)'@'];
@@ -150,7 +150,7 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
     visited.insert(start);
     // perform bfs search to find the minimum steps
     while (!q.empty()) {
-        if ((int)visited_keys.size() == keys) {
+        if ((int)visited_keys.size() == keys) { // termination
             return steps;
         }
         for (int k=q.size(); k!=0; --k) {
@@ -177,7 +177,7 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
                     q.emplace(nr, nc);
                     visited.emplace(nr, nc);
                     // after we got the key we may pass the lock next time
-                    if (visited_locks.count(letter-diff) == 1) {
+                    if (pending_locks.count(letter-diff) == 1) {
                         q.push(coors[letter-diff]);
                         visited.insert(coors[letter-diff]);
                     }  
@@ -186,7 +186,7 @@ int Solution::shortestPathAllKeys(vector<string>& grid) {
                         q.emplace(nr, nc);
                         visited.emplace(nr, nc);
                     } else {
-                        visited_locks.insert(letter);
+                        pending_locks.insert(letter);
                     }
                 }
             }

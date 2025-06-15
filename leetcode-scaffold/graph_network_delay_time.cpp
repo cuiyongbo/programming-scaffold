@@ -19,7 +19,6 @@ Now we send a signal from a certain node K. How long will it take for all nodes 
 Hint: perform dijkstra search on the graph
 */
 int Solution::networkDelayTime(vector<vector<int>>& times, int N, int K) {
-
 { // refined solution
     // build a directed graph
     using element_t = std::pair<int, int>; // node id, weight
@@ -90,12 +89,11 @@ int Solution::networkDelayTime(vector<vector<int>>& times, int N, int K) {
 There are n cities connected by m flights. Each flight [u, v, w] starts from city u and arrives at v with a price w.
 Now given all the cities (labelled 0 to N-1) and flights, together with starting city `src` and the destination `dst`,
 your task is to find the cheapest price from `src` to `dst` with at most `K` stops. If there is no such route, return -1.
-hint: dijkstra algorithm
 */
 int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int K) {
     // build a directed graph
     using element_t = std::pair<int, int>;
-    vector<vector<element_t>> graph(n); // dest, time
+    vector<vector<element_t>> graph(n); // dest, money
     for (const auto& t: flights) {
         graph[t[0]].emplace_back(t[1], t[2]);
     }
@@ -108,7 +106,7 @@ int Solution::findCheapestPrice(int n, vector<vector<int>>& flights, int src, in
             auto u = q.front(); q.pop();
             // DON'T uncomment following test, the route with the least steps may not be the cheapest route
             //if (u.first == dst) {
-            //    return costs[u.first];
+            //    return cost[u.first];
             //}
             for (auto& v: graph[u.first]) {
                 if (!visited[v.first] || // not visited
@@ -217,7 +215,7 @@ if (1) {
 
 /*
 There are n cities labelled from 0 to N-1. (0-indexed) Given the array edges where edges[i] = [u, v, weight]
-represents a *bidirectional* and weighted edge between cities u and v, and distance_threshold.
+represents a *bidirectional* and weighted edge between cities u and v, with distance weight.
 
 Return the city with the smallest number of cities that are reachable through some path and whose distance is 
 at most distance_threshold, If there are multiple such cities, return the city with the greatest index.
@@ -249,6 +247,7 @@ int Solution::findTheCity(int N, vector<vector<int>>& edges, int distance_thresh
     int city = INT32_MIN;
     int city_num = INT32_MAX;
     for (int r=0; r<N; ++r) {
+        // find the number of cities reachable from city r within distance_threshold
         int cur = std::accumulate(distance_table[r].begin(), distance_table[r].end(), 0,
                                     [&](int s, int d) {return d<=distance_threshold ? s+1 : s;});
         if (city_num >= cur) {
@@ -322,6 +321,7 @@ int main() {
     findCheapestPrice_scaffold(3, "[[0,1,100],[1,2,100],[0,2,500]]", 0, 2, 1, 200);
     findCheapestPrice_scaffold(3, "[[0,1,100],[1,2,100],[0,2,500]]", 0, 2, 0, 500);
     findCheapestPrice_scaffold(3, "[[0,1,100],[1,2,100],[0,2,500]]", 0, 2, 10, 200);
+    findCheapestPrice_scaffold(5, "[[0,1,5],[1,2,5],[0,3,2],[3,1,2],[1,4,1],[4,2,1]]", 0, 2, 2, 7);
     TIMER_STOP(findCheapestPrice);
     SPDLOG_WARN("findCheapestPrice tests use {} ms", TIMER_MSEC(findCheapestPrice));
 

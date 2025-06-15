@@ -67,7 +67,7 @@
     - graph search algorithm:
         - bfs: bfs explores equally in all directions and the cost of every edge is the same
         - dijkstra algorithm: dijkstra algorithm prioritizes edges with lower costs when searching, and the costs of edges in the graph are different, and THE RESULT ROUTE MAY NOT NECESSARILY BE THE ONE WITH THE LEAST NUMBER OF EDGES
-        - A star algorithm: A star is a modification of dijkstra algorithm that is optimized for a single destination, and it prioritizes edges which lead close to destionation using heuristics
+        - A star algorithm: A star is a modification of dijkstra algorithm that is optimized for a single destination, and it prioritizes edges which lead close to destination using heuristics
 
 
 ## Divide and conquer

@@ -8,9 +8,29 @@ public:
     int largestRectangleArea(vector<int>& height);
     vector<int> nextGreaterElement_496(vector<int>& findNums, vector<int>& nums);
     vector<int> nextGreaterElement_503(vector<int>& nums);
+    int nextGreaterElement_556(int n);
     vector<int> nextLargerNodes(ListNode* head);
     int sumSubarrayMins(vector<int>& A);
 };
+
+/*
+Given a positive integer n, find the smallest integer which has exactly the same digits existing in the integer n and is greater in value than n. If no such positive integer exists, return -1. Note that the returned integer should fit in 32-bit integer, if there is a valid answer but it does not fit in 32-bit integer, return -1.
+
+Example 1:
+Input: n = 12
+Output: 21
+
+Example 2:
+Input: n = 21
+Output: -1
+ 
+Constraints:
+    1 <= n <= 2^31 - 1
+*/
+int Solution::nextGreaterElement_556(int n) {
+    return -1;
+
+}
 
 
 /*
@@ -92,6 +112,30 @@ Output: [2,-1,2]
 Explanation: The first 1's next greater number is 2; The number 2 can't find next greater number; The second 1's next greater number needs to search circularly, which is also 2.
 */
 vector<int> Solution::nextGreaterElement_503(vector<int>& nums) {
+{ // refined solution
+    /*
+    nums: 1 2 3 4
+    virtual array: 1 2 3 4 1 2 3 4
+    left_index, right_index(not inclusive)
+    0 - 4
+    1 - 5
+    2 - 6
+    3 - 7
+    */
+    stack<int> st; // element index
+    int sz = nums.size();
+    vector<int> ans(sz, -1);
+    for (int i=0; i<sz*2; i++) {
+        int a_i = i%sz;
+        while (!st.empty() && nums[a_i]>nums[st.top()]) {
+            ans[st.top()] = nums[a_i]; st.pop();
+        }
+        st.push(a_i);
+    }
+    return ans; 
+}
+
+{ // naive solution
     stack<int> st; // element index
     int sz = nums.size();
     vector<int> ans(sz, -1);
@@ -113,15 +157,17 @@ vector<int> Solution::nextGreaterElement_503(vector<int>& nums) {
     return ans;
 }
 
+}
+
 
 /*
 You are given two arrays (without duplicates) nums1 and nums2 where nums1’s elements are subset of nums2. 
 Find all the next greater numbers for nums1‘s elements in the corresponding places of nums2.
 
-The Next Greater Number of a number x in nums1 is the first greater number to its right in nums2. 
+The Next Greater Number of a number x in nums1 is the first greater number to its right in nums2. ([nextGreater of a in nums2 for a in nums1])
 If it does not exist, output -1 for this number. for example,
 
-Input: nums1 = [4,1,2], nums2 = [1,3,4,2].
+Input: nums1 = [4,1,2], nums2 = [1,3,4,2]. 
 Output: [-1,3,-1]
 Explanation:
     For number 4 in the first array, you cannot find the next greater number for it in the second array, so output -1.
@@ -322,21 +368,18 @@ void sumSubarrayMins_scaffold(string input, int expectedResult) {
 class StockSpanner {
 public:
     StockSpanner() {}
-    int next(int price);
+    int next(int price) {
+        auto p = std::make_pair(price, 1);
+        while (!m_st.empty() && m_st.top().first<=price) {
+            p.second += m_st.top().second; m_st.pop();
+        }
+        m_st.push(p);
+        return p.second;
+    }
 
 private:
     stack<pair<int, int>> m_st; // price, span
 };
-
-int StockSpanner::next(int price) {
-    auto p = std::make_pair(price, 1);
-    while (!m_st.empty() && m_st.top().first<=price) {
-        p.second += m_st.top().second;
-        m_st.pop();
-    }
-    m_st.push(p);
-    return p.second;
-}
 
 
 void StockSpanner_scaffold(string operations, string args, string expectedOutputs) {

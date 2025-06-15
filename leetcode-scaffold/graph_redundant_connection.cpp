@@ -31,7 +31,7 @@ Constraints:
 vector<int> Solution::findRedundantConnection(vector<vector<int>>& edges) {
     vector<int> ans;
     DisjointSet dsu(edges.size());
-    for (auto& e: edges) {
+    for (const auto& e: edges) {
         // return the last edge which results in a cycle in the graph
         if (!dsu.unionFunc(e[0], e[1])) {
             ans = e;
