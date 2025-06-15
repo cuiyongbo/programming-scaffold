@@ -7,7 +7,6 @@ typedef vector<int> Interval;
 class Solution {
 public:
     string reverseOnlyLetters(string input);
-    int numRescueBoats(vector<int>& people, int limit);
     bool isLongPressedName(string name, string typed);
     vector<Interval> intervalIntersection(vector<Interval>& A, vector<Interval>& B);
 };
@@ -28,7 +27,7 @@ string Solution::reverseOnlyLetters(string input) {
     int sz = input.size();
     for (int i=0, j=sz-1; i<j;) {
         if (is_letter(input[i]) && is_letter(input[j])) {
-            swap(input[i], input[j]);
+            swap(input[i], input[j]); // perform swap only when both positions are characters 
             ++i; --j;
         } else if (!is_letter(input[i])) {
             ++i;
@@ -64,7 +63,7 @@ bool Solution::isLongPressedName(string name, string typed) {
         while (j<len2 && typed[j]==c) {
             ++j;
         }
-        // we may type certain character the same times as or more times than its occurrences in name but NOT LESS
+        // we may type certain character the same times as or more times than its occurrences in original `name` but NOT LESS
         if (i-p1 > j-p2) {
             return false;
         }
@@ -95,7 +94,7 @@ vector<Interval> Solution::intervalIntersection(vector<Interval>& A, vector<Inte
             ++j;
         } else if (B[j][0] > A[i][1]) { // rangeA | rangeB, no intersection
             ++i;
-        } else { // the intersection between rangeA and rangeB  is not empty
+        } else { // the intersection between rangeA and rangeB is not empty
             ans.push_back({max(A[i][0], B[j][0]), min(A[i][1], B[j][1])});
             // move interval with smaller region forward
             if (A[i][1] < B[j][1]) {
@@ -107,38 +106,6 @@ vector<Interval> Solution::intervalIntersection(vector<Interval>& A, vector<Inte
     }
     return ans;
 }
-
-
-/*
-The i-th person has weight people[i], and each boat can carry a maximum weight of `limit`.
-Each boat carries at most 2 people at the same time, provided the maximum weight of those people is at most `limit`. so It is guaranteed each person can be carried by a boat.
-Return the minimum number of boats to carry every given person.
-
-Example 2:
-Input: people = [3,2,2,1], limit = 3
-Output: 3
-Explanation: 3 boats (1, 2), (2) and (3)
-
-Example 3:
-Input: people = [3,5,3,4], limit = 5
-Output: 4
-Explanation: 4 boats (3), (3), (4), (5)
-*/
-int Solution::numRescueBoats(vector<int>& people, int limit) {
-    // sort the weights in descending order since we need carry people with more weight first
-    std::sort(people.begin(), people.end(), std::greater<int>());
-    int ans = 0;
-    int l = 0;
-    int r = people.size() - 1; // r is inclusive
-    while (l <= r) {
-        // can we take another people with less weight?
-        if (l != r && people[l]+people[r]<=limit) { // can we take two people?
-            --r;
-        }
-        ++ans; ++l;
-    }
-    return ans;
-} 
 
 
 void reverseOnlyLetters_scaffold(string input, string expectedResult) {
@@ -178,18 +145,6 @@ void intervalIntersection_scaffold(string input1, string input2, string expected
 }
 
 
-void numRescueBoats_scaffold(string input1, int input2, int expectedResult) {
-    Solution ss;
-    vector<int> A = stringTo1DArray<int>(input1);
-    int actual = ss.numRescueBoats(A, input2);
-    if (actual == expectedResult) {
-        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
-    } else {
-        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
-    }
-}
-
-
 int main() {
     SPDLOG_WARN("Running reverseOnlyLetters tests:");
     TIMER_START(reverseOnlyLetters);
@@ -223,13 +178,4 @@ int main() {
                                     "[[0,2],[5,10],[13,23],[24,25]]");
     TIMER_STOP(intervalIntersection);
     SPDLOG_WARN("intervalIntersection tests use {} ms", TIMER_MSEC(intervalIntersection));
-
-    SPDLOG_WARN("Running numRescueBoats tests:");
-    TIMER_START(numRescueBoats);
-    numRescueBoats_scaffold("[1,2]", 3, 1 );
-    numRescueBoats_scaffold("[3,2,2,1]", 3, 3);
-    numRescueBoats_scaffold("[3,5,3,4]", 5, 4);
-    numRescueBoats_scaffold("[3,1,3,1,3]", 4, 3);
-    TIMER_STOP(numRescueBoats);
-    SPDLOG_WARN("numRescueBoats tests use {} ms", TIMER_MSEC(numRescueBoats));
 }

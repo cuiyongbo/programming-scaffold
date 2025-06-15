@@ -6,7 +6,6 @@ using namespace std;
 class Solution {
 public:
     vector<int> sortedSquares(vector<int>& A);
-    int subarraysWithKDistinct(vector<int>& A, int K);
     int trailingZeroes(int n);
     int preimageSizeFZF(int K);
 };
@@ -35,7 +34,7 @@ vector<int> Solution::sortedSquares(vector<int>& A) {
             r = m;
         }
     }
-    // 2. merge two partitions by squared values
+    // 2. merge two partitions by each element's squared values
     /* cases:
      1. 0 exists in A. nums[:l-1]<0, nums[l] = 0, nums[l+1:]>=0
      2. A[sz-1] < 0. l=sz
@@ -60,52 +59,6 @@ vector<int> Solution::sortedSquares(vector<int>& A) {
 
 
 /*
-    Given an integer array nums and an integer k, return the number of good subarrays of nums.
-    A good array is an array where the number of different integers in that array is exactly k.
-    For example, [1,2,3,1,2] has 3 different integers: 1, 2, and 3. A subarray is a contiguous part of an array.
-    Constraints:
-        1 <= nums[i], k <= nums.length
-    Relative exercises:
-        Longest Substring with At Most Two Distinct Characters
-        Longest Substring with At Most K Distinct Characters
-        Count Vowel Substrings of a String
-        Number of Unique Flavors After Sharing K Candies
-*/
-int Solution::subarraysWithKDistinct(vector<int>& nums, int K) {
-    // worker(k) means the number of subarrays with k or less than k distinct integer(s),
-    // so the answer is worker(k)-worker(k-1)
-    auto worker = [&] (int k) {
-        int ans = 0;
-        int sz = nums.size();
-        // NOTE: we make sure that **1 <= nums[i], k <= nums.length**
-        // count[i] means the count of i in `nums`
-        vector<int> count(sz+1, 0);
-        int distinct_nums = 0;
-        for (int i=0,j=0; i<sz; ++i) {
-            if (count[nums[i]] == 0) { // find a new distinct integer
-                distinct_nums++;
-            }
-            count[nums[i]]++;
-            assert(i>=j);
-            // if there are more than `k` distinct numbers in nums[0:i]
-            // shrink nums[j:i] so there are k or less than k distinct integer(s)
-            for (; distinct_nums>k; j++) {
-                --count[nums[j]];
-                if (count[nums[j]] == 0) { // remove a distinct integer
-                    distinct_nums--;
-                }
-            }
-            assert(distinct_nums<=k);
-            ans += (i-j+1);
-            // nums[j:i] 1, 2, (i-j+1)
-        }
-        return ans;
-    };
-    return worker(K) - worker(K-1);
-}
-
-
-/*
 Given an integer n, return the number of trailing zeroes in `n!`. Note that `n! = n * (n - 1) * (n - 2) * ... * 3 * 2 * 1`.
 for example:
 Example 1:
@@ -126,8 +79,19 @@ int Solution::trailingZeroes(int n) {
 the number of trailing zeros in the factorial of an integer n is equal to the number of times in which 10 is a factor in the product sequence.
 and a factor of 10 is proudced by a pair of factors 2 and 5, since there are more factors of 2 than 5 in a product sequence. so the number of trailing zeros
 is determined by the number of times 5.
+
+The problem is actually asking for the number of factors of $5$ in $[1,n]$.
+
+Let's take $130$ as an example:
+
+1. Divide $130$ by $5$ for the first time, and get $26$, which means there are $26$ numbers containing a factor of $5$.
+2. Divide $26$ by $5$ for the second time, and get $5$, which means there are $5$ numbers containing a factor of $5^2$.
+3. Divide $5$ by $5$ for the third time, and get $1$, which means there is $1$ number containing a factor of $5^3$.
+4. ...
+5. Add up all the counts to get the total number of factors of $5$ in $[1,n]$.
+
+The time complexity is $O(\log n)$, and the space complexity is $O(1)$.
 */
-    // still do not understand
     int ans = 0;
     for (; n>0; n/=5) {
         ans += n/5;
@@ -165,6 +129,7 @@ int Solution::preimageSizeFZF(int K) {
     while (l < r) {
         long m = (l+r)/2;
         // if candidates exist, there must be 5 of them: i, i+1, i+2, i+3, i+4
+        // how many trailing zeros in `m!`
         long cnt = numOfTrailingZeros(m);
         if (cnt == K) {
             return 5;
@@ -174,6 +139,7 @@ int Solution::preimageSizeFZF(int K) {
             r = m;
         }
     }
+    // if not, then there are none
     return 0;
 }
 
@@ -190,16 +156,6 @@ void sortedSquares_scaffold(string input, string expectedResult) {
     }
 }
 
-void subarraysWithKDistinct_scaffold(string input1, int input2, int expectedResult) {
-    Solution ss;
-    vector<int> nums = stringTo1DArray<int>(input1);
-    int actual = ss.subarraysWithKDistinct(nums, input2);
-    if (actual == expectedResult) {
-        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2,  expectedResult);
-    } else {
-        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
-    }
-}
 
 void trailingZeroes_scaffold(int input, int expectedResult) {
     Solution ss;
@@ -210,6 +166,7 @@ void trailingZeroes_scaffold(int input, int expectedResult) {
         SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void preimageSizeFZF_scaffold(int input, int expectedResult) {
     Solution ss;
@@ -233,14 +190,6 @@ int main() {
     sortedSquares_scaffold("[-7,-3,2,3,11]", "[4,9,9,49,121]");
     TIMER_STOP(sortedSquares);
     SPDLOG_WARN("sortedSquares tests use {} ms", TIMER_MSEC(sortedSquares));
-
-    SPDLOG_WARN("Running subarraysWithKDistinct tests:");
-    TIMER_START(subarraysWithKDistinct);
-    subarraysWithKDistinct_scaffold("[1,2,1,2,3]", 2, 7);
-    subarraysWithKDistinct_scaffold("[1,2,1,3,4]", 3, 3);
-    subarraysWithKDistinct_scaffold("[1,2,3,4]", 3, 2);
-    TIMER_STOP(subarraysWithKDistinct);
-    SPDLOG_WARN("subarraysWithKDistinct tests use {} ms", TIMER_MSEC(subarraysWithKDistinct));
 
     SPDLOG_WARN("Running trailingZeroes tests:");
     TIMER_START(trailingZeroes);

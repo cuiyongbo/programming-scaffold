@@ -70,7 +70,7 @@ int Solution::trap(vector<int>& height) {
             // move r towards left
             ans += max_r - height[r];
             r--;
-            max_r = std::max(max_r, height[r]); // update max_l
+            max_r = std::max(max_r, height[r]); // update max_r
         }
     }
     return ans;

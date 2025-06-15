@@ -138,7 +138,6 @@ Therefore, return the max sliding window as [3,3,5,5,6,7].
 Note: You may assume k is always valid, ie: 1 ≤ k ≤ input array’s size for non-empty array.
 */
 vector<int> Solution::maxSlidingWindow(vector<int>& nums, int k) {
-if (1) { // binary tree solution
     int sz = nums.size();
     vector<int> ans; ans.reserve(sz-k+1);
     // for int type, the hash of int is itself
@@ -152,27 +151,6 @@ if (1) { // binary tree solution
         }
     }
     return ans;    
-}
-
-{ // priority_queue solution
-    auto cmp = [&] (int l, int r) { return nums[l] < nums[r];};
-    priority_queue<int, vector<int>, decltype(cmp)> pq(cmp);
-    for (int i=0; i<k; ++i) {
-        pq.push(i);
-    }
-    int sz = nums.size();
-    vector<int> ans; ans.reserve(sz-k+1);
-    for (int i=k; i<sz; ++i) {
-        while (pq.top() < i-k) {
-            pq.pop();
-        }
-        ans.push_back(nums[pq.top()]);
-        pq.push(i);
-    }
-    ans.push_back(nums[pq.top()]);
-    return ans;
-}
-
 }
 
 
