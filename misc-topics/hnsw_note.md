@@ -14,7 +14,7 @@
     - topk 要召回的候选数. topk越大, 检索越耗时
 - index construction parameters
     - ef_construction, 含义同 ef, 作用于索引构建过程, 影响构建时间和索引精度. 推荐取值范围 100-500
-    - M 非0层候选的最大连接度, 0层的是 2*M. 影响构建时间, 索引精度, 索引体积. 推荐取值范围 16-100
+    - M 是非0层候选的最大连接度, 0层的是 2*M. 影响构建时间, 索引精度, 索引体积. 推荐取值范围 16-100
     - num_elements 索引最大候选个数. 因为 hnws 要预分配内存, 候选数超过 num_elements 后, 会无法继续插入新数据 (应该可以绕过去)
 
 
@@ -60,6 +60,39 @@ std::priority_queue<std::pair<dist_t, labeltype >> result; // min-heap, 小根�
 
 构建过程和检索过程类似. 此外得到相似候选后, 还需要在待插入数据和候选间建立双向链接
 
+```cpp
+tableint addPoint(const void *data_point, labeltype label, int level) {
+    // upper layer for candidate
+    int curlevel = getRandomLevel(mult_);
+
+    // Initialisation of the data and label for 0-layer
+    memcpy(getExternalLabeLp(cur_c), &label, sizeof(labeltype));
+    memcpy(getDataByInternalId(cur_c), data_point, data_size_);
+
+    // linklist for non-0 layer
+    if (curlevel) {
+        linkLists_[cur_c] = (char *) malloc(size_links_per_element_ * curlevel + 1);
+    }
+
+    if ((signed)currObj != -1) {
+        if (curlevel < maxlevelcopy) {
+            // search for enterpoint
+        }
+        // insert candidate into each layer
+        for (int level = std::min(curlevel, maxlevelcopy); level >= 0; level--) {
+            std::priority_queue<std::pair<dist_t, tableint>, std::vector<std::pair<dist_t, tableint>>, CompareByFirst> top_candidates = searchBaseLayer(
+                    currObj, data_point, level);
+            // if the linklist of one neighbor is full, it has to evict its weakest neighbor before inserting the new one
+            currObj = mutuallyConnectNewElement(data_point, cur_c, top_candidates, level, false);
+        }
+    } else {
+        // Do nothing for the first element
+        enterpoint_node_ = 0;
+        maxlevel_ = curlevel;
+    }
+}
+```
+
 
 ## 工程优化
 
@@ -68,10 +101,16 @@ std::priority_queue<std::pair<dist_t, labeltype >> result; // min-heap, 小根�
     - 使用 __mm_prefetch, 预取数据放入cache line, 减少 cache miss
     - 开启透明大页内存(Transparent Huge Page), 减少 TLB(保存虚拟内存地址到物理地址映射的 cache) Miss 和缺页中断
     - VisitedListPool 内存复用, 减少内存重复申请/释放开销
-- 精细的锁粒度保护, 避免卡并发 (保护 max_level, cur_element_count, label_lookup, neighbor_list 精确到节点粒度)
+- 精细的锁粒度保护, 避免卡并发 (保护 max_level, cur_element_count, label_lookup, linklist 精确到节点粒度)
 - 支持 embedding 量化(float16, int16, int8等, 在线 query_vec 使用对称量化以加速检索; 构建候选向量使用非对称量化, 精度更高), 指令集加速 (AVX512, AVX, SSE, etc.)
 - 补充打点指标: 候选量, 内存占用, 节点的邻居数量分布, 检索遍历的候选数, 过滤掉的候选数, 流式更新情况(添加/更新/删除数量速率, 更新失败), embedding 模值分布
-- THP 设置
+- 流式更新:
+    - 按照 max_element_num 预分配内存, 流式更新时不会为0层数据重新申请内存, 但是建立非零层的候选的linklist还是会重新申请内存;
+    - 精确到 inner_label 的细粒度的锁保护
+    - 控制候选更新频率(每分钟更新量不超过1000条?), 避免影响检索性能
+    - ivf数据分布: 一级聚类中心, 倒排链表(invlists, 只存储pair<label, inner_label_index>), 候选embedding单独分配内存, 连续存储
+        - 两层锁: 一个控制cur_element_count更新; 另外每个invlist分别持有一个锁控制自身数据更新
+
 
 THP 策略:
 
@@ -85,7 +124,7 @@ always [madvise] never
 
 ```cpp
 // allocate THP
-static size_t huge_page_size = 4096 * 1024;  // 4MB
+static size_t huge_page_size = 4 * 1024 * 1024;  // 4MB
 static size_t common_page_size = getpagesize(); // getconf PAGESIZE, usually 4096 -> 4KB
 alloc_size = pgnum * huge_page_size; // 按 page_size 向上取整
 auto mmap_p = static_cast<char*>(mmap(NULL, alloc_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0));
@@ -129,18 +168,18 @@ HierarchicalNSW(
         allow_replace_deleted_(allow_replace_deleted) {
     max_elements_ = max_elements;
     num_deleted_ = 0;
-    data_size_ = s->get_data_size(); // data_size_ = dim - sizeof(float);, embedding 数据大小
+    data_size_ = s->get_data_size(); // data_size_ = dim * sizeof(float);, embedding 数据大小
     fstdistfunc_ = s->get_dist_func(); // distance type: ip or l2
     dist_func_param_ = s->get_dist_func_param(); // embedding dimension
     maxM_ = M_;
-    maxM0_ = M_ - 2;
+    maxM0_ = M_ * 2;
     ef_construction_ = std::max(ef_construction, M_);
     ef_ = 10;
 
     level_generator_.seed(random_seed);
     update_probability_generator_.seed(random_seed + 1);
 
-    size_links_level0_ = maxM0_ - sizeof(tableint) + sizeof(linklistsizeint); // 0 层 neighbor list 数据大小
+    size_links_level0_ = maxM0_ * sizeof(tableint) + sizeof(linklistsizeint); // 0 层 neighbor list 数据大小: link_num, link_data
     size_data_per_element_ = size_links_level0_ + data_size_ + sizeof(labeltype); // 0层数据大小. 等于 neighbor_list + embedding + label
     offsetData_ = size_links_level0_; // embedding 数据偏移
     label_offset_ = size_links_level0_ + data_size_; // label 数据偏移
@@ -149,7 +188,7 @@ HierarchicalNSW(
     // 0层数据
     // 优化思路: 普通malloc性能较差, 可以结合 mmap+ THP 优化内存读写性能
     // transparent huge page, 也就是透明内存大页, 页大小比普通内存页大, 减少缺页中断, 增加内存页cache命中率
-    data_level0_memory_ = (char *) malloc(max_elements_ - size_data_per_element_);
+    data_level0_memory_ = (char *) malloc(max_elements_ * size_data_per_element_);
     // 候选数目
     cur_element_count = 0;
     // 检索0层时用来判断一个候选是否已经被计算过了, 类似 dfs/bfs 里面的 color, visited_set
@@ -163,8 +202,8 @@ HierarchicalNSW(
     maxlevel_ = -1;
 
     // 非0层 neighbor list 数据
-    linkLists_ = (char **) malloc(sizeof(void *) - max_elements_);
-    size_links_per_element_ = maxM_ - sizeof(tableint) + sizeof(linklistsizeint); // 非 0 层的 neighbor list 数据大小
+    linkLists_ = (char **) malloc(sizeof(void *) * max_elements_);
+    size_links_per_element_ = maxM_ * sizeof(tableint) + sizeof(linklistsizeint); // 非 0 层的 neighbor list 数据大小, 格式: link_num, link_data
     mult_ = 1 / log(1.0 - M_);
     revSize_ = 1.0 / mult_;
 }
@@ -187,10 +226,10 @@ size_t indexFileSize() const {
     size += sizeof(mult_);
     size += sizeof(ef_construction_);
 
-    size += cur_element_count - size_data_per_element_;
+    size += cur_element_count * size_data_per_element_;
 
     for (size_t i = 0; i < cur_element_count; i++) {
-        unsigned int linkListSize = element_levels_[i] > 0 ? size_links_per_element_ - element_levels_[i] : 0;
+        unsigned int linkListSize = element_levels_[i] > 0 ? size_links_per_element_ * element_levels_[i] : 0;
         size += sizeof(linkListSize);
         size += linkListSize;
     }
@@ -215,13 +254,13 @@ void saveIndex(const std::string &location) {
     writeBinaryPOD(output, ef_construction_);
     // 2. save level 0 data: neighbour_list, embedding, label
     //  0 层数据的存储格式: |linklistsizeint|linkslist|embedding|label|
-    output.write(data_level0_memory_, cur_element_count - size_data_per_element_);
+    output.write(data_level0_memory_, cur_element_count * size_data_per_element_);
     // 3. neighbor_list of a label in non-zero layer: 每层的邻居个数按照 maxM_ 预分配, 当 label 存在于多层时就按层数放大, 这里的思路是保持 label 的 neighbor_list 数据是定长的, 方便存取
     // 非 0 层数据的存储格式: |linklistsizeint|linkslist, 注意它不包括0层的 neighbor list 数据
     for (size_t i = 0; i < cur_element_count; i++) {
         // std::vector<int> element_levels_;  // keeps level of each element
         // element_levels_[i] 表示候选i最高被放到哪一层, 候选插入时, 候选i依次被插入到 element_levels_[i], element_levels_[i]-1, ..., 1, 0 层
-        unsigned int linkListSize = element_levels_[i] > 0 ? size_links_per_element_ - element_levels_[i] : 0;
+        unsigned int linkListSize = element_levels_[i] > 0 ? size_links_per_element_ * element_levels_[i] : 0;
         writeBinaryPOD(output, linkListSize);
         if (linkListSize)
             output.write(linkLists_[i], linkListSize);
