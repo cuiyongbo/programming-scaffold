@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 698, 93, 131, 241, 282, 842 */
 
@@ -14,8 +13,8 @@ namespace tiny_scaffold {
 class Solution {
 public:
     bool canPartitionKSubsets(vector<int>& nums, int k);
-    vector<vector<string>> partition(string s);
     vector<string> restoreIpAddresses(string s);
+    vector<vector<string>> partition(string s);
     vector<int> diffWaysToCompute(string input);
     vector<string> addOperators(string num, int target);
     vector<int> splitIntoFibonacci(string s);
@@ -100,6 +99,7 @@ vector<string> Solution::restoreIpAddresses(string input) {
             }
             return;
         }
+        // the length of each sub-component is 3 at most
         for (int i=u; i<min(u+4, sz); ++i) {
             string tmp = input.substr(u, i-u+1); // 0< len(tmp) <= 3
             if (!is_valid(tmp)) { // prune invalid branches
@@ -164,12 +164,11 @@ auto is_palindrome = [] (string input) {
         if (sub_solution_mp.count(input) == 1) { // memoization
             return sub_solution_mp[input];
         }
-
         result_type ans;
         bool valid = false;
         for (int i=0; i<(int)input.size(); ++i) {
             auto left = input.substr(0, i+1);
-            if (!is_palindrome(left)) {
+            if (!is_palindrome(left)) { // prune invalid branches
                 continue;
             }
             auto right = input.substr(i+1);
@@ -221,7 +220,7 @@ vector<int> Solution::diffWaysToCompute(string input) {
     func_map['+'] = tiny_scaffold::add;
     func_map['-'] = tiny_scaffold::sub;
     func_map['*'] = tiny_scaffold::mul;
-    typedef vector<int> result_t;
+    using result_t = vector<int>;
     map<string, result_t> sub_solutions; // backtrace with memoization
     // return the possible values of expression input
     function<result_t(string)> backtrace = [&] (string expression) {
@@ -352,8 +351,8 @@ vector<string> Solution::addOperators(string num, int target) {
     result_t ans;
     result_t exp; // in-fix expression
     int len = num.size();
-    function<void(int)> backtrace = [&] (int p) {
-        if (p == len) {
+    function<void(int)> backtrace = [&] (int u) {
+        if (u == len) { // termination
             //if (evaluate(exp) == target) {
             if (inplace_eval(exp) == target) {
                 string path;
@@ -364,12 +363,12 @@ vector<string> Solution::addOperators(string num, int target) {
             }
             return;
         }
-        for (int i=p; i<len; ++i) {
+        for (int i=u; i<len; ++i) {
             // prune invalid branches
-            if (i>p && num[p]=='0') { // skip operands with leading zero(s), such as "05"
+            if (i>u && num[u]=='0') { // skip operands with leading zero(s), such as "05"
                 continue;
             }
-            string cur = num.substr(p, i-p+1);
+            string cur = num.substr(u, i-u+1);
             if (stol(cur) > INT32_MAX) { // signed integer overflow
                 continue;
             }
@@ -415,16 +414,16 @@ for example,
 vector<int> Solution::splitIntoFibonacci(string input) {
     vector<int> ans;
     int sz = input.size();
-    function<bool(int)> backtrace = [&] (int p) {
-        if (p == sz) { // termination
+    function<bool(int)> backtrace = [&] (int u) {
+        if (u == sz) { // termination
             return ans.size() >= 3;
         }
-        for (int i=p; i<sz; ++i) {
+        for (int i=u; i<sz; ++i) {
             // prune invalid branches
-            if (i>p && input[p]=='0') { // skip element(s) with leading zero(s)
+            if (i>u && input[u]=='0') { // skip element(s) with leading zero(s)
                 continue;
             }
-            string tmp = input.substr(p, i-p+1);
+            string tmp = input.substr(u, i-u+1);
             long n = std::stol(tmp);
             if (n > INT32_MAX) { // prevent signed integer overflow
                 continue;

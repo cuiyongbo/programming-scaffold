@@ -19,7 +19,6 @@ Note:
     The cells are adjacent in only four directions: up, down, left and right.
 */
 vector<vector<int>> Solution::updateMatrix(vector<vector<int>>& matrix) {
-
 { // refined solution using bfs
     // start from all 0s and perform bfs search to find all 1s
     int rows = matrix.size();
@@ -148,8 +147,7 @@ Hint:
     2. find the minimus path between tree1 ans tree2 using bfs, and accumulate length of all paths
 */
 int Solution::cutOffTree(vector<vector<int>>& forest) {
-
-{
+if (0) {
     using element_t = std::pair<int, int>;
     auto cmp_by_height = [&] (element_t l, element_t r) {
         return forest[l.first][l.second] > forest[r.first][r.second];
@@ -165,7 +163,6 @@ int Solution::cutOffTree(vector<vector<int>>& forest) {
             }
         }
     }
-
     // 2 times faster than `proiority_queue` implementation, but with about 10 times more memory usage
     // a dijkstra algorithm implementation may be a overkill for this simple test dataset
     auto calculate_route_path = [&](element_t start, element_t end) {
@@ -196,7 +193,6 @@ int Solution::cutOffTree(vector<vector<int>>& forest) {
         }
         return -1;
     };
-
     int total_steps = 0;
     auto start = std::make_pair(0, 0);
     while (!trees.empty()) {
@@ -337,7 +333,6 @@ Hint:
     2. starting from these nodes, perform bfs traversal to find a 1-node corresponding to the other island
 */
 int Solution::shortestBridge(vector<vector<int>>& A) {
-
 {
     using element_t = std::pair<int, int>;
     int rows = A.size();

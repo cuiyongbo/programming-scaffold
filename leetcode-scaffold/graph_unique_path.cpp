@@ -57,7 +57,7 @@ int Solution::uniquePaths_980(vector<vector<int>>& grid) {
             if (visited[nr][nc]) { // already visited
                 continue;
             }
-            path_num += dfs({nr, nc}, steps+1); // backtrace
+            path_num += dfs({nr, nc}, steps+1);
         }
         visited[u.first][u.second] = false;
         return path_num;

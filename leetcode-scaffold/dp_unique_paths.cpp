@@ -3,7 +3,6 @@
 using namespace std;
 
 /* leetcode: 62, 63, 64, 120, 174, 931, 1210, 1289 */
-
 class Solution {
 public:
     int uniquePaths(int m, int n);
@@ -18,7 +17,7 @@ public:
 
 /*
 There is a robot on an m x n grid. The robot is initially located at the top-left corner (i.e., grid[0][0]). 
-The robot tries to move to the bottom-right corner (i.e., grid[m - 1][n - 1]). The robot can only move either down or right at any point in time.
+The robot tries to move to the bottom-right corner (i.e., grid[m-1][n-1]). The robot can only move either down or right at any point in time.
 Given the two integers m and n, return the number of possible unique paths that the robot can take to reach the bottom-right corner.
 */
 int Solution::uniquePaths(int m, int n) {
@@ -68,8 +67,8 @@ An obstacle and empty space are marked as 1 and 0 respectively in the grid.
 */
 int Solution::uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
     // dp[i][j] means the number of unique paths to (i, j)
-    // dp[i][j] += dp[i-1][j] if obstacleGrid[i-1][j]==0
-    // dp[i][j] += dp[i][j-1] if obstacleGrid[i][j-1]==0
+    // dp[i][j] += dp[i-1][j] if obstacleGrid[i-1][j]==0 (upper)
+    // dp[i][j] += dp[i][j-1] if obstacleGrid[i][j-1]==0 (left)
     int m = obstacleGrid.size();
     int n = obstacleGrid[0].size();
     vector<vector<int>> dp(m, vector<int>(n, 0));
@@ -234,15 +233,15 @@ Example 1:
 int Solution::minFallingSum_931(vector<vector<int>>& grid) {
 // dp[i][j] means minFallingSum to reach (i, j)
 // dp[i][j] = min(dp[i-1][j-1], dp[i-1][j], dp[i-1][j+1]) + grid[i][j]
-if (0) {// naive solution
     int ans = INT32_MAX;
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<int>> dp(rows, vector<int>(columns, INT32_MAX));
-    for (int r=1; r<rows; ++r) {
+    dp[0] = grid[0]; // initialization. for rows==1
+    for (int r=0; r<rows; ++r) {
         for (int c=0; c<columns; ++c) {
             int cost = INT32_MAX;
-            if (r > 0) {
+            if (r>0) {
                 cost = min(cost, dp[r-1][c]); // from upper
                 if (c>0) {
                     cost = min(cost, dp[r-1][c-1]); // from diagonally left
@@ -250,50 +249,17 @@ if (0) {// naive solution
                 if (c+1<columns) {
                     cost = min(cost, dp[r-1][c+1]); // from diagonally right
                 }
+            } else {
+                cost = 0;
             }
-            dp[r][c] = (cost==INT32_MAX ? 0 : cost) + grid[r][c];
-            // it would be more effient to check ans here
-            //if (r == rows-1) {
-            //    ans = min(ans, dp[r][c]);
-            //}
-        }
-    }
-    // for explainability and interpretability
-    for (int i=0; i<columns; i++) {
-        ans = min(ans, dp[rows-1][i]);
-    }
-    return ans;
-}
-
-{ // refined solution
-    int ans = INT32_MAX;
-    int rows = grid.size();
-    int columns = grid[0].size();
-    vector<vector<int>> dp(rows, vector<int>(columns, INT32_MAX));
-    dp[0] = grid[0]; // initialization
-    for (int r=1; r<rows; ++r) {
-        for (int c=0; c<columns; ++c) {
-            int cost = INT32_MAX;
-            cost = min(cost, dp[r-1][c]); // from upper
-            if (c>0) {
-                cost = min(cost, dp[r-1][c-1]); // from diagonally left
-            }
-            if (c+1<columns) {
-                cost = min(cost, dp[r-1][c+1]); // from diagonally right
-            }
-            dp[r][c] = (cost==INT32_MAX ? 0 : cost) + grid[r][c];
-            // it would be more effient to check ans here
+            dp[r][c] = cost + grid[r][c];
+            // it would be more efficient to check ans here
             if (r == rows-1) {
                 ans = min(ans, dp[r][c]);
             }
         }
     }
-    if (ans == INT32_MAX) { // there is only one row in grid
-        auto p = min_element(grid[0].begin(), grid[0].end());
-        return *p;
-    }
     return ans;
-}
 }
 
 

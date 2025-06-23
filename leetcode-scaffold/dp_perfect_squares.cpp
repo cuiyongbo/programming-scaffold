@@ -16,7 +16,7 @@ A perfect square is an integer that is the square of an integer. e.g. 1, 4, 9, a
 */
 int Solution::numSquares(int n) {
     // dp[i] means the least number of perfect square numbers which sum to i
-    // dp[i] = min{dp[i-j*j]} for j in [1, i] if j*j <=i
+    // dp[i] = min{dp[i-j*j]+1} for j in [1, i] if j*j <=i
     vector<int> dp(n+1, INT32_MAX);
     dp[0] = 0; dp[1] = 1; // trivial cases
     for (int i=1; i<=n; i++) {
@@ -31,7 +31,7 @@ int Solution::numSquares(int n) {
 
 // how to reconstruct the sequence of perfect square numbers?
 vector<int> Solution::findPerfectSquareSequence(int n) {
-    // dp[i] means the PerfectSquareSequence for input i
+    // dp[i] means the PerfectSquareSequence whose sum equals to i
     // dp[i] = min{dp[i-j*j], j*j} for j in [1, i] if j*j<=i
     vector<vector<int>> dp(n+1);
     for (int i=1; i<=n; i++) {
@@ -39,7 +39,7 @@ vector<int> Solution::findPerfectSquareSequence(int n) {
             if (dp[i].empty()) {
                 dp[i] = dp[i-j*j];
                 dp[i].push_back(j*j);
-            } else if (dp[i].size() > dp[i-j*j].size()+1) { // a better sequence with less candiate
+            } else if (dp[i].size() > dp[i-j*j].size()+1) { // a better sequence with less candiates
                 dp[i] = dp[i-j*j];
                 dp[i].push_back(j*j);
             } else if (dp[i].size() == dp[i-j*j].size()+1) {
@@ -74,6 +74,7 @@ int main() {
     numSquares_scaffold(2, 2);
     numSquares_scaffold(3, 3);
     numSquares_scaffold(5, 2);
+    numSquares_scaffold(1103, 4);
     TIMER_STOP(numSquares);
     SPDLOG_WARN("numSquares tests use {} ms", TIMER_MSEC(numSquares));
 }

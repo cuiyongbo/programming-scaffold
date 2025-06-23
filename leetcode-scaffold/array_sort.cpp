@@ -92,6 +92,7 @@ void Solution::quickSort(vector<int>& nums) {
     // l, r are inclusive
     auto naive_partitioner = [&] (int l, int r) {
         // randomly choose pivots in case that the algorithm degrades when the array is already sorted or nearly sorted
+        // it may accelerate the algorithm by 10 times
         int rr = rand()%(r-l+1) + l;
         swap(nums[rr], nums[r]);
         int i = l-1;
@@ -127,6 +128,8 @@ void Solution::quickSort(vector<int>& nums) {
 \Theta(k) [k = max(array) - min(array)]
 NOT suitable for sparse arrays whose elements split in a large domain,
 such as [INT_MIN, INT_MAX], suffering to range overflow
+applications:
+    - sortColors
 */
 void Solution::countingSort(vector<int>& nums) {
     // 1. find the range of the elements
@@ -135,17 +138,20 @@ void Solution::countingSort(vector<int>& nums) {
     int r = *(p.second);
     long range = r-l+1; // we have to use long type to store range in case of range overflow
     SPDLOG_DEBUG("CountingSort(min={}, max={}, range={})", l, r, range);
-    vector<int> count(range, 0);
+    // 2. we use the value of array elements as indexing and counting
+    vector<int> counting(range, 0);
     for (auto n: nums) {
-        count[n-l]++;
+        counting[n-l]++;
     }
+    // 3. reinsert elements according to counting array
     nums.clear();
     for (long i=0; i<range; ++i) {
-        if (count[i] != 0) {
-            nums.insert(nums.end(), count[i], long(i+l));
+        if (counting[i] != 0) {
+            // std::vector<int>::iterator std::vector<int>::insert(std::vector<int>::const_iterator __position, std::size_t __n, const int &__x)
+            // This function will insert a specified number of copies of the given data before the location specified by position.
+            nums.insert(nums.end(), counting[i], long(i+l));
         }
     }
-    return;
 }
 
 
@@ -205,16 +211,14 @@ void Solution::radixSort(vector<int>& nums) {
     */
     auto sort_by_counting_sort = [&] (int base) {
         int sz = nums.size();
-        vector<vector<int>> count(10); // digit: element values
+        vector<vector<int>> counting(10); // digit: element values
         for (int i=0; i<sz; i++) {
             int ni = nums[i]/base%10; // this operation takes time
-            count[ni].push_back(nums[i]);
+            counting[ni].push_back(nums[i]);
         }
-        int k=0;
-        for (const auto& vals: count) {
-            for (auto p: vals) {
-                nums[k++] = p;
-            }
+        nums.clear();
+        for (const auto& p: counting) {
+            nums.insert(nums.end(), p.begin(), p.end());
         }
     };
     /*
@@ -265,17 +269,17 @@ void Solution::radixSort(vector<int>& nums) {
 // O(nlogn) for worst-case running time
 void Solution::heapSort(vector<int>& nums) {
 if (1) {
-    // r is not inclusive
-    auto sift_down = [&] (int l, int r) {
+    // end is not inclusive
+    auto sift_down = [&] (int l, int end) {
         int root = l;
-        while (root < r) {
+        while (root < end) {
             int left = 2*root+1;
             int right = 2*root+2;
             int max_i = root;
-            if (left<r && nums[left] > nums[max_i]) {
+            if (left<end && nums[left] > nums[max_i]) {
                 max_i = left;
             }
-            if (right<r && nums[right] > nums[max_i]) {
+            if (right<end && nums[right] > nums[max_i]) {
                 max_i = right;
             }
             // the heap is in its shape

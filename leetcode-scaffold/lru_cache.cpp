@@ -51,12 +51,12 @@ namespace std_implementation {
 class LRUCache {
 private:
     std::mutex m_mutex;
-    int m_cap;
+    int m_capacity;
     std::list<pair<int, int>> m_nodes; // <key, value>
     std::map<int, list<pair<int, int>>::iterator> m_node_map;
     /* data */
 public:
-    LRUCache(int cap) {m_cap = cap;}
+    LRUCache(int cap) {m_capacity = cap;}
     ~LRUCache() {}
     int get(int key);
     void put(int key, int value);
@@ -77,7 +77,7 @@ void LRUCache::put_without_lock(int key, int value) {
         m_node_map.erase(key);
     } else { // key doesn't exist
         // remove the oldest element if capacity reaches
-        if (m_nodes.size() == m_cap) {
+        if ((int)m_nodes.size() == m_capacity) {
             auto b = m_nodes.back();
             m_node_map.erase(b.first); // first remove iterator from the map
             m_nodes.pop_back(); // then remove iterator from the list
@@ -99,7 +99,7 @@ int LRUCache::get(int key) {
     No elements are copied or moved, only the internal pointers of the list nodes are re-pointed.
     No iterators or references become invalidated, the iterators to moved elements remain valid, but now refer into *this, not into other.
     */
-    // void splice( const_iterator pos, list& other, const_iterator it );
+    // void splice(const_iterator pos, list& other, const_iterator it);
     // Transfers the element pointed to by it from other into *this. The element is inserted before the element pointed to by pos.
     m_nodes.splice(m_nodes.begin(), m_nodes, it->second); // move key to the front of m_nodes
     return it->second->second;
@@ -115,60 +115,6 @@ void LRUCache::display() {
 
 }
 
-namespace thread_safe_implementation {
-class LRUCache {
-public:
-    LRUCache(int cap) {
-        m_capacity = cap;
-    }
-
-    int get(int key) {
-        std::unique_lock lock(m_mutex);
-        auto it = m_node_map.find(key);
-        if (it == m_node_map.end()) {
-            return -1;
-        } else {
-            // you need to change the position of key in the list
-            m_nodes.splice(m_nodes.begin(), m_nodes, it->second); // move key to the front of m_nodes
-            return it->second->second;
-        }
-    }
-
-    void put(int key, int value) {
-        std::unique_lock lock(m_mutex);
-        auto it = m_node_map.find(key);
-        if (it != m_node_map.end()) {
-            m_nodes.erase(it->second);
-            m_node_map.erase(it);
-        }
-        m_nodes.push_front(std::make_pair(key, value));
-        m_node_map[key] = m_nodes.begin();
-
-        do_inviction_if_need();
-    }
-
-    void do_inviction_if_need() {
-        while (m_nodes.size() > m_capacity) {
-            m_node_map.erase(m_nodes.back().first);
-            m_nodes.pop_back();
-        }
-    }
-
-    void display() {
-        std::shared_lock lock(m_mutex);
-        for (auto it: m_nodes) {
-            printf("(%d,%d)", it.first, it.second);
-        }
-        printf("\n");
-    }
-
-private:
-    unordered_map<int, list<pair<int, int>>::iterator> m_node_map;
-    list<pair<int, int>> m_nodes;
-    int m_capacity;
-    std::shared_mutex m_mutex;
-};
-}
 
 int main() {
     using std_implementation::LRUCache;

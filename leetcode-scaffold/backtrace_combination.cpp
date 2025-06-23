@@ -20,25 +20,25 @@ Given a string containing digits from 2-9 inclusive, return all possible letter 
 A mapping of digit to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
 */
 vector<string> Solution::letterCombinations(string digits) {
-    vector<vector<char>> d(10);
-    d[0] = {' '};
-    d[1] = {'@'};
-    d[2] = {'a','b','c'};
-    d[3] = {'d','e','f'};
-    d[4] = {'g','h','i'};
-    d[5] = {'j','k','l'};
-    d[6] = {'m','n','o'};
-    d[7] = {'p','q','r','s'};
-    d[8] = {'t','u','v'};
-    d[9] = {'w','x','y','z'};
+    map<char, vector<char>> d;
+    d['0'] = {' '};
+    d['1'] = {'@'};
+    d['2'] = {'a','b','c'};
+    d['3'] = {'d','e','f'};
+    d['4'] = {'g','h','i'};
+    d['5'] = {'j','k','l'};
+    d['6'] = {'m','n','o'};
+    d['7'] = {'p','q','r','s'};
+    d['8'] = {'t','u','v'};
+    d['9'] = {'w','x','y','z'};
     string candidate;
     vector<string> ans;
     function<void(int)> backtrace = [&] (int pos) {
-        if (pos == digits.size()) { // termination
+        if (pos == (int)digits.size()) { // termination
             ans.push_back(candidate);
             return;
         }
-        for (auto c: d[digits[pos]-'0']) {
+        for (auto c: d[digits[pos]]) {
             // perform backtrace
             candidate.push_back(c);
             backtrace(pos+1); // go to the next position
@@ -60,53 +60,27 @@ Note:
     The solution set must not contain duplicate combinations.
 */
 vector<vector<int>> Solution::combinationSum_39(vector<int>& candidates, int target) {
-
-if(0) {
     // sort candidates to perform optimization later
     std::sort(candidates.begin(), candidates.end(), std::less<int>());
     vector<int> buffer;
     vector<vector<int>> ans;
     int sz = candidates.size();
     function<void(int, int)> backtrace = [&] (int u, int sum) {
-        if (sum == target) {
+        if (sum == target) { // termination
             ans.push_back(buffer);
             return;
         }
         for (int i=u; i<sz; i++) {
-            if (sum+candidates[i] > target) { // it is safe to stop here since later candidates are larger
+            if (sum+candidates[i] > target) { // prune invalid branches. it is safe to stop here since later candidates are larger
                 break;
             }
             buffer.push_back(candidates[i]);
-            backtrace(i, sum+candidates[i]);
+            backtrace(i, sum+candidates[i]); // we still iterate from i since the same number can be choosed unlimited number of times
             buffer.pop_back();
         }
     };
     backtrace(0, 0);
     return ans;
-}
-
-{
-    vector<int> buffer;
-    vector<vector<int>> ans;
-    int sz = candidates.size();
-    function<void(int, int)> backtrace = [&] (int cur, int cur_sum) {
-        if (cur_sum == target) { // termination
-            ans.push_back(buffer);
-            return;
-        }
-        for (int i=cur; i<sz; ++i) {
-            if (cur_sum+candidates[i] > target) { // prune invalid branches
-                continue;
-            }
-            buffer.push_back(candidates[i]);
-            backtrace(i, cur_sum+candidates[i]); // add current element to sum, and test the next
-            buffer.pop_back();
-        }
-    };
-    backtrace(0, 0);
-    return ans;
-}
-
 }
 
 
@@ -119,18 +93,17 @@ Note:
 */
 vector<vector<int>> Solution::combinationSum_40(vector<int>& candidates, int target) {
     // preprocess: sort candidates in advance so that we can perform some optimization
-    sort(candidates.begin(), candidates.end());
+    sort(candidates.begin(), candidates.end(), std::less<int>());
     vector<int> buffer;
     vector<vector<int>> ans;
     int sz = candidates.size();
     function<void(int, int)> backtrace = [&] (int u, int sum) {
-        if (sum == target) {
+        if (sum == target) { // termination
             ans.push_back(buffer);
             return;
         }
         for (int i=u; i<sz; ++i) {
-            // prune invalid branches
-            if (sum + candidates[i] > target) {
+            if (sum + candidates[i] > target) { // prune invalid branches
                 break; // we can stop here since next number is no less than current one
             }
             // make sure we don't use a duplicate number more than once
@@ -138,8 +111,7 @@ vector<vector<int>> Solution::combinationSum_40(vector<int>& candidates, int tar
                 continue;
             }
             buffer.push_back(candidates[i]);
-            // make sure we don't use the same number more than once
-            backtrace(i+1, sum+candidates[i]); // add current element to sum, and test the next
+            backtrace(i+1, sum+candidates[i]); // iterate from i+1 since the same number can be chosen only once
             buffer.pop_back();
         }
     };
@@ -159,20 +131,18 @@ vector<vector<int>> Solution::combinationSum_216(int k, int n) {
     vector<int> candidates;
     vector<vector<int>> ans;
     function<void(int, int)> backtrace = [&] (int u, int sum) {
-        if (sum >= n || k == (int)candidates.size()) {
+        if (sum >= n || k == (int)candidates.size()) { // termination
             if (sum == n && k == (int)candidates.size()) {
                 ans.push_back(candidates);
             }
             return;
         }
         for (int i=u; i<10; ++i) {
-            // prune invalid branches
-            if (sum+i > n) {
+            if (sum+i > n) { // prune invalid branches
                 break; // yes, we can stop here since the next element would be larger than `i`
             }
             candidates.push_back(i);
-            // make sure we won't use the same number more than once
-            backtrace(i+1, sum+i);
+            backtrace(i+1, sum+i); // make sure we won't use the same number more than once
             candidates.pop_back();
         }
     };
@@ -189,8 +159,9 @@ note that [1,2] and [2,1] are the same in combination theory
 vector<vector<int>> Solution::combine(int n, int k) {
     vector<int> candidate;
     vector<vector<int>> ans;
+    // start from u and enumerate all candidates
     function<void(int)> backtrace = [&] (int u) {
-        if (k == candidate.size()) { // recursion would stop here
+        if (k == (int)candidate.size()) { // termination
             ans.push_back(candidate);
             return;
         }
@@ -206,30 +177,30 @@ vector<vector<int>> Solution::combine(int n, int k) {
 
 
 /* 
-    Given an interger array nums **without duplicates**, return all possible subsets.
-    for example, given nums=[1,2,3], the possible solution is
-        [
-            [],
-            [1],
-            [1,2],
-            [1,2,3],
-            [1,3],
-            [2],
-            [2,3],
-            [3]
-        ]
-    Note:
-        **Elements in a subset must be in non-descending order.** (sort the array before starting shuffling nums)
-        The solution set must not contain duplicate subsets.
+Given an interger array nums **without duplicates**, return all possible subsets.
+for example, given nums=[1,2,3], the possible solution is
+    [
+        [],
+        [1],
+        [1,2],
+        [1,2,3],
+        [1,3],
+        [2],
+        [2,3],
+        [3]
+    ]
+Note:
+    **Elements in a subset must be in non-descending order.** (sort the array before starting shuffling nums)
+    The solution set must not contain duplicate subsets.
 */
 vector<vector<int>> Solution::subsets_78(vector<int>& nums) {
     // preprocess `nums` so the elements in each subset are in non-descending order
     std::sort(nums.begin(), nums.end(), std::less<int>());
     vector<int> candidate; candidate.reserve(nums.size());
     vector<vector<int>> ans;
-    std::function<void(int)> backtrace = [&] (int pos) {
+    std::function<void(int)> backtrace = [&] (int u) {
         ans.push_back(candidate);
-        for (int i=pos; i<nums.size(); i++) {
+        for (int i=u; i<(int)nums.size(); i++) {
             candidate.push_back(nums[i]);
             backtrace(i+1); // go to the next
             candidate.pop_back();
@@ -262,7 +233,7 @@ vector<vector<int>> Solution::subsets_90(vector<int>& nums) {
     vector<vector<int>> ans;
     std::function<void(int)> backtrace = [&] (int u) {
         ans.push_back(candidate);
-        for (int i=u; i<nums.size(); i++) {
+        for (int i=u; i<(int)nums.size(); i++) {
             // skip duplicates at each depth
             if (i>u && nums[i]==nums[i-1]) {
                 continue;
@@ -372,6 +343,7 @@ int main() {
     SPDLOG_WARN("Running letterCombinations tests:");
     TIMER_START(letterCombinations);
     letterCombinations_scaffold("23", "[ad,ae,af,bd,be,bf,cd,ce,cf]");
+    letterCombinations_scaffold("2", "[a,b,c]");
     TIMER_STOP(letterCombinations);
     SPDLOG_WARN("letterCombinations using {} ms", TIMER_MSEC(letterCombinations));
 

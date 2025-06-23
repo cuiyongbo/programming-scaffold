@@ -33,7 +33,7 @@ if (1) { // disjoint set version solution
         dsu.unionFunc(p[0], p[1]);
     }
     // cluster
-    map<int, vector<int>> group_map; // group id, node indices
+    map<int, vector<int>> group_map; // group id, node indices (in ascending order)
     for (int i=0; i<sz; ++i) {
         group_map[dsu.find(i)].push_back(i);
     }
@@ -47,7 +47,7 @@ if (1) { // disjoint set version solution
         for (auto i: p.second) {
             tmp.push_back(s[i]);
         }
-        sort(tmp.begin(), tmp.end());
+        std::sort(tmp.begin(), tmp.end());
         for (int i=0; i<(int)tmp.size(); ++i) {
             ans[p.second[i]] = tmp[i];
         }
@@ -111,7 +111,7 @@ Initially, all the rooms start locked (except for room 0). You can walk back and
 bool Solution::canVisitAllRooms(vector<vector<int>>& rooms) {
     int N = rooms.size();
     vector<bool> visited(N, false);
-    // return the number of room visited
+    // return the number of rooms visited from room u
     std::function<int(int)> dfs = [&] (int u) {
         int count = 1;
         visited[u] = true;
@@ -148,8 +148,8 @@ int Solution::numEnclaves(vector<vector<int>>& grid) {
     int columns = grid[0].size();
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
     // return:
-    //  1. whether the land is safe or not
-    //  2. if safe, return the number of lands
+    //  1. whether the island is safe or not
+    //  2. if safe, return the number of lands in the island
     std::function<pair<bool, int>(int, int)> dfs = [&] (int r, int c) {
         int count = 1; 
         visited[r][c] = true;
@@ -161,7 +161,10 @@ int Solution::numEnclaves(vector<vector<int>>& grid) {
                 in_bound = false;
                 continue;
             }
-            if (grid[nr][nc]==1 && !visited[nr][nc]) {
+            if (grid[nr][nc] == 0) {
+                continue;
+            }
+            if (!visited[nr][nc]) {
                 auto p = dfs(nr, nc);
                 in_bound &= p.first;
                 count += p.second;
@@ -201,7 +204,10 @@ int Solution::numIslands(vector<vector<int>>& grid) {
             if (nr<0||nr>=rows||nc<0||nc>=columns) {
                 continue;
             }
-            if (!visited[nr][nc] && grid[nr][nc] == 1) {
+            if (grid[nr][nc] == 0) {
+                continue;
+            }
+            if (!visited[nr][nc]) {
                 dfs(nr, nc);
             }
         }
@@ -240,7 +246,7 @@ int Solution::maxAreaOfIsland(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
-    // return the area of island containing (r, c)
+    // return the area of the island containing (r, c)
     std::function<int(int, int)> dfs = [&] (int r, int c) {
         int area = 1;
         visited[r][c] = true;
@@ -283,7 +289,7 @@ vector<vector<int>> Solution::floodFill(vector<vector<int>>& grid, int sr, int s
     int columns = grid[0].size();
     int originalColor = grid[sr][sc];
     function<void(int, int)> dfs = [&] (int r, int c) {
-        grid[r][c] = newColor; // dye with new color
+        grid[r][c] = newColor; // dye pixel at (r,c) with new color
         for (auto& d: directions) {
             int nr = r + d.first;
             int nc = c + d.second;
@@ -308,9 +314,10 @@ int Solution::largestIsland(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
     vector<vector<bool>> visited(rows, vector<bool>(columns, false));
+    // return the area of the island containing (r, c)
     std::function<int(int, int, int)> dfs = [&] (int r, int c, int island_id) {
         int area = 1; // count current node
-        grid[r][c] = island_id; // mark node with current island
+        grid[r][c] = island_id; // mark node with current island_id
         visited[r][c] = true;
         for (auto& d: directions) {
             int nr = r + d.first;
@@ -318,14 +325,17 @@ int Solution::largestIsland(vector<vector<int>>& grid) {
             if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
                 continue;
             }
-            if (grid[nr][nc] == 1 && !visited[nr][nc]) {
+            if (grid[nr][nc] == 0) {
+                continue;
+            }
+            if (!visited[nr][nc]) {
                 area += dfs(nr, nc, island_id);
             }
         }
         return area;
     };
     queue<pair<int, int>> zero_nodes;
-    int island_id = 1;
+    int island_id = 2; // island_id starts from 2
     int max_island_area = 0;
     map<int, int> area_map; // island_id, area
     for (int r=0; r<rows; ++r) {
@@ -340,17 +350,18 @@ int Solution::largestIsland(vector<vector<int>>& grid) {
             }
         }
     }
-    int ans = max_island_area;
+    int ans = max_island_area; // in case for that there are no islands which are one step from another
+    // traverse from water cells by one step
     while (!zero_nodes.empty()) {
         auto t = zero_nodes.front(); zero_nodes.pop();
         set<int> islands; // reachable islands
-        for (auto& d: directions) {
+        for (const auto& d: directions) {
             int nr = t.first + d.first;
             int nc = t.second + d.second;
             if (nr<0 || nr>=rows || nc<0 || nc>=columns) {
                 continue;
             }
-            // we only traverse one step from water nodes
+            // we only traverse one step from water cells
             if (grid[nr][nc] == 0) {
                 continue;
             }

@@ -24,33 +24,15 @@ Example 2:
     Output: [0,1,2]
 */
 void Solution::sortColors(vector<int>& nums) {
-{ // optimization: counting sort
-    vector<int> count(3, 0);
+    // hint: counting sort
+    vector<int> counting(3, 0);
     for (auto n: nums) {
-        count[n]++;
+        counting[n]++;
     }
     nums.clear();
     for (int i=0; i<3; ++i) {
-        nums.insert(nums.end(), count[i], i);
+        nums.insert(nums.end(), counting[i], i);
     }
-}
-
-{ // naive method
-    auto worker = [&](int l, int r, int pivot) {
-        int i = l-1;
-        for (int j=l; j<r; ++j) {
-            if (nums[j] < pivot) {
-                swap(nums[++i], nums[j]);
-            }
-        }
-        return i+1;
-    };
-    int l = 0;
-    int r = nums.size(); // r is not inclusive
-    r = worker(l, r, 2);
-    worker(l, r, 1);
-}
-
 }
 
 /*

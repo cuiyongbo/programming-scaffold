@@ -56,7 +56,7 @@ vector<vector<int>> Solution::permute_46(vector<int>& nums) {
 
 
 /* 
-Same as permute_46, except that the input array may contain duplicates.
+the same as permute_46, except that the input array may contain duplicates.
 For example, given an input: [1,1,2], output:
     [
         [1,1,2],
@@ -65,6 +65,7 @@ For example, given an input: [1,1,2], output:
     ]
 */
 vector<vector<int>> Solution::permute_47(vector<int>& nums) {
+    std::sort(nums.begin(), nums.end(), std::less<int>());
     int sz = nums.size();
     vector<bool> used(sz, false);
     vector<int> candidate; candidate.reserve(nums.size());
@@ -115,14 +116,14 @@ vector<string> Solution::letterCasePermutation(string input) {
     int sz = input.size();
     vector<string> ans;
     int diff = 'a' - 'A';
-    function<void(int)> backtrace = [&] (int u) {
+    std::function<void(int)> backtrace = [&] (int u) {
         ans.push_back(input); // save original string
         // we don't change the letter order, but the letter itself.
-        // so we don't need to traverse from beginning
         for (int i=u; i<sz; ++i) {
             if (std::isdigit(input[i])) {
                 continue;
             }
+            // change the letter case
             input[i] = std::islower(input[i]) ? (input[i]-diff) : (input[i]+diff); // change case
             backtrace(i+1); // extend to later position only
             input[i] = std::islower(input[i]) ? (input[i]-diff) : (input[i]+diff); // restore case
@@ -143,7 +144,7 @@ DP: g[i][j] is the cost of appending word[j] after word[i], or weight of edge[i]
 We would like find the shortest path to visit each node from 0 to n – 1 once and
 only once this is so-called the Travelling salesman’s problem which is NP-Complete.
 
-We can solve it with DP that uses exponential time.
+We can solve it with DP with exponential time.
 
 dp[s][i] := min distance to visit nodes (represented as a binary state s) once and only once and the path ends with node i.
 e.g. dp[7][1] is the min distance to visit nodes (0, 1, 2) and ends with node 1, the possible paths could be (0, 2, 1), (2, 0, 1).
@@ -165,7 +166,7 @@ string Solution::shortestSuperstring(vector<string>& words) {
             }
             /*
             we cannot break here, since the pair we compare is (a[lenA-i:], b[0:i])
-            for example when compare cat and cats:
+            for example when compare `cat` and `cats`:
             1:   t  c
             2:  at  ca
             3: cat  cat
@@ -177,6 +178,7 @@ string Solution::shortestSuperstring(vector<string>& words) {
         int sz = words.size();
         int maxOverlap = -1;
         int l = -1, r = -1; // indices of the pair with maximum overlap
+        // find a pair with the most number of overlapped characters
         for (int i=0; i<sz; i++) {
             for (int j=i+1; j<sz; j++) {
                 int overlap1 = calculateOverlap(words[i], words[j]); // how many characters we can erase when merging words[i] (left) and words[j] (right)
@@ -237,7 +239,7 @@ int Solution::numSquarefulPerms(vector<int>& A) {
             }
             used[i] = true;
             buffer.push_back(A[i]);
-            backtrace(u+1);
+            backtrace(u+1); // iterate the next depth
             buffer.pop_back();
             used[i] = false;
         }

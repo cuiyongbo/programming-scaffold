@@ -22,14 +22,14 @@ If the town judge exists and can be identified, return the label of the town jud
 Hint: node with degree (in_degree - out_degree == N-1) is the judge
 */
 int Solution::findJudge(int N, vector<vector<int>>& trusts) {
-    vector<pair<int,int>> graph(N+1); // in_degree, out_degree
+    vector<pair<int,int>> degrees(N+1); // in_degree, out_degree
     for (auto& t: trusts) {
-        graph[t[1]].first++;
-        graph[t[0]].second++;
+        degrees[t[1]].first++;
+        degrees[t[0]].second++;
     }
     int judge = -1;
     for (int i=1; i<=N; ++i) {
-        if (graph[i].first==N-1 && graph[i].second==0) {
+        if (degrees[i].first==N-1 && degrees[i].second==0) {
             judge = i;
             break;
         }

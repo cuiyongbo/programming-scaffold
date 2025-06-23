@@ -154,9 +154,9 @@ add_executable(backtrace_word_ladder backtrace_word_ladder.cpp ${PUB_UTIL_FILES}
 target_compile_features(backtrace_word_ladder PUBLIC cxx_auto_type)
 target_link_libraries(backtrace_word_ladder spdlog::spdlog_header_only)
 
-add_executable(backtrace_01_matrix backtrace_01_matrix.cpp ${PUB_UTIL_FILES})
-target_compile_features(backtrace_01_matrix PUBLIC cxx_auto_type)
-target_link_libraries(backtrace_01_matrix spdlog::spdlog_header_only)
+add_executable(graph_01_matrix graph_01_matrix.cpp ${PUB_UTIL_FILES})
+target_compile_features(graph_01_matrix PUBLIC cxx_auto_type)
+target_link_libraries(graph_01_matrix spdlog::spdlog_header_only)
 
 add_executable(backtrace_partition_array backtrace_partition_array.cpp ${PUB_UTIL_FILES})
 target_compile_features(backtrace_partition_array PUBLIC cxx_auto_type)

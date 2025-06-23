@@ -60,51 +60,19 @@ bool Solution::isBipartite(vector<vector<int>>& graph) {
 
 
 /*
-Given a set of N people (numbered 1, 2, ..., N), we would like to split everyone into two groups of any size.
+Given a set of N people (numbered 1, 2, ..., N. 1-indexed), we would like to split everyone into two groups of any size.
 Each person may dislike some other people, and they should not go into the same group.
 Formally, if dislikes[i] = [a, b], it means it is not allowed to put the people numbered a and b into the same group.
 Return true if and only if it is possible to split everyone into two groups in this way.
 */
 bool Solution::possibleBipartition(int N, vector<vector<int>>& dislikes) {
-
-{ // dfs solution
-    // build graph with adjacency list representation
+    // build graph with adjacency-list representation
     vector<vector<int>> graph(N);
     for (const auto& p: dislikes) {
         graph[p[0]-1].push_back(p[1]-1);
         graph[p[1]-1].push_back(p[0]-1);
     }
     return isBipartite(graph);
-}
-
-{ // bfs solution
-    vector<vector<int>> graph(N+1);
-    for (auto& p: dislikes) {
-        graph[p[0]].push_back(p[1]);
-        graph[p[1]].push_back(p[0]);
-    }
-    queue<int> q; 
-    vector<int> colors(N+1, 0); 
-    for (int i=1; i<=N; ++i) {
-        if (colors[i] != 0) {
-            continue;
-        }
-        q.push(i); colors[i] = 1;
-        while (!q.empty()) {
-            auto u = q.front(); q.pop();
-            for (auto v: graph[u]) {
-                if (colors[v] == 0) { // unvisited
-                    q.push(v);
-                    colors[v] = colors[u]==1 ? 2 : 1; // dye node v with a different color from its parent node u
-                } else if (colors[u] == colors[v]) {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
 }
 
 
@@ -117,7 +85,7 @@ It is guaranteed an answer exists.
 */
 vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths) {
 { // dfs solution
-    // build a graph with adjacency list representation
+    // build a graph with adjacency-list representation
     vector<vector<int>> graph(N);
     for (auto& p: paths) {
         graph[p[0]-1].push_back(p[1]-1);
@@ -151,7 +119,7 @@ vector<int> Solution::gardenNoAdj(int N, vector<vector<int>>& paths) {
     };
     for (int u=0; u<N; ++u) {
         if (visited[u] == 0) {
-            color[u] = 1;
+            color[u] = 1; // set color for starting node
             dfs(u);
         }
     }

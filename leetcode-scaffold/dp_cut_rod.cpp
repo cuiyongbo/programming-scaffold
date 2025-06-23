@@ -18,14 +18,14 @@ int Solution::cut_rod(vector<int>& prices, int rod_len) {
     int price_sz = prices.size();
     // rod_len is inclusive
     // revenue[i] means the maximum revenue obtained by cutting up a rod with length i
-    // revenue[i] = max{price[i]+revenue[i-j]}, 0<j<=i
+    // revenue[i] = max{price[j]+revenue[i-j]}, 0<j<=i
     vector<int> revenue(rod_len+1, INT32_MIN);
     revenue[0] = 0; // trivial case
     for (int i=1; i<=rod_len; ++i) {
         // i: length of rod
         int q = INT32_MIN;
         // j: how much rod to cut each time
-        // Question: what if len(prices) is less than rod_len?
+        // Question: what if len(prices) is less than rod_len? then we have to cut rod into pieces which we may sell with prices
         for (int j=1; j<=min(i, price_sz-1); ++j) {
             q = max(q, prices[j]+revenue[i-j]);
         }
@@ -80,7 +80,7 @@ void basic_test() {
     };
 
     Solution ss;
-    for (int i=0; i<prices.size(); ++i) {
+    for (int i=0; i<(int)prices.size(); ++i) {
         ss.extend_cut_rod(prices, i);
     }
 }

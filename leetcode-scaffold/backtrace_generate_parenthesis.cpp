@@ -1,7 +1,6 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 20, 22, 301, 678 */
 class Solution {
@@ -52,7 +51,7 @@ An empty string is also valid.
 bool Solution::isValidParenthesisString_678(string s) {
     stack<int> left_st; // indices of left parentheses
     stack<int> wildcard_st; // indices of wildcards
-    for (int i=0; i<s.size(); ++i) {
+    for (int i=0; i<(int)s.size(); ++i) {
         if (s[i] == '(') {
             left_st.push(i);
         } else if (s[i] == '*') {
@@ -93,13 +92,13 @@ Given n pairs of parentheses, write a function to generate all combinations of w
 */
 vector<string> Solution::generateParenthesis(int n) {
     string alphabet = "()";
-    string candidates;
+    string candidate;
     vector<string> ans;
     // diff = num_of_left_parentheses - num_of_right_parentheses
     function<void(int, int)> backtrace = [&] (int u, int diff) {
         if (u == 2*n) { // 1. termination
             if (diff == 0) {
-                ans.push_back(candidates);
+                ans.push_back(candidate);
             }
             return;
         }
@@ -113,9 +112,9 @@ vector<string> Solution::generateParenthesis(int n) {
                 continue;
             }
             // 3. perform backtrace
-            candidates.push_back(c);
+            candidate.push_back(c);
             backtrace(u+1, diff+p);
-            candidates.pop_back();
+            candidate.pop_back();
         }
     };
     backtrace(0, 0);
@@ -128,53 +127,18 @@ Remove the minimum number of invalid parentheses in order to make the input stri
 Note: The input string may contain letters other than the parentheses ( and ).
 */
 vector<string> Solution::removeInvalidParentheses(const string& s) {
-if (0) {
-    stack<int> left_st;
-    stack<int> right_st;
-    for (int i=0; i<(int)s.size(); i++) {
-        if (s[i]=='(') {
-            left_st.push(i);
-        } else if (s[i]==')') {
-            if (!left_st.empty()) {
-                left_st.pop();
-            } else {
-                right_st.push(i);
-            }
-        }
-    }
-    // we have to remove characters in left_st and right_st
-    // however we cannot find all answer in this way
-    set<int> pos;
-    while (!left_st.empty()) {
-        pos.insert(left_st.top()); left_st.pop();
-    }
-    while (!right_st.empty()) {
-        pos.insert(right_st.top()); right_st.pop();
-    }
-    string candidate;
-    for (int i=0; i<(int)s.size(); i++) {
-        if (pos.count(i)) {
-            continue;
-        }
-        candidate.push_back(s[i]);
-    }
-    vector<string> ans;
-    ans.push_back(candidate);
-    return ans;
-}
-
-{
     int max_len = 0;
     string candidate;
     set<string> ans;
     // cur_index, numberOfLeftParenthesis, numberOfRightParenthesis
     function<void(int, int, int)> backtrace = [&] (int u, int l , int r) {
         // r > l means candidate is invalid, no need to go further
-        if (r > l || u == s.length()) {
-            // find a valid target, then save it when its size is no less than max_len
-            if (r == l && candidate.size() >= max_len) { // termination
-                if (candidate.size() > max_len) {
-                    max_len = candidate.size();
+        if (r > l || u == (int)s.size()) {
+            int cs = candidate.size();
+            // find a valid target, then save it when its length is no less than max_len
+            if (r == l && cs >= max_len) { // termination
+                if (cs > max_len) {
+                    max_len = cs;
                     ans.clear();
                 }
                 ans.insert(candidate);
@@ -188,7 +152,7 @@ if (0) {
         }
 
         // option 2: keep s[u], normal backtrace
-        // forward
+        // perform backtrace
         l += (s[u] == '(');
         r += (s[u] == ')');
         candidate.push_back(s[u]);
@@ -201,8 +165,6 @@ if (0) {
     };
     backtrace(0, 0, 0);
     return vector<string>(ans.begin(), ans.end());
-}
-
 }
 
 

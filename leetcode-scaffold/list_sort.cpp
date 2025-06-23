@@ -3,7 +3,6 @@
 using namespace std;
 
 /* leetcode: 21, 23, 147, 148 */
-
 class Solution {
 public:
     ListNode* mergeTwoLists(ListNode* l1, ListNode* l2);

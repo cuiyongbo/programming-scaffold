@@ -40,7 +40,7 @@ Hint: use insertSort to maintain order: first sort by frequency then by inserted
 Reference solution: https://zxi.mytechroad.com/blog/hashtable/leetcode-460-lfu-cache/
 */
 
-
+// we have to use precise clock to record when an item is inserted
 uint64_t get_timetick_count() {
     auto tick_count = std::chrono::high_resolution_clock::now();
     return std::chrono::duration_cast<std::chrono::nanoseconds>(tick_count.time_since_epoch()).count();
@@ -91,27 +91,27 @@ public:
     void put(int key, int val) {
         auto it = m_node_map.find(key);
         if (it == m_node_map.end()) {
-            // key doesn't exist yet
-            // remove the last node if we reach the capacity
-            if (m_nodes.size() == m_capcity) {
+            // 1. key doesn't exist yet
+            // 1.1 remove the last node if we reach the capacity
+            if ((int)m_nodes.size() == m_capcity) {
                 auto b = m_nodes.back();
                 m_node_map.erase(b.key);
                 m_nodes.pop_back();
             }
-            // insert node
+            // 1.2 insert node
             CacheNode node(key, val);
             insert(node);
         } else {
-            // key has already existed
+            // 2. key has already existed
             CacheNode node = *(it->second);
-            // update its value
+            // 2.1 update its value
             node.val = val;
             node.access++;
             node.timestamp = get_timetick_count();
-            // remove old reference
+            // 2.2 remove old reference
             m_nodes.erase(it->second);
             m_node_map.erase(it);
-            // re-insert node
+            // 2.3 re-insert node
             insert(node);
         }
     }
@@ -120,10 +120,10 @@ public:
         int index = 0;
         for (const auto& it: m_nodes) { // traverse the list from head to tail
             if (node.access > it.access) {
-                // order the list first by node.access in descending order
+                // order the list first by `node.access` in descending order
                 break;
             } else if (node.access == it.access) {
-                // then by node.timestamp in descending order
+                // then by `node.timestamp` in descending order
                 if (node.timestamp > it.timestamp) {
                     break;
                 }
@@ -137,7 +137,7 @@ public:
     void display() {
         printf("Capacity: %d, Value: ", m_capcity);
         for (const auto& n : m_nodes) {
-            printf("(%d,%d,%d,%lld)", n.key, n.val, n.access, (int64_t)n.timestamp);
+            printf("(%d,%d,%d,%ld)", n.key, n.val, n.access, (int64_t)n.timestamp);
         }
         printf("\n");
     }

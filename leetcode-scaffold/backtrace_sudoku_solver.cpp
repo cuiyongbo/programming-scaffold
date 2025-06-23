@@ -9,7 +9,7 @@ public:
     vector<vector<string>> solveNQueens(int n);
     int totalNQueens(int n);
 private:
-    bool isValidQueen(vector<string>& board, int r, int c);
+    bool is_valid_queen(vector<string>& board, int r, int c);
 };
 
 
@@ -99,7 +99,7 @@ void Solution::solveSudoku(vector<vector<char>>& board) {
 }
 
 
-bool Solution::isValidQueen(vector<string>& board, int r, int c) {
+bool Solution::is_valid_queen(vector<string>& board, int r, int c) {
     int n = board.size();
     for (int i=0; i<n; ++i) {
         if (i!=c && board[r][i]=='Q') { // check row r, not necessary
@@ -160,7 +160,7 @@ vector<vector<string>> Solution::solveNQueens(int n) {
         }
         for (int c=0; c<n; c++) {
             // prune invalid branches
-            if (!isValidQueen(board, r, c)) {
+            if (!is_valid_queen(board, r, c)) {
                 continue;
             }
             board[r][c] = 'Q';
@@ -186,7 +186,7 @@ int Solution::totalNQueens(int n) {
         }
         for (int c=0; c<n; c++) {
             // prune invalid branches
-            if (!isValidQueen(board, r, c)) {
+            if (!is_valid_queen(board, r, c)) {
                 continue;
             }
             board[r][c] = 'Q';
