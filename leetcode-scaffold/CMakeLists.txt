@@ -389,6 +389,10 @@ add_executable(misc_exercises_02 misc_exercises_02.cpp ${PUB_UTIL_FILES})
 target_compile_features(misc_exercises_02 PUBLIC cxx_auto_type)
 target_link_libraries(misc_exercises_02 PRIVATE spdlog::spdlog_header_only)
 
+add_executable(lcp_exercises lcp_exercises.cpp ${PUB_UTIL_FILES})
+target_compile_features(lcp_exercises PUBLIC cxx_auto_type)
+target_link_libraries(lcp_exercises PRIVATE spdlog::spdlog_header_only)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

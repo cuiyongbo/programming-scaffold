@@ -11,7 +11,9 @@ public:
     int nextGreaterElement_556(int n);
     vector<int> nextLargerNodes(ListNode* head);
     int sumSubarrayMins(vector<int>& A);
+    int totalStrength(vector<int>& strength);
 };
+
 
 /*
 Given a positive integer n, find the smallest integer which has exactly the same digits existing in the integer n and is greater in value than n. If no such positive integer exists, return -1. Note that the returned integer should fit in 32-bit integer, if there is a valid answer but it does not fit in 32-bit integer, return -1.
@@ -64,6 +66,24 @@ int Solution::sumSubarrayMins(vector<int>& A) {
         ans = (ans + t.first * t.second) % modulo_num;
     }
     return ans;
+}
+
+
+/*
+As the ruler of a kingdom, you have an army of wizards at your command.
+
+You are given a 0-indexed integer array strength, where strength[i] denotes the strength of the ith wizard. For a contiguous group of wizards (i.e. the wizards' strengths form a subarray of strength), the total strength is defined as the product of the following two values:
+
+The strength of the weakest wizard in the group.
+The sum of all the individual strengths of the wizards in the group.
+
+Return the sum of the total strengths of all contiguous groups of wizards. Since the answer may be very large, return it modulo 10^9 + 7.
+
+A subarray is a contiguous non-empty sequence of elements within an array.
+*/
+int Solution::totalStrength(vector<int>& strength) {
+
+    return 0;
 }
 
 
