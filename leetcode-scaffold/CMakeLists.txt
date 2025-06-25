@@ -371,7 +371,7 @@ target_link_libraries(array_sort PRIVATE spdlog::spdlog_header_only)
 
 add_executable(binary_search_tester binary_search_tester.cpp ${PUB_UTIL_FILES})
 target_compile_features(binary_search_tester PUBLIC cxx_auto_type)
-target_link_libraries(binary_search_tester)
+target_link_libraries(binary_search_tester PRIVATE spdlog::spdlog_header_only)
 
 add_executable(calculator_exercises calculator_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(calculator_exercises PUBLIC cxx_auto_type)

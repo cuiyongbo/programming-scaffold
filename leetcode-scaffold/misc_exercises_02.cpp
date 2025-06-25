@@ -46,7 +46,7 @@ where combinations are listed below as follows:
 int Solution::largestSubset(vector<int>& A) {
     vector<int> bit_count(32, 0); // the input is of type int32
     for (auto n: A) {
-        int x = 0;
+        int x = 0; // binary digit index, from LSB to MSB
         while (n > 0) {
             if (n & 1) {
                 bit_count[x]++;
@@ -86,7 +86,8 @@ int Solution::missingNumber(vector<int> &A) {
             // ans is not missing, so increase ans to check next candidate
             ans++;
         } else if (A[i] > ans) {
-            // current element A[i] is larger than ans, we are sure that ans is missing from A
+            // current element A[i] is larger than ans, 
+            // since ans is increased continuously, we are sure that ans is missing from A
             break;
         } else {
             // A[i] is negative. do nothing
@@ -116,19 +117,19 @@ no patient has two preferences for the same slot, L.e. A[i] != B[i].
 */
 bool Solution::appointmentSlots(vector<int>& A, vector<int>& B, int S) {
     int patients = A.size();
-    vector<bool> visited(S, false);
+    vector<bool> visited(S, false); // visited[i] means whether S[i] is occupied or not
     std::function<bool(int)> backtrace = [&] (int u) {
-        if (u == patients) {
+        if (u == patients) { // termination
             return true;
         }
-        if (!visited[A[u]]) {
+        if (!visited[A[u]]) { // prune invalid branches
             visited[A[u]] = true;
             if (backtrace(u+1)) {
                 return true;
             }
             visited[A[u]] = false;
         }
-        if (!visited[B[u]]) {
+        if (!visited[B[u]]) { // prune invalid branches
             visited[B[u]] = true;
             if (backtrace(u+1)) {
                 return true;
