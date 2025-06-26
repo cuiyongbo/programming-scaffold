@@ -276,9 +276,9 @@ add_executable(dp_min_shelf_height dp_min_shelf_height.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_min_shelf_height PUBLIC cxx_auto_type)
 target_link_libraries(dp_min_shelf_height spdlog::spdlog_header_only)
 
-add_executable(dp_palindrome_partition dp_palindrome_partition.cpp ${PUB_UTIL_FILES})
-target_compile_features(dp_palindrome_partition PUBLIC cxx_auto_type)
-target_link_libraries(dp_palindrome_partition spdlog::spdlog_header_only)
+add_executable(dp_gray_code dp_gray_code.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_gray_code PUBLIC cxx_auto_type)
+target_link_libraries(dp_gray_code spdlog::spdlog_header_only)
 
 add_executable(dp_edit_distance dp_edit_distance.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_edit_distance PUBLIC cxx_auto_type)
@@ -287,6 +287,10 @@ target_link_libraries(dp_edit_distance spdlog::spdlog_header_only)
 add_executable(dp_cut_rod dp_cut_rod.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_cut_rod PUBLIC cxx_auto_type)
 target_link_libraries(dp_cut_rod spdlog::spdlog_header_only)
+
+add_executable(dp_01_knapsack dp_01_knapsack.cpp ${PUB_UTIL_FILES})
+target_compile_features(dp_01_knapsack PUBLIC cxx_auto_type)
+target_link_libraries(dp_01_knapsack spdlog::spdlog_header_only)
 
 add_executable(dp_misc_exercises dp_misc_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(dp_misc_exercises PUBLIC cxx_auto_type)

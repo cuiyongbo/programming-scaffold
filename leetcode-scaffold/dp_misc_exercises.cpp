@@ -1,18 +1,14 @@
 #include "leetcode.h"
 
 using namespace std;
-using namespace osrm;
 
 /* leetcode: 1139, 688, 576, 935, 322, 377  */
-
 class Solution {
 public:
     int largest1BorderedSquare(vector<vector<int>>& grid); // unsolved
     double knightProbability(int n, int k, int row, int column); // unsolved
     int knightDialer(int n); // unsolved
     int findPaths(int m, int n, int maxMove, int startRow, int startColumn);
-    int coinChange(vector<int>& coins, int amount);
-    int combinationSum_322(vector<int>& nums, int target);
 
 };
 
@@ -73,70 +69,18 @@ int Solution::knightDialer(int n) {
     return 0;
 }
 
-/*
-You are given coins of different denominations and a total amount of money amount.
-Write a function to compute the fewest number of coins that you need to make up that amount.
-If that amount of money cannot be made up by any combination of the coins, return -1.
-Example 1:
-    coins = [1, 2, 5], amount = 11
-    return 3 (11 = 5 + 5 + 1)
-*/
-int Solution::coinChange(vector<int>& coins, int amount) {
-    // dp[i] means the minimum number of coins to make up amount i
-    // dp[i] = min{dp[i-coin]+1} for coin in coins
-    // NOTE that we use INT32_MAX as invalid value, NOT -1
-    vector<int> dp(amount+1, INT32_MAX);
-    dp[0] = 0; // initialization
-    for (int coin: coins) {
-        for (int i=coin; i<=amount; ++i) {
-            if (dp[i-coin] != INT32_MAX) {
-                dp[i] = min(dp[i], dp[i-coin]+1);
-            }
-        }
-    }
-    return dp[amount]==INT32_MAX ? -1 : dp[amount];
-}
-
-
-/*
-Given an integer array with all positive numbers and no duplicates, find the number of possible combinations that add up to a positive integer target.
-Given inputs: nums = [1, 2, 3], target = 4, The possible combination ways are:
-    (1, 1, 1, 1)
-    (1, 1, 2)
-    (1, 2, 1)
-    (1, 3)
-    (2, 1, 1)
-    (2, 2)
-    (3, 1)
-Note that different sequences are counted as different combinations. Therefore the output is 7.
-I don't think this is combination
-*/
-int Solution::combinationSum_322(vector<int>& nums, int target) {
-    // dp[i] means the number of combination in nums whose sum up to i
-    // dp[i] = sum(dp[i-n]) for n in nums if (i-n)>=0
-    vector<int> dp(target+1, 0);
-    dp[0] = 1; // for case n==target
-    for (int i=1; i<=target; ++i) {
-        for (int n: nums) {
-            if (i-n >= 0) {
-                dp[i] += dp[i-n];
-            }
-        }
-    }
-    return dp[target];
-}
-
 
 void largest1BorderedSquare_scaffold(string input, int expectedResult) {
     Solution ss;
     auto grid = stringTo2DArray<int>(input);
     int actual = ss.largest1BorderedSquare(grid);
     if (actual == expectedResult) {
-        util::Log(logINFO) << "Case(" << input << ", expectedResult: " << expectedResult << ") passed";
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
-        util::Log(logERROR) << "Case(" << input << ", expectedResult: " << expectedResult << ") failed, actual: " << actual;
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
     }
 }
+
 
 void findPaths_scaffold(string input, int expectedResult) {
     Solution ss;
@@ -149,29 +93,6 @@ void findPaths_scaffold(string input, int expectedResult) {
     }
 }
 
-
-void coinChange_scaffold(string input1, int input2, int expectedResult) {
-    Solution ss;
-    auto vi = stringTo1DArray<int>(input1);
-    int actual = ss.coinChange(vi, input2);
-    if (actual == expectedResult) {
-        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
-    } else {
-        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
-    }
-}
-
-
-void combinationSum_322_scaffold(string input1, int input2, int expectedResult) {
-    Solution ss;
-    auto vi = stringTo1DArray<int>(input1);
-    int actual = ss.combinationSum_322(vi, input2);
-    if (actual == expectedResult) {
-        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
-    } else {
-        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
-    }
-}
 
 int main() {
     SPDLOG_WARN("Running largest1BorderedSquare tests:");
@@ -188,19 +109,4 @@ int main() {
     //findPaths_scaffold("[1,2,50,0,0]", 150);
     TIMER_STOP(findPaths);
     SPDLOG_WARN("findPaths tests use {} ms", TIMER_MSEC(findPaths));
-
-    SPDLOG_WARN("Running coinChange tests:");
-    TIMER_START(coinChange);
-    coinChange_scaffold("[1,2,5]", 11, 3);
-    coinChange_scaffold("[2]", 3, -1);
-    TIMER_STOP(coinChange);
-    SPDLOG_WARN("coinChange tests use {} ms", TIMER_MSEC(coinChange));
-
-    SPDLOG_WARN("Running combinationSum_322 tests:");
-    TIMER_START(combinationSum_322);
-    combinationSum_322_scaffold("[1,2,3]", 4, 7);
-    combinationSum_322_scaffold("[1,2,3,4]", 4, 8);
-    combinationSum_322_scaffold("[9]", 4, 0);
-    TIMER_STOP(combinationSum_322);
-    SPDLOG_WARN("combinationSum_322 tests use {} ms", TIMER_MSEC(combinationSum_322));
 }

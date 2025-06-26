@@ -138,11 +138,11 @@ if (0) {
 
 { // solution with optimization of space usage
     int ans = 0;
-    int purchase_price = prices[0];
+    int buy = prices[0];
     int n = prices.size();
     for (int i=1; i<n; ++i) {
-        ans = max(ans, prices[i]-purchase_price);
-        purchase_price = min(purchase_price, prices[i]);
+        ans = max(ans, prices[i]-buy);
+        buy = min(buy, prices[i]);
     }
     return ans;
 }
@@ -152,10 +152,8 @@ if (0) {
 
 /*
 Say you have an array for which the ith element is the price of a given stock on day i.
-
 Design an algorithm to find the maximum profit. You may complete as many transactions 
 as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
-
     You may not engage in multiple transactions at the same day (i.e., you must sell the stock before you buy again).
     After you sell your stock, you cannot buy stock on next day. (i.e., cooldown 1 day)
 */
@@ -177,6 +175,7 @@ int Solution::maxProfit_309(vector<int>& prices) {
     cooldown[0] = 0;      // No cooldown on the first day either
     // state transitions
     for (int i=1; i<n; ++i) {
+        // the operation order doesn't matter
         // you can buy the stock on day i if you were in a cooldown period or you were already holding the stock
         buy[i] = max(buy[i-1], cooldown[i-1] - prices[i]);
         // you can sell the stock on day i if you were holding the stock the day before

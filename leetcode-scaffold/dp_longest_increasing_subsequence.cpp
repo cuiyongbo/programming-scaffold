@@ -202,7 +202,7 @@ int Solution::longestConsecutive(vector<int>& nums) {
     for (int i=1; i<n; ++i) {
         if ((nums[i-1]+1 == nums[i])) {
             dp[i] = dp[i-1]+1;
-        } else if (nums[i-1] == nums[i]) { // we have to record former state when there are duplicates. for example give input [1,3,3,4], dp[2] should be 3 rather than 1
+        } else if (nums[i-1] == nums[i]) { // we have to record former state when there are duplicates. for example give input [1,2,3,3,4], dp[3] should be 3 rather than 1
             dp[i] = dp[i-1];
         }
         ans = max(ans, dp[i]);
@@ -345,6 +345,7 @@ int main() {
     longestConsecutive_scaffold("[100,4,200,1,3,3,2,2]", 4);
     longestConsecutive_scaffold("[-4,-1,4,-5,1,-6,9,-6,0,2,2,7,0,9,-3,8,9,-2,-6,5,0,3,4,-2]", 12);
     longestConsecutive_scaffold("[0,3,7,2,5,8,4,6,0,1]", 9);
+    longestConsecutive_scaffold("[1,2,3,3,4]", 4);
     TIMER_STOP(longestConsecutive);
     SPDLOG_WARN("longestConsecutive tests use {} ms", TIMER_MSEC(longestConsecutive));
 

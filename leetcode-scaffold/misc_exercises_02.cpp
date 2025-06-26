@@ -8,6 +8,8 @@ public:
     int missingNumber(vector<int> &arr);
     bool appointmentSlots(vector<int>& A, vector<int>& B, int S);
     int longestPath(vector<int>& parent, string s);
+    int findPasswordStrength(string password);
+    int countDecreasingRatings(vector<int> ratings);
 };
 
 
@@ -245,6 +247,71 @@ void longestPath_scaffold(string input1, string input2, int expectedResult) {
     }
 }
 
+/*
+判断密码强度,例如"good",所有子串为
+     g o o d go oo od goo ood good
+     1 1 1 1 2  1  2  2   2    3
+    求和为16，返回16
+题目不全, 不明其含义
+*/
+int Solution::findPasswordStrength(string s) {
+    int n = s.size();
+    std::vector<int> dp(n, 0); // dp[i]: 位置i，能产生的贡献
+    dp[0] = 1; // initialization
+    std::unordered_map<char, int> mp; // key: char, val: pos
+    for (int i=1; i<n; i++) {
+        if (mp.count(s[i])) {
+            int pos = mp[s[i]];
+            dp[i] += i - pos;
+        } else {
+            dp[i] = i + 1;
+        }
+        dp[i] += dp[i-1];
+        mp[s[i]] = i;
+    }
+    return std::accumulate(dp.begin(), dp.end(), 0);
+}
+
+
+void findPasswordStrength_scaffold(string input, int expectedResult) {
+    Solution ss;
+    int actual  = ss.findPasswordStrength(input);
+    if(actual == expectedResult) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
+    }
+}
+
+
+/*
+//第二题 计算每次下降一个单位的排序(r,r-1,r-2...)的个数,例如[5,4,3,2]
+// 5  4  3  2  5,4  4,3  3,2  5,4,3  4,3,2  5,4,3,2
+// 返回10
+*/
+int Solution::countDecreasingRatings(vector<int> ratings) {
+    int sz = ratings.size();
+    vector<int> dp(sz, 1); // dp[i] means the number of continuous decreasing subarray ending with ratings[i]
+    for (int i=1; i<sz; i++) {
+        if (ratings[i]+1 == ratings[i-1]) {
+            dp[i] += dp[i-1];
+        }
+    }
+    return std::accumulate(dp.begin(), dp.end(), 0);
+}
+
+
+void countDecreasingRatings_scaffold(string input, int expectedResult) {
+    Solution ss;
+    vector<int> vi = stringTo1DArray<int>(input);
+    int actual  = ss.countDecreasingRatings(vi);
+    if(actual == expectedResult) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
+    }
+}
+
 
 int main() {
     SPDLOG_WARN("Running largestSubset tests:");
@@ -278,4 +345,18 @@ int main() {
     longestPath_scaffold("[-1,0,0,0]", "aabc", 3);
     TIMER_STOP(longestPath);
     SPDLOG_WARN("longestPath tests use {} ms", TIMER_MSEC(longestPath));
+
+    SPDLOG_WARN("Running findPasswordStrength tests:");
+    TIMER_START(findPasswordStrength);
+    findPasswordStrength_scaffold("good", 16);
+    findPasswordStrength_scaffold("aaa", 6);
+    TIMER_STOP(findPasswordStrength);
+    SPDLOG_WARN("findPasswordStrength tests use {} ms", TIMER_MSEC(findPasswordStrength));
+
+    SPDLOG_WARN("Running countDecreasingRatings tests:");
+    TIMER_START(countDecreasingRatings);
+    countDecreasingRatings_scaffold("[5,4,3,2]", 10);
+    TIMER_STOP(countDecreasingRatings);
+    SPDLOG_WARN("countDecreasingRatings tests use {} ms", TIMER_MSEC(countDecreasingRatings));
+
 }

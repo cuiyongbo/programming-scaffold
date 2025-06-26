@@ -163,3 +163,5 @@
 - [leetcode on github](https://github.com/doocs/leetcode.git)
 - [grandyang.com/leetcode](https://grandyang.com/leetcode/42/)
 - [Top Interview 150](https://leetcode.com/studyplan/top-interview-150/)
+- [Amazon SDE Sheet: Interview Questions and Answers 2024](https://www.geeksforgeeks.org/dsa/amazon-sde-sheet-interview-questions-and-answers/)
+    - 0/1 Knapsack Problem

@@ -80,10 +80,58 @@ The sum of all the individual strengths of the wizards in the group.
 Return the sum of the total strengths of all contiguous groups of wizards. Since the answer may be very large, return it modulo 10^9 + 7.
 
 A subarray is a contiguous non-empty sequence of elements within an array.
+
+Example 1:
+
+Input: strength = [1,3,1,2]
+Output: 44
+Explanation: The following are all the contiguous groups of wizards:
+- [1] from [1,3,1,2] has a total strength of min([1]) * sum([1]) = 1 * 1 = 1
+- [3] from [1,3,1,2] has a total strength of min([3]) * sum([3]) = 3 * 3 = 9
+- [1] from [1,3,1,2] has a total strength of min([1]) * sum([1]) = 1 * 1 = 1
+- [2] from [1,3,1,2] has a total strength of min([2]) * sum([2]) = 2 * 2 = 4
+- [1,3] from [1,3,1,2] has a total strength of min([1,3]) * sum([1,3]) = 1 * 4 = 4
+- [3,1] from [1,3,1,2] has a total strength of min([3,1]) * sum([3,1]) = 1 * 4 = 4
+- [1,2] from [1,3,1,2] has a total strength of min([1,2]) * sum([1,2]) = 1 * 3 = 3
+- [1,3,1] from [1,3,1,2] has a total strength of min([1,3,1]) * sum([1,3,1]) = 1 * 5 = 5
+- [3,1,2] from [1,3,1,2] has a total strength of min([3,1,2]) * sum([3,1,2]) = 1 * 6 = 6
+- [1,3,1,2] from [1,3,1,2] has a total strength of min([1,3,1,2]) * sum([1,3,1,2]) = 1 * 7 = 7
+The sum of all the total strengths is 1 + 9 + 1 + 4 + 4 + 4 + 3 + 5 + 6 + 7 = 44.
+Example 2:
+
+Input: strength = [5,4,6]
+Output: 213
+Explanation: The following are all the contiguous groups of wizards: 
+- [5] from [5,4,6] has a total strength of min([5]) * sum([5]) = 5 * 5 = 25
+- [4] from [5,4,6] has a total strength of min([4]) * sum([4]) = 4 * 4 = 16
+- [6] from [5,4,6] has a total strength of min([6]) * sum([6]) = 6 * 6 = 36
+- [5,4] from [5,4,6] has a total strength of min([5,4]) * sum([5,4]) = 4 * 9 = 36
+- [4,6] from [5,4,6] has a total strength of min([4,6]) * sum([4,6]) = 4 * 10 = 40
+- [5,4,6] from [5,4,6] has a total strength of min([5,4,6]) * sum([5,4,6]) = 4 * 15 = 60
+The sum of all the total strengths is 25 + 16 + 36 + 36 + 40 + 60 = 213.
+ 
+
+Constraints:
+
+1 <= strength.length <= 105
+1 <= strength[i] <= 109
 */
 int Solution::totalStrength(vector<int>& strength) {
-
-    return 0;
+    int k_mod = 1e09 + 7;
+    int ans = 0;
+    int sz = strength.size();
+    for (int i=0; i<sz; i++) {
+        int sum = strength[i];
+        int p = strength[i];
+        ans += (p*sum % k_mod); // for subarray [strength[i]]
+        for (int j=i+1; j<sz; j++) {
+            // strength[i:j], i, j are inclusive
+            sum += strength[j];
+            p = std::min(p, strength[j]);
+            ans += (p*sum % k_mod);
+        }
+    }
+    return ans;
 }
 
 
@@ -236,38 +284,15 @@ if (0) { // dp solution
     return ans;
 }
 
-if (0) { // refined solution
-    stack<int> st;
-    int sz = height.size();
-    // aux[i] means if we use height[i] as the height, the rectangle wolud stretch over [left+1, right-1]
-    vector<pair<int, int>> aux(sz, {-1, sz}); // (left, right), not inclusive
-    for (int i=0; i<sz; ++i) {
-        while (!st.empty() && height[st.top()] >= height[i]) {
-            aux[st.top()].second = i;
-            st.pop();
-        }
-        if (!st.empty()) { // set the left boundary for height[i]
-            aux[i].first = st.top();
-        }
-        st.push(i);
-    }
-    int ans = INT32_MIN;
-    for (int i=0; i<sz; ++i) {
-        ans = max(ans, (aux[i].second-aux[i].first-1)*height[i]);
-    }
-    return ans;
-}
-
 { // naive solution
     int sz = height.size();
     // aux[i] means if we use height[i] as the height, the rectangle wolud stretch over [left+1, right-1]
-    vector<pair<int, int>> aux(sz, {-1, sz}); // (left, right), not inclusive
+    vector<pair<int, int>> aux(sz, {-1, sz}); // (left, right), neither end is inclusive
     stack<int> right;
     for (int i=0; i<sz; ++i) {
         // use `height[st.top()]` as the right boundary
         while (!right.empty() && height[right.top()] > height[i]) {
-            aux[right.top()].second = i;
-            right.pop();
+            aux[right.top()].second = i; right.pop();
         }
         right.push(i);
     }
@@ -275,8 +300,7 @@ if (0) { // refined solution
     for (int i=sz-1; i>=0; --i) {
         // use `height[st.top()]` as the left boundary
         while (!left.empty() && height[left.top()] > height[i]) {
-            aux[left.top()].first = i;
-            left.pop();
+            aux[left.top()].first = i; left.pop();
         }
         left.push(i);
     }
@@ -353,36 +377,44 @@ void sumSubarrayMins_scaffold(string input, int expectedResult) {
     }
 }
 
+
+void totalStrength_scaffold(string input, int expectedResult) {
+    Solution ss;
+    vector<int> nums = stringTo1DArray<int>(input);
+    int actual = ss.totalStrength(nums);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
+    }
+}
+
+
 /*
-    Write a class StockSpanner which collects daily price quotes for some stock, 
-    and returns the span of that stock’s price for the current day.
+Write a class StockSpanner which collects daily price quotes for some stock, 
+and returns the span of that stock’s price for the current day.
 
-    The span of the stock’s price today is defined as the maximum number 
-    of **consecutive** days (starting from today and going backwards) for which 
-    the price of the stock was less than or equal to today’s price.
+The span of the stock’s price today is defined as the maximum number of **consecutive** days (starting from today and going backwards) for which the price of the stock was less than or equal to today’s price.
+For example, if the price of a stock over the next 7 days were [100, 80, 60, 70, 60, 75, 85], then the stock spans would be [1, 1, 1, 2, 1, 4, 6].
 
-    For example, if the price of a stock over the next 7 days were [100, 80, 60, 70, 60, 75, 85], 
-    then the stock spans would be [1, 1, 1, 2, 1, 4, 6].
+For example, Input: ["StockSpanner","next","next","next","next","next","next","next"], [[],[100],[80],[60],[70],[60],[75],[85]]
+Output: [null,1,1,1,2,1,4,6]
+Explanation: 
+    First, S = StockSpanner() is initialized.  Then:
+        S.next(100) is called and returns 1,
+        S.next(80) is called and returns 1,
+        S.next(60) is called and returns 1,
+        S.next(70) is called and returns 2,
+        S.next(60) is called and returns 1,
+        S.next(75) is called and returns 4,
+        S.next(85) is called and returns 6.
 
-    For example, Input: ["StockSpanner","next","next","next","next","next","next","next"], [[],[100],[80],[60],[70],[60],[75],[85]]
-    Output: [null,1,1,1,2,1,4,6]
-    Explanation: 
-        First, S = StockSpanner() is initialized.  Then:
-            S.next(100) is called and returns 1,
-            S.next(80) is called and returns 1,
-            S.next(60) is called and returns 1,
-            S.next(70) is called and returns 2,
-            S.next(60) is called and returns 1,
-            S.next(75) is called and returns 4,
-            S.next(85) is called and returns 6.
-
-    Note that (for example) S.next(75) returned 4, because the last 4 prices
-    (including today's price of 75) were less than or equal to today's price.
-    Note:
-        Calls to StockSpanner.next(int price) will have 1 <= price <= 10^5.
-        There will be at most 10000 calls to StockSpanner.next per test case.
-        There will be at most 150000 calls to StockSpanner.next across all test cases.
-        The total time limit for this problem has been reduced by 75% for C++, and 50% for all other languages.
+Note that (for example) S.next(75) returned 4, because the last 4 prices (including today's price of 75) were less than or equal to today's price.
+Note:
+    Calls to StockSpanner.next(int price) will have 1 <= price <= 10^5.
+    There will be at most 10000 calls to StockSpanner.next per test case.
+    There will be at most 150000 calls to StockSpanner.next across all test cases.
+    The total time limit for this problem has been reduced by 75% for C++, and 50% for all other languages.
 */
 
 class StockSpanner {
@@ -466,6 +498,13 @@ int main() {
     sumSubarrayMins_scaffold("[3,1,2,4]", 17);
     TIMER_STOP(sumSubarrayMins);
     SPDLOG_WARN("sumSubarrayMins tests use {} ms", TIMER_MSEC(sumSubarrayMins));
+
+    SPDLOG_WARN("Running totalStrength tests:");
+    TIMER_START(totalStrength);
+    totalStrength_scaffold("[1,3,1,2]", 44);
+    totalStrength_scaffold("[5,4,6]", 213);
+    TIMER_STOP(totalStrength);
+    SPDLOG_WARN("totalStrength tests use {} ms", TIMER_MSEC(totalStrength));
 
     SPDLOG_WARN("Running StockSpanner tests:");
     TIMER_START(StockSpanner);
