@@ -20,9 +20,6 @@ private:
     int evaluate_postfix_notation(const vector<string>& tokens);
 
 private:
-    bool is_digit(char c) {
-        return c >= '0' && c <= '9';
-    }
     bool is_operator(char c) {
         return c == '+' || c == '-' ||
                         c == '*' || c == '/';
@@ -54,7 +51,7 @@ int Solution::calculate_227_inplace(string s) {
     int sz = s.size();
     int left = -1, right = -1;
     for (int i=0; i<sz; ++i) {
-        if (is_digit(s[i])) {
+        if (std::isdigit(s[i])) {
             if (left == -1) {
                 left = right = i;
             } else {
@@ -128,7 +125,7 @@ vector<string> Solution::infix_to_postfix_227(string s) {
     int sz = s.size();
     int left = -1, right = -1;
     for (int i=0; i<sz; ++i) {
-        if (is_digit(s[i])) {
+        if (std::isdigit(s[i])) {
             if (left == -1) {
                 left = right = i;
             } else {
@@ -190,15 +187,15 @@ int Solution::evaluate(int op1, int op2, char op) {
 
 
 /*
-    Implement a basic calculator to evaluate a simple expression string.
-    The expression string contains only non-negative integers, '+', '-', '*', '/' operators,
-    and open '(' and closing parentheses ')'. The integer division should truncate toward zero.
-    You may assume that the given expression is always valid. All intermediate results will be in the range of [-2^31, 2^31 - 1].
-    Note: You are not allowed to use any built-in function which evaluates strings as mathematical expressions, such as eval().
-    Constraints:
-        1 <= s <= 10^4
-        s consists of digits, '+', '-', '*', '/', '(', and ')'.
-        s is a valid expression.
+Implement a basic calculator to evaluate a simple expression string.
+The expression string contains only non-negative integers, '+', '-', '*', '/' operators,
+and open '(' and closing parentheses ')'. The integer division should truncate toward zero.
+You may assume that the given expression is always valid. All intermediate results will be in the range of [-2^31, 2^31 - 1].
+Note: You are not allowed to use any built-in function which evaluates strings as mathematical expressions, such as eval().
+Constraints:
+    1 <= s <= 10^4
+    s consists of digits, '+', '-', '*', '/', '(', and ')'.
+    s is a valid expression.
 */
 int Solution::calculate_772(string s) {
     // 1. remove whitespaces in s
@@ -211,15 +208,14 @@ int Solution::calculate_772(string s) {
     stack<string> op_st;
     int sz = s.size();
     for (int i=0; i<sz; i++) {
-        if (is_digit(s[i])) {
+        if (std::isdigit(s[i])) {
             if (left == -1) {
-                left = i;
-                right = i;
+                left = right = i;
             } else {
                 right = i;
             }
         } else if (is_operator(s[i])) {
-            if (left != -1) { // save operand
+            if (left != -1) { // save last operand
                 rpn.push_back(s.substr(left, right-left+1));
                 left = right = -1;
             }
@@ -240,38 +236,37 @@ int Solution::calculate_772(string s) {
                 op_st.push(op);
             } else {
                 // current op has a lower priority than or the same as stack top's, then we need evaluate them first
+                // because the element order of stack is last-in, first-out. the last operator will be evaluated first
                 while (!op_st.empty() && op_priority[op] <= op_priority[op_st.top()]) {
                     if (op_st.top() == "(") { // we only remove '(' when meeting ')'
                         break;
                     }
-                    rpn.push_back(op_st.top());
-                    op_st.pop();
+                    rpn.push_back(op_st.top()); op_st.pop();
                 }
                 op_st.push(op);
             }
         } else if (s[i] == '(') {
             op_st.push("(");
         } else if (s[i] == ')') {
-            if (left != -1) { // save operand
+            // note that there is not '()' in rpn expression
+            if (left != -1) { // save last operand
                 rpn.push_back(s.substr(left, right-left+1));
                 left = right = -1;
             }
             // evaluate ops inside '()'
             while (!op_st.empty() && op_st.top() != "(") {
-                rpn.push_back(op_st.top());
-                op_st.pop();
+                rpn.push_back(op_st.top()); op_st.pop();
             }
-            op_st.pop(); // remove corresponding (
+            op_st.pop(); // remove corresponding '('
         }
     }
-    if (left != -1) { // save operand
+    if (left != -1) { // save the final operand
         rpn.push_back(s.substr(left, right-left+1));
         left = right = -1;
     }
     // evaluate remaining ops
     while (!op_st.empty()) {
-        rpn.push_back(op_st.top());
-        op_st.pop();
+        rpn.push_back(op_st.top()); op_st.pop();
     }
     // 3. evaluate reverse polish notation
     return evaluate_postfix_notation(rpn);
@@ -279,22 +274,22 @@ int Solution::calculate_772(string s) {
 
 
 /*
-    Given a string s which represents an expression, evaluate this expression and return its value.
-    The integer division should truncate toward zero.
-    You may assume that the given expression is always valid. All intermediate results will be in the range of [-(2^31), (2^31) - 1].
-    Note: You are not allowed to use any built-in function which evaluates strings as mathematical expressions, such as ``eval()``.
+Given a string s which represents an expression, evaluate this expression and return its value.
+The integer division should truncate toward zero.
+You may assume that the given expression is always valid. All intermediate results will be in the range of [-(2^31), (2^31) - 1].
+Note: You are not allowed to use any built-in function which evaluates strings as mathematical expressions, such as ``eval()``.
 
-    Constraints:
-        1 <= s.length <= 3 * 10^5
-        s consists of integers and operators ('+', '-', '*', '/') separated by some number of spaces.
-        '+' is not used as a unary operation (i.e., "+1" is invalid).
-        '-' is not used as a unary operation (i.e., "-1" is invalid).
-        s represents a valid expression.
-        All the integers in the expression are non-negative integers in the range [0, 2^31 - 1].
-        The answer is guaranteed to fit in a 32-bit integer.
-    Hint:
-        solution 1. evaluate infix notation in-place
-        solution 2. convert infix notation to postfix notation, then evaluate the converted notation
+Constraints:
+    1 <= s.length <= 3 * 10^5
+    s consists of integers and operators ('+', '-', '*', '/') separated by some number of spaces.
+    '+' is not used as a unary operation (i.e., "+1" is invalid).
+    '-' is not used as a unary operation (i.e., "-1" is invalid).
+    s represents a valid expression.
+    All the integers in the expression are non-negative integers in the range [0, 2^31 - 1].
+    The answer is guaranteed to fit in a 32-bit integer.
+Hint:
+    solution 1. evaluate infix notation in-place
+    solution 2. convert infix notation to postfix notation, then evaluate the converted notation
 */
 int Solution::calculate_227(string s) {
     // return calculate_227_inplace(s);
@@ -323,7 +318,7 @@ int Solution::calculate_224(string s) {
 /*
 Evaluate the value of an arithmetic expression in Reverse Polish Notation. (后缀表达式)
 Valid operators are +, -, *, and /. Each operand may be an integer or another expression.
-Note that division between two integers should truncate toward zero.
+Note that division between two integers should truncate toward zero. (integer division)
 It is guaranteed that the given RPN expression is always valid. That means the expression would
 always evaluate to a result, and there will not be any division by zero operation.
 
@@ -337,7 +332,7 @@ int Solution::evalRPN(vector<string>& tokens) {
         string ops = "+-*/";
         return ops.find(t) != string::npos;
     };
-    stack<int> st;
+    stack<int> st; // operands
     for (const auto& t: tokens) {
         if (is_operator(t)) {
             // they are all binary operators
@@ -360,7 +355,7 @@ int Solution::evalRPN(vector<string>& tokens) {
                 default:
                     break;
             }
-        } else {
+        } else { // operands
             st.push(std::stoi(t));
         }
     }
