@@ -397,6 +397,18 @@ add_executable(lcp_exercises lcp_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(lcp_exercises PUBLIC cxx_auto_type)
 target_link_libraries(lcp_exercises PRIVATE spdlog::spdlog_header_only)
 
+add_executable(leetcode_hot_150_exercises leetcode_hot_150_exercises.cpp ${PUB_UTIL_FILES})
+target_compile_features(leetcode_hot_150_exercises PUBLIC cxx_auto_type)
+target_link_libraries(leetcode_hot_150_exercises PRIVATE spdlog::spdlog_header_only)
+
+add_executable(stock_exercises stock_exercises.cpp ${PUB_UTIL_FILES})
+target_compile_features(stock_exercises PUBLIC cxx_auto_type)
+target_link_libraries(stock_exercises PRIVATE spdlog::spdlog_header_only)
+
+add_executable(randomized_set_exercises randomized_set_exercises.cpp ${PUB_UTIL_FILES})
+target_compile_features(randomized_set_exercises PUBLIC cxx_auto_type)
+target_link_libraries(randomized_set_exercises PRIVATE spdlog::spdlog_header_only)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

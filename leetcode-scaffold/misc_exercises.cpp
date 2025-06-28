@@ -67,64 +67,6 @@ void merge_scaffold(string input, string expectedResult) {
 }
 
 
-/*
-Given an array, rotate the array to the right by k steps, where k is non-negative.
-Example 1:
-    Input: nums=[1,2,3,4,5,6,7], k=3
-    Output: [5,6,7,1,2,3,4]
-    Explanation:
-    rotate 1 steps to the right: [7,1,2,3,4,5,6]
-    rotate 2 steps to the right: [6,7,1,2,3,4,5]
-    rotate 3 steps to the right: [5,6,7,1,2,3,4]
-Example 2:
-    Input: nums = [-1,-100,3,99], k = 2
-    Output: [3,99,-1,-100]
-*/
-void Solution::rotate(vector<int>& nums, int k) {
-if (0) { // std solution
-    int n = nums.size();
-    k %= n; // k may be larger than array_size, and we don't need to swap more than n steps
-    // right is not inclusive
-    std::reverse(nums.begin(), nums.begin()+n-k);
-    std::reverse(nums.begin()+n-k, nums.end());
-    std::reverse(nums.begin(), nums.end());
-    return;
-}
-
-{ // naive solution
-    // reverse subarray nums[s:e], e is not inclusive
-    auto reverse_worker = [&] (int s, int e) {
-        for (int i=0; i<(e-s); ++i) {
-            if (s+i >= e-i-1) {
-                break;
-            }
-            swap(nums[s+i], nums[e-i-1]);
-        }
-    };
-    int n = nums.size();
-    k %= n; // k may be larger than array_size, and we don't need to swap more than n steps
-    // 1. reverse left part
-    reverse_worker(0, n-k);
-    // 2. reverse right part
-    reverse_worker(n-k, n);
-    // 3. then reverse the whole array
-    reverse_worker(0, n);
-}
-}
-
-
-void rotate_scaffold(string input1, int input2, string expectedResult) {
-    Solution ss;
-    vector<int> v1 = stringTo1DArray<int>(input1);
-    vector<int> v2 = stringTo1DArray<int>(expectedResult);
-    ss.rotate(v1, input2);
-    if(v1 == v2) {
-        SPDLOG_INFO( "Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
-    } else {
-        SPDLOG_ERROR( "Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, numberVectorToString(v1));
-    }
-}
-
 
 /*
 An axis-aligned rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) is the coordinate of its bottom-left corner, 
@@ -292,14 +234,6 @@ int main() {
     isRectangleOverlap_scaffold("[0,0,1,1]", "[2,2,3,3]", 0);
     TIMER_STOP(isRectangleOverlap);
     SPDLOG_WARN("isRectangleOverlap tests use {} ms", TIMER_MSEC(isRectangleOverlap));
-
-    SPDLOG_WARN("Running rotate tests:");
-    TIMER_START(rotate);
-    rotate_scaffold("[1,2,3,4,5,6,7]", 3, "[5,6,7,1,2,3,4]");
-    rotate_scaffold("[1,2,3,4,5,6,7]", 4, "[4,5,6,7,1,2,3]");
-    rotate_scaffold("[-1,-100,3,99]", 2, "[3,99,-1,-100]");
-    TIMER_STOP(rotate);
-    SPDLOG_WARN("rotate tests use {} ms", TIMER_MSEC(rotate));
 
     SPDLOG_WARN("Running merge tests:");
     TIMER_START(merge);

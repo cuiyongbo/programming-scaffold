@@ -6,8 +6,6 @@ using namespace std;
 class Solution {
 public:
     int maxSubArray(vector<int>& nums);
-    int maxProfit_121(vector<int>& prices);
-    int maxProfit_309(vector<int>& prices);
     bool canThreePartsEqualSum(vector<int>& arr);
     int threePartsEqualSumCount(vector<int>& arr);
 };
@@ -118,97 +116,6 @@ int Solution::maxSubArray(vector<int>& nums) {
 }
 
 
-/*
-Say you have an array for which the i-th element is the price of a given stock on day i.
-If you were only permitted to complete at most one transaction (i.e., buy one and sell one share of the stock), design an algorithm to find the maximum profit.
-*/
-int Solution::maxProfit_121(vector<int>& prices) {
-// dp[i] means maxProfit_121 when selling stock no later than i-th day
-// dp[i] = max(dp[i-1], prices[i]-buy), buy = min(prices[k]), 0<=k<i
-if (0) {
-    int n = prices.size();
-    vector<int> dp(n, 0);
-    int buy = prices[0]; // initialization: we buy at the first day
-    for (int i=1; i<n; i++) {
-        dp[i] = max(dp[i-1], prices[i]-buy); // if we sell at day i, we can earn prices[i]-buy
-        buy = min(buy, prices[i]); // choose a lower price to buy
-    }
-    return dp[n-1];
-}
-
-{ // solution with optimization of space usage
-    int ans = 0;
-    int buy = prices[0];
-    int n = prices.size();
-    for (int i=1; i<n; ++i) {
-        ans = max(ans, prices[i]-buy);
-        buy = min(buy, prices[i]);
-    }
-    return ans;
-}
-
-}
-
-
-/*
-Say you have an array for which the ith element is the price of a given stock on day i.
-Design an algorithm to find the maximum profit. You may complete as many transactions 
-as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
-    You may not engage in multiple transactions at the same day (i.e., you must sell the stock before you buy again).
-    After you sell your stock, you cannot buy stock on next day. (i.e., cooldown 1 day)
-*/
-int Solution::maxProfit_309(vector<int>& prices) {
-
-{ // naive solution
-    if (prices.empty()) {
-        return 0;
-    }
-    int n = prices.size();
-    // Initialize the DP arrays
-    vector<int> buy(n, 0), sell(n, 0), cooldown(n, 0);
-    // buy[i] means maxProfit_309 if you buy the stock on day i
-    // sell[i] means maxProfit_309 if you sell the stock on day i
-    // cooldown[i] means maxProfit_309 if you are in a cooldown period on day i (you sell the stock the day before or haven't done any transaction)
-    // trivial cases:
-    buy[0] = -prices[0]; // We bought a stock on the first day
-    sell[0] = 0;          // Cannot sell on the first day without buying
-    cooldown[0] = 0;      // No cooldown on the first day either
-    // state transitions
-    for (int i=1; i<n; ++i) {
-        // the operation order doesn't matter
-        // you can buy the stock on day i if you were in a cooldown period or you were already holding the stock
-        buy[i] = max(buy[i-1], cooldown[i-1] - prices[i]);
-        // you can sell the stock on day i if you were holding the stock the day before
-        sell[i] = buy[i-1] + prices[i];
-        // you can be in a cooldown period on day i if you were in a cooldown period or you just sell the stock the day before
-        cooldown[i] = max(cooldown[i-1], sell[i-1]); // passed
-    }
-    // The result is the maximum profit on the last day being in sell or cooldown states
-    return max(sell[n-1], cooldown[n-1]);
-}
-
-{ // optimize space usage
-    // sell[i] means maxProfit_309 when sell 
-    // buy[i] = max(buy[i-1], rest[i-1] - prices[i])
-    // sell[i] = buy[i-1] + prices[i]
-    // rest[i] = max(rest[i-1], sell[i-1])
-    // init: rest[0]=sell[0]=0, buy[0]=-inf
-
-    int sell = 0;
-    int rest = 0;
-    int buy = -prices[0];
-    for (auto p: prices) {
-        int ps=sell, pr=rest, ph=buy;
-        sell = ph + p;
-        buy = max(ph, pr-p);
-        rest = max(pr, ps);
-    }
-    return max(sell, rest);
-}
-
-}
-
-
 void maxSubArray_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<int> costs = stringTo1DArray<int>(input);
@@ -217,26 +124,6 @@ void maxSubArray_scaffold(string input, int expectedResult) {
         SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
         SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input, expectedResult, actual);
-    }
-}
-
-
-void maxProfit_scaffold(string input, int expectedResult, int func_no) {
-    Solution ss;
-    vector<int> prices = stringTo1DArray<int>(input);
-    int actual = 0;
-    if (func_no == 121) {
-        actual = ss.maxProfit_121(prices);
-    } else if (func_no == 309) {
-        actual = ss.maxProfit_309(prices);
-    } else {
-        SPDLOG_ERROR("func_no must be one in [121, 309], actual: {}", func_no);
-        return;
-    }
-    if (actual == expectedResult) {
-        SPDLOG_INFO("Case({}, expectedResult={}, func_no={}) passed", input, expectedResult, func_no);
-    } else {
-        SPDLOG_ERROR("Case({}, expectedResult={}, func_no={}) failed, actual: {}", input, expectedResult, func_no, actual);
     }
 }
 
@@ -274,16 +161,6 @@ int main() {
     maxSubArray_scaffold("[5,4,-1,7,8]", 23);
     TIMER_STOP(maxSubArray);
     SPDLOG_WARN("maxSubArray tests use {} ms", TIMER_MSEC(maxSubArray));
-
-    SPDLOG_WARN("Running maxProfit tests:");
-    TIMER_START(maxProfit);
-    maxProfit_scaffold("[7, 1, 5, 3, 6, 4]", 5, 121);
-    maxProfit_scaffold("[7, 6, 4, 3, 1]", 0, 121);
-    maxProfit_scaffold("[1, 2, 3, 0, 2]", 3, 309);
-    maxProfit_scaffold("[1]", 0, 309);
-    maxProfit_scaffold("[1]", 0, 121);
-    TIMER_STOP(maxProfit);
-    SPDLOG_WARN("maxProfit tests use {} ms", TIMER_MSEC(maxProfit));
 
     SPDLOG_WARN("Running canThreePartsEqualSum tests:");
     TIMER_START(canThreePartsEqualSum);

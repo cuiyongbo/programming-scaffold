@@ -6,7 +6,6 @@ using namespace std;
 class Solution {
 public:
     void sortColors(vector<int>& nums);
-    int majorityElement(vector<int>& nums);
     TreeNode* constructMaximumBinaryTree(vector<int>& nums);
     vector<int> countSmaller(vector<int>& nums);
 };
@@ -33,30 +32,6 @@ void Solution::sortColors(vector<int>& nums) {
     for (int i=0; i<3; ++i) {
         nums.insert(nums.end(), counting[i], i);
     }
-}
-
-/*
-Given an array of size n, find the majority element. The majority element is the element that appears more than ⌊ n/2 ⌋ times.
-You may assume that the array is non-empty and the majority element always exist in the array.
-*/
-int Solution::majorityElement(vector<int>& nums) {
-    // l and r are inclusive
-    function<int(int,int)> dac = [&] (int l, int r) {
-        if (l == r) { // trivial case
-            return nums[l];
-        }
-        int m = (l+r)/2;
-        int ml = dac(l, m);
-        int mr = dac(m+1, r);
-        if (ml == mr) {
-            return ml;
-        } else {
-            // return the one with more occurrences
-            return (std::count(nums.begin()+l, nums.begin()+r+1, ml) > 
-                        std::count(nums.begin()+l, nums.begin()+r+1, mr)) ? ml : mr;
-        }
-    };
-    return dac(0, nums.size()-1);
 }
 
 /*
@@ -150,18 +125,6 @@ vector<int> Solution::countSmaller(vector<int>& nums) {
 }
 
 
-void majorityElement_scaffold(string input, int expectedResult) {
-    Solution ss;
-    vector<int> nums = stringTo1DArray<int>(input);
-    int actual = ss.majorityElement(nums);
-    if (actual == expectedResult) {
-        SPDLOG_INFO("Case ({}, expectedResult={}) passed", input, expectedResult);
-    } else {
-        SPDLOG_ERROR("Case ({}, expectedResult={}) failed, acutal={}", input, expectedResult, actual);
-    }
-}
-
-
 void constructMaximumBinaryTree_scaffold(string input, string expectedResult) {
     Solution ss;
     vector<int> vi = stringTo1DArray<int>(input);
@@ -202,15 +165,6 @@ void sortColors_scaffold(string input) {
 }
 
 int main() {
-    SPDLOG_WARN("Running majorityElement tests:");
-    TIMER_START(majorityElement);
-    majorityElement_scaffold("[6,1,2,8,6,4,5,3,6,6,6,5,6,6,6,6]", 6);
-    majorityElement_scaffold("[6]", 6);
-    majorityElement_scaffold("[6,1,6]", 6);
-    // majorityElement_scaffold("[6,1]", -1);
-    TIMER_STOP(majorityElement);
-    SPDLOG_WARN("majorityElement tests use {} ms", TIMER_MSEC(majorityElement));
-
     SPDLOG_WARN("Running constructMaximumBinaryTree tests:");
     TIMER_START(constructMaximumBinaryTree);
     constructMaximumBinaryTree_scaffold("[1]", "[1]");
