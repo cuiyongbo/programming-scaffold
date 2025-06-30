@@ -56,6 +56,27 @@ In this case, 6 units of rain water (blue section) are being trapped:
 _|_|_|_|_|_|_|_|_|_|_|_|
 */
 int Solution::trap(vector<int>& height) {
+{ // dp solution
+    int n = height.size();
+    vector<int> left(n, 0); // left[i] means the heighest pillar to the left of index i, including i
+    vector<int> right(n, 0); // right[i] means the heighest pillar to the right of index i, including i
+    // initialization
+    left[0] = height[0];
+    right[n-1] = height[n-1];
+    for (int i=1; i<n; i++) {
+        left[i] = std::max(left[i-1], height[i]);
+    }
+    for (int i=n-2; i>=0; i--) {
+        right[i] = std::max(right[i+1], height[i]);
+    }
+    int ans = 0;
+    for (int i=0; i<n; i++) {
+        ans += std::min(left[i], right[i]) - height[i];
+    }
+    return ans;
+}
+
+{ // optimized solution
     int ans = 0;
     int l=0, max_l = height[l];
     int r=height.size()-1, max_r = height[r]; // r is inclusive
@@ -74,6 +95,7 @@ int Solution::trap(vector<int>& height) {
         }
     }
     return ans;
+}
 }
 
 

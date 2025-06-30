@@ -17,7 +17,15 @@ public:
     int jump(vector<int>& nums);
     int hIndex(vector<int>& citations);
     vector<int> productExceptSelf(vector<int>& nums);
+    int candy(vector<int>& ratings);
     int canCompleteCircuit(vector<int>& gas, vector<int>& cost);
+    // for <Trapping water> problems
+    // two_pointers_trapping_water.cpp
+    int romanToInt(string s);
+    string intToRoman(int num);
+    int lengthOfLastWord(string s);
+    string longestCommonPrefix(vector<string>& strs);
+
 };
 
 
@@ -531,6 +539,65 @@ void productExceptSelf_scaffold(string input, string expectedResult) {
 
 
 /*
+There are n children standing in a line. Each child is assigned a rating value given in the integer array ratings.
+
+You are giving candies to these children subjected to the following requirements:
+- Each child must have at least one candy.
+- Children with a higher rating get more candies than their neighbors.
+Return the minimum number of candies you need to have to distribute the candies to the children.
+
+Example 1:
+Input: ratings = [1,0,2]
+Output: 5
+Explanation: You can allocate to the first, second and third child with 2, 1, 2 candies respectively.
+
+Example 2:
+Input: ratings = [1,2,2]
+Output: 4
+Explanation: You can allocate to the first, second and third child with 1, 2, 1 candies respectively.
+The third child gets 1 candy because it satisfies the above two conditions.
+ 
+Constraints:
+
+n == ratings.length
+1 <= n <= 2 * 104
+0 <= ratings[i] <= 2 * 104
+*/
+int Solution::candy(vector<int>& ratings) {
+    int n = ratings.size();
+    vector<int> left(n, 1);
+    vector<int> right(n, 1);
+    for (int i=1; i<n; i++) {
+        if (ratings[i]>ratings[i-1]) {
+            left[i] = left[i-1]+1;
+        }
+    }
+    for (int i=n-2; i>=0; i--) {
+        if (ratings[i]>ratings[i+1]) {
+            right[i] = right[i+1]+1;
+        }
+    }
+    int ans = 0;
+    for (int i=0; i<n; i++) {
+        ans += std::max(left[i], right[i]);
+    }
+    return ans;
+}
+
+
+void candy_scaffold(string input, int expectedResult) {
+    Solution ss;
+    vector<int> nums = stringTo1DArray<int>(input);
+    int actual = ss.candy(nums);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case ({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case ({}, expectedResult={}) failed, acutal={}", input, expectedResult, actual);
+    }
+}
+
+
+/*
 There are n gas stations along a circular route, where the amount of gas at the ith station is gas[i].
 
 You have a car with an unlimited gas tank and it costs cost[i] of gas to travel from the ith station to its next (i + 1)th station. You begin the journey with an empty tank at one of the gas stations.
@@ -615,6 +682,216 @@ void canCompleteCircuit_scaffold(string input1, string input2, int expectedResul
     }
 }
 
+
+/*
+Roman numerals are represented by seven different symbols: I, V, X, L, C, D and M.
+Symbol       Value
+I             1
+V             5
+X             10
+L             50
+C             100
+D             500
+M             1000
+For example, 2 is written as II in Roman numeral, just two ones added together. 12 is written as XII, which is simply X + II. The number 27 is written as XXVII, which is XX + V + II.
+Roman numerals are usually written largest to smallest from left to right. However, the numeral for four is not IIII. Instead, the number four is written as IV. Because the one is before the five we subtract it making four. The same principle applies to the number nine, which is written as IX. There are six instances where subtraction is used:
+- I can be placed before V (5) and X (10) to make 4 and 9. 
+- X can be placed before L (50) and C (100) to make 40 and 90. 
+- C can be placed before D (500) and M (1000) to make 400 and 900.
+Given a roman numeral, convert it to an integer.
+
+Example 1:
+Input: s = "III"
+Output: 3
+Explanation: III = 3.
+
+Example 2:
+Input: s = "LVIII"
+Output: 58
+Explanation: L = 50, V= 5, III = 3.
+
+Example 3:
+Input: s = "MCMXCIV"
+Output: 1994
+Explanation: M = 1000, CM = 900, XC = 90 and IV = 4.
+ 
+Constraints:
+1 <= s.length <= 15
+s contains only the characters ('I', 'V', 'X', 'L', 'C', 'D', 'M').
+It is guaranteed that s is a valid roman numeral in the range [1, 3999].
+*/
+int Solution::romanToInt(string s) {
+    std::unordered_map<char, int> nums{
+        {'I', 1},
+        {'V', 5},
+        {'X', 10},
+        {'L', 50},
+        {'C', 100},
+        {'D', 500},
+        {'M', 1000},
+    };
+    int ans = nums[s.back()];
+    for (int i = 0; i < (int)s.size()-1; ++i) {
+        // if the value of current letter is smaller than its next letter's, than we minus its value, otherwise add its value
+        int sign = nums[s[i]] < nums[s[i+1]] ? -1 : 1;
+        ans += sign * nums[s[i]];
+    }
+    return ans;
+}
+
+
+void romanToInt_scaffold(string input, int expectedResult) {
+    Solution ss;
+    int actual = ss.romanToInt(input);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case ({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case ({}, expectedResult={}) failed, acutal={}", input, expectedResult, actual);
+    }
+}
+
+
+/*
+Follow up: convert an integer to a roman numeral
+*/
+string Solution::intToRoman(int num) {
+    vector<pair<string, int>> table {
+        {"M", 1000},
+        {"CM", 900},
+        {"D", 500},
+        {"CD", 400},
+        {"C", 100},
+        {"XC", 90},
+        {"L", 50},
+        {"XL", 40},
+        {"X", 10},
+        {"IX", 9},
+        {"V", 5},
+        {"IV", 4},
+        {"I", 1},
+    };
+    string ans;
+    for (int i=0; i<(int)table.size(); i++) {
+        while (num >= table[i].second) {
+            num -= table[i].second;
+            ans.append(table[i].first);
+        }
+    }
+    return ans;
+}
+
+
+void intToRoman_scaffold(string input, int expectedResult) {
+    Solution ss;
+    string actual = ss.intToRoman(expectedResult);
+    if (actual == input) {
+        SPDLOG_INFO("Case ({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case ({}, expectedResult={}) failed, acutal={}", input, expectedResult, actual);
+    }
+}
+
+
+/*
+Given a string s consisting of words and spaces, return the length of the last word in the string.
+A word is a maximal substring consisting of non-space characters only.
+
+Example 1:
+Input: s = "Hello World"
+Output: 5
+Explanation: The last word is "World" with length 5.
+
+Example 2:
+Input: s = "   fly me   to   the moon  "
+Output: 4
+Explanation: The last word is "moon" with length 4.
+
+Example 3:
+Input: s = "luffy is still joyboy"
+Output: 6
+Explanation: The last word is "joyboy" with length 6.
+
+Constraints:
+
+1 <= s.length <= 104
+s consists of only English letters and spaces ' '.
+There will be at least one word in s.
+*/
+int Solution::lengthOfLastWord(string s) {
+    int left = -1;
+    int right = -1;
+    int ans = 0;
+    for (int i=0; i<(int)s.size(); i++) {
+        if (s[i] != ' ') {
+            if (left == -1) {
+                left = i;
+                right = i;
+            }
+            right = i;
+        } else {
+            if (left != -1) {
+                ans = right - left + 1;
+                left = right = -1;
+            }
+        }
+    }
+    if (left != -1) {
+        ans = right - left + 1;
+    }
+    return ans;
+}
+
+
+void lengthOfLastWord_scaffold(string input, int expectedResult) {
+    Solution ss;
+    int actual = ss.lengthOfLastWord(input);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case ({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case ({}, expectedResult={}) failed, acutal={}", input, expectedResult, actual);
+    }
+}
+
+
+/*
+Write a function to find the longest common prefix string amongst an array of strings. If there is no common prefix, return an empty string "".
+
+Example 1:
+Input: strs = ["flower","flow","flight"]
+Output: "fl"
+
+Example 2:
+Input: strs = ["dog","racecar","car"]
+Output: ""
+Explanation: There is no common prefix among the input strings.
+ 
+Constraints:
+1 <= strs.length <= 200
+0 <= strs[i].length <= 200
+strs[i] consists of only lowercase English letters.
+*/
+string Solution::longestCommonPrefix(vector<string>& strs) {
+    for (int i=0; i<(int)strs[0].size(); i++) {
+        for (int j=1; j<(int)strs.size(); j++) {
+            if (strs[j].size()<i || strs[j][i] != strs[0][i]) {
+                return strs[0].substr(0, i);
+            }
+        }
+    }
+    return "";
+}
+
+
+void longestCommonPrefix_scaffold(string input, string expectedResult) {
+    Solution ss;
+    vector<string> strs = stringTo1DArray<string>(input);
+    string actual = ss.longestCommonPrefix(strs);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case ({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case ({}, expectedResult={}) failed, acutal={}", input, expectedResult, actual);
+    }
+}
 
 
 int main() {
@@ -706,4 +983,50 @@ int main() {
     TIMER_STOP(canCompleteCircuit);
     SPDLOG_WARN("canCompleteCircuit using {} ms", TIMER_MSEC(canCompleteCircuit));
 
+    SPDLOG_WARN("Running candy tests:");
+    TIMER_START(candy);
+    candy_scaffold("[1,0,2]", 5);
+    candy_scaffold("[1,2,2]", 4);
+    TIMER_STOP(candy);
+    SPDLOG_WARN("candy tests use {} ms", TIMER_MSEC(candy));
+
+    SPDLOG_WARN("Running romanToInt tests:");
+    TIMER_START(romanToInt);
+    romanToInt_scaffold("II", 2);
+    romanToInt_scaffold("III", 3);
+    romanToInt_scaffold("XII", 12);
+    romanToInt_scaffold("VII", 7);
+    romanToInt_scaffold("XXVII", 27);
+    romanToInt_scaffold("LVIII", 58);
+    romanToInt_scaffold("MCMXCIV", 1994);
+    TIMER_STOP(romanToInt);
+    SPDLOG_WARN("romanToInt tests use {} ms", TIMER_MSEC(romanToInt));
+
+    SPDLOG_WARN("Running intToRoman tests:");
+    TIMER_START(intToRoman);
+    intToRoman_scaffold("II", 2);
+    intToRoman_scaffold("III", 3);
+    intToRoman_scaffold("XII", 12);
+    intToRoman_scaffold("VII", 7);
+    intToRoman_scaffold("XXVII", 27);
+    intToRoman_scaffold("LVIII", 58);
+    intToRoman_scaffold("MCMXCIV", 1994);
+    TIMER_STOP(intToRoman);
+    SPDLOG_WARN("intToRoman tests use {} ms", TIMER_MSEC(intToRoman));
+
+    SPDLOG_WARN("Running lengthOfLastWord tests:");
+    TIMER_START(lengthOfLastWord);
+    lengthOfLastWord_scaffold("Hello World", 5);
+    lengthOfLastWord_scaffold("   fly me   to   the moon  ", 4);
+    lengthOfLastWord_scaffold("luffy is still joyboy", 6);
+    lengthOfLastWord_scaffold("nice to meet you", 3);
+    TIMER_STOP(lengthOfLastWord);
+    SPDLOG_WARN("lengthOfLastWord tests use {} ms", TIMER_MSEC(lengthOfLastWord));
+
+    SPDLOG_WARN("Running longestCommonPrefix tests:");
+    TIMER_START(longestCommonPrefix);
+    longestCommonPrefix_scaffold("[flower,flow,flight]", "fl");
+    longestCommonPrefix_scaffold("[dog,racecar,car]", "");
+    TIMER_STOP(longestCommonPrefix);
+    SPDLOG_WARN("longestCommonPrefix tests use {} ms", TIMER_MSEC(longestCommonPrefix));
 }
