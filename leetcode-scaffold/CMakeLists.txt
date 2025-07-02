@@ -401,6 +401,11 @@ add_executable(leetcode_top_150_exercises_01 leetcode_top_150_exercises_01.cpp $
 target_compile_features(leetcode_top_150_exercises_01 PUBLIC cxx_auto_type)
 target_link_libraries(leetcode_top_150_exercises_01 PRIVATE spdlog::spdlog_header_only)
 
+
+add_executable(leetcode_top_150_exercises_02 leetcode_top_150_exercises_02.cpp ${PUB_UTIL_FILES})
+target_compile_features(leetcode_top_150_exercises_02 PUBLIC cxx_auto_type)
+target_link_libraries(leetcode_top_150_exercises_02 PRIVATE spdlog::spdlog_header_only)
+
 add_executable(stock_exercises stock_exercises.cpp ${PUB_UTIL_FILES})
 target_compile_features(stock_exercises PUBLIC cxx_auto_type)
 target_link_libraries(stock_exercises PRIVATE spdlog::spdlog_header_only)
