@@ -5,14 +5,16 @@ using namespace std;
 /* leetcode: 167, 15, 16 */
 class Solution {
 public:
-    vector<int> twoSum(vector<int>& numbers, int target);
+    vector<int> twoSum_001(vector<int>& numbers, int target);
+    vector<int> twoSum_167(vector<int>& numbers, int target);
     vector<vector<int>> threeSum(vector<int>& nums);
     int threeSumClosest(vector<int> &num, int target);
+    int threeSumSmaller(vector<int>& nums, int target);
+    int threeSumMulti(vector<int>& A, int K);
     int subarraysWithKDistinct(vector<int>& A, int K);
     int minSubArrayLen(int s, vector<int>& nums);
     int subarraySum(vector<int>& nums, int k);
 };
-
 
 
 /*
@@ -35,14 +37,14 @@ Constraints:
 int Solution::subarraySum(vector<int>& nums, int k) {
     int ans = 0;
     int sum = 0;
-    std::unordered_map<int, int> prefix_sum_count_map; // val, the number of subarrays whose sum is equal to val
-    prefix_sum_count_map[0] = 1; // initialization
+    std::unordered_map<int, int> prefix_subarray_map; // val, the number of prefix subarrays (nums[0:i]) whose sum is equal to val
+    prefix_subarray_map[0] = 1; // initialization, for case nums[i] == k
     for(auto n: nums) {
         sum += n;
         // given k=2, i=7, sum=5, prefix_sum_count_map[5-2]=4, so there are 4 subarrays whose sum are equal to k ending with nums[i]
         // since the sum is prefix sum, we always minus the sum of a subarray nums[0:k], the remaining array nums[k+1:i] is continuous
-        ans += prefix_sum_count_map[sum-k];
-        prefix_sum_count_map[sum]++;
+        ans += prefix_subarray_map[sum-k];
+        prefix_subarray_map[sum]++;
     }
     return ans;
 }
@@ -80,7 +82,7 @@ Please note that your returned answers (both index1 and index2) are one-based(1-
 
 Given an input: numbers={2, 7, 11, 15}, target=9, Output: index1=1, index2=2
 */
-vector<int> Solution::twoSum(vector<int>& nums, int target) {
+vector<int> Solution::twoSum_167(vector<int>& nums, int target) {
     int l=0;
     int r=nums.size()-1;
     while (l != r) { // brilliant
@@ -98,13 +100,30 @@ vector<int> Solution::twoSum(vector<int>& nums, int target) {
 
 
 /*
+Follow up: what if nums are not sorted in advance? returned answers are in 0-indexed
+*/
+vector<int> Solution::twoSum_001(vector<int>& nums, int target) {
+    map<int, int> mp;
+    for (int i=0; i<(int)nums.size(); i++) {
+        if (mp.count(target-nums[i])) {
+            return {mp[target-nums[i]], i};
+        }
+        mp[nums[i]] = i;
+    }
+    return {-1, -1};
+}
+
+
+/*
 Given an array S of n integers, are there elements a, b, c in S such that a + b + c = 0? 
-Find all unique triplets in the array which gives the sum of zero. Note: The solution set must not contain duplicate triplets.
+Find all unique triplets in the array which gives the sum of zero.
+Note: The solution set must not contain duplicate triplets. 
 For example, given array S = [-1, 0, 1, 2, -1, -4], A solution set is:
     [
         [-1, 0, 1],
         [-1, -1, 2]
     ]
+Notice that the order of the output and the order of the triplets does not matter.
 */
 vector<vector<int>> Solution::threeSum(vector<int>& nums) {
     // sort `num` in ascending order
@@ -179,6 +198,150 @@ int Solution::threeSumClosest(vector<int>& nums, int target) {
 
 
 /*
+Given an array of n integers nums and an integer target, find the number of index triplets i, j, k with 0 <= i < j < k < n that satisfy the condition nums[i] + nums[j] + nums[k] < target. Note that we only find the number of combinations of index triplets, their order doesn't matter.
+
+Example 1:
+Input: nums = [-2,0,1,3], target = 2
+Output: 2
+Explanation: Because there are two triplets which sums are less than 2:
+[-2,0,1]
+[-2,0,3]
+
+Example 2:
+Input: nums = [], target = 0
+Output: 0
+
+Example 3:
+Input: nums = [0], target = 0
+Output: 0
+
+Constraints:
+n == nums.length
+0 <= n <= 3500
+-100 <= nums[i] <= 100
+-100 <= target <= 100
+*/
+int Solution::threeSumSmaller(vector<int>& nums, int target) {
+    // sort nums in ascending order
+    std::sort(nums.begin(), nums.end(), std::less<int>());
+    int ans = 0;
+    int sz = nums.size();
+    for (int i=0; i<sz-2; ++i) {
+        // fix i at iteration
+        int l = i+1;
+        int r = sz-1;
+        while (l < r) {
+            int m = nums[i] + nums[l] + nums[r];
+            if (m >= target) {
+                r--;
+            } else {
+                ans += r-l;
+                ++l;
+            }
+        }
+    }
+    return ans;
+}
+
+
+/*
+Given an integer array arr, and an integer target, return the number of tuples i, j, k such that i < j < k and arr[i] + arr[j] + arr[k] == target.
+As the answer can be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: arr = [1,1,2,2,3,3,4,4,5,5], target = 8
+Output: 20
+Explanation: 
+Enumerating by the values (arr[i], arr[j], arr[k]):
+(1, 2, 5) occurs 8 times;
+(1, 3, 4) occurs 8 times;
+(2, 2, 4) occurs 2 times;
+(2, 3, 3) occurs 2 times.
+
+Example 2:
+Input: arr = [1,1,2,2,2,2], target = 5
+Output: 12
+Explanation: 
+arr[i] = 1, arr[j] = arr[k] = 2 occurs 12 times:
+We choose one 1 from [1,1] in 2 ways,
+and two 2s from [2,2,2,2] in 6 ways.
+
+Example 3:
+Input: arr = [2,1,3], target = 6
+Output: 1
+Explanation: (1, 2, 3) occured one time in the array so we return 1.
+ 
+Constraints:
+3 <= arr.length <= 3000
+0 <= arr[i] <= 100
+0 <= target <= 300
+
+Case([1,1,2,2,3,3,4,4,5,5], 8, expectedResult=20)
+*/
+int Solution::threeSumMulti(vector<int>& nums, int target) {
+if (0) {
+    // sort nums in ascending order
+    long res = 0, n = nums.size(), M = 1e9 + 7;
+    sort(nums.begin(), nums.end());
+    for (int i = 0; i < n - 2; ++i) {
+        int sum = target - nums[i];
+        int j = i + 1, k = n - 1;
+        while (j < k) {
+            if (nums[j] + nums[k] < sum) {
+                ++j;
+            } else if (nums[j] + nums[k] > sum) {
+                --k;
+            } else {
+                int left = 1, right = 1;
+                while (j + left < k && nums[j + left] == nums[j]) ++left;
+                while (j + left <= k - right && nums[k - right] == nums[k]) ++right;
+                res += nums[j] == nums[k] ? (k - j + 1) * (k - j) / 2 : left * right;
+                j += left;
+                k -= right;
+            }
+        }
+    }
+    return res % M;
+}
+
+if (1) {
+    int ans = 0;
+    int k_mod = 1e09 + 7;
+    int sz = nums.size();
+    std::sort(nums.begin(), nums.end(), std::less<int>());
+    for (int i=0; i<sz-2; i++) {
+        int l = i+1;
+        int r = sz-1;
+        while (l<r) {
+            int m = nums[i] + nums[l]+nums[r];
+            if (m < target) {
+                l++;
+            } else if (m > target) {
+                r--;
+            } else {
+                int left = 1;
+                while (l+left<r && nums[l+left]==nums[l]) {
+                    left++;
+                }
+                int right = 1;
+                while (l+left<=r-right && nums[r-right]==nums[r]) {
+                    right++;
+                }
+                int count = nums[l] != nums[r] ? left*right : (left+right)*(left+right-1)/2;
+                ans = (ans + count) % k_mod;
+                //printf("[%d, %d, %d], i=%d, l=%d, r=%d, left=%d, right=%d, count=%d, ans=%d\n", nums[i], nums[l], nums[r], i, l, r, left, right, count, ans);
+                l += left;
+                r -= right;
+            }   
+        }
+    }
+    return ans;
+}
+
+}
+
+
+/*
 Given an integer array nums and an integer k, return the number of good subarrays of nums.
 A good array is an array where the number of different integers in that array is exactly k.
 For example, [1,2,3,1,2] has 3 different integers: 1, 2, and 3. A subarray is a contiguous part of an array.
@@ -224,11 +387,16 @@ int Solution::subarraysWithKDistinct(vector<int>& nums, int K) {
 }
 
 
-void twoSum_scaffold(string input1, int input2, string expectedResult) {
+void twoSum_scaffold(string input1, int input2, string expectedResult, int func_no) {
     Solution ss;
     vector<int> A = stringTo1DArray<int>(input1);
     vector<int> expected = stringTo1DArray<int>(expectedResult);
-    vector<int> actual = ss.twoSum(A, input2);
+    vector<int> actual;
+    if (func_no == 1) {
+        actual = ss.twoSum_001(A, input2);
+    } else if (func_no == 167) {
+        actual = ss.twoSum_167(A, input2);
+    }
     if (actual == expected) {
         SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
@@ -257,6 +425,30 @@ void threeSumClosest_scaffold(string input1, int input2, int expectedResult) {
     Solution ss;
     vector<int> A = stringTo1DArray<int>(input1);
     int actual = ss.threeSumClosest(A, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
+    }
+}
+
+
+void threeSumSmaller_scaffold(string input1, int input2, int expectedResult) {
+    Solution ss;
+    vector<int> A = stringTo1DArray<int>(input1);
+    int actual = ss.threeSumSmaller(A, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual={}", input1, input2, expectedResult, actual);
+    }
+}
+
+
+void threeSumMulti_scaffold(string input1, int input2, int expectedResult) {
+    Solution ss;
+    vector<int> A = stringTo1DArray<int>(input1);
+    int actual = ss.threeSumMulti(A, input2);
     if (actual == expectedResult) {
         SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
     } else {
@@ -304,14 +496,18 @@ void subarraySum_scaffold(int input1, string input2, int expectedResult) {
 int main() {
     SPDLOG_WARN("Running twoSum tests:");
     TIMER_START(twoSum);
-    twoSum_scaffold("[1,2]", 3, "[1,2]");
-    twoSum_scaffold("[2, 7, 11, 15]", 9, "[1,2]");
+    twoSum_scaffold("[1,2]", 3, "[1,2]", 167);
+    twoSum_scaffold("[2, 7, 11, 15]", 9, "[1,2]", 167);
+    twoSum_scaffold("[2,7,11,15]", 9, "[0,1]", 1);
+    twoSum_scaffold("[3,2,4]", 6, "[1,2]", 1);
+    twoSum_scaffold("[3,3]", 6, "[0,1]", 1);
     TIMER_STOP(twoSum);
     SPDLOG_WARN("twoSum tests use {} ms", TIMER_MSEC(twoSum));
 
     SPDLOG_WARN("Running threeSum tests:");
     TIMER_START(threeSum);
     threeSum_scaffold("[-1,0,1,2,-1,-4]", "[[-1,-1,2],[-1,0,1]]");
+    threeSum_scaffold("[0,1,1]", "[]");
     threeSum_scaffold("[0,0,0]", "[[0,0,0]]");
     threeSum_scaffold("[0,0,0,0]", "[[0,0,0]]");
     threeSum_scaffold("[0,0,0,0,0]", "[[0,0,0]]");
@@ -326,8 +522,29 @@ int main() {
     threeSumClosest_scaffold("[1,1,1,1]", 2, 3);
     threeSumClosest_scaffold("[1,1,1,1]", 3, 3);
     threeSumClosest_scaffold("[1,1,1,1]", 4, 3);
+    threeSumClosest_scaffold("[0,0,0]", 1, 0);
     TIMER_STOP(threeSumClosest);
     SPDLOG_WARN("threeSumClosest tests use {} ms", TIMER_MSEC(threeSumClosest));
+
+    SPDLOG_WARN("Running threeSumSmaller tests:");
+    TIMER_START(threeSumSmaller);
+    threeSumSmaller_scaffold("[-2,0,1,3]", 2, 2);
+    threeSumSmaller_scaffold("[]", 0, 0);
+    threeSumSmaller_scaffold("[0]", 0, 0);
+    threeSumSmaller_scaffold("[1,1,1,1]", 2, 0);
+    threeSumSmaller_scaffold("[1,1,1,1]", 3, 0);
+    threeSumSmaller_scaffold("[1,1,1,1]", 4, 4);
+    threeSumSmaller_scaffold("[0,0,0]", 1, 1);
+    TIMER_STOP(threeSumSmaller);
+    SPDLOG_WARN("threeSumSmaller tests use {} ms", TIMER_MSEC(threeSumSmaller));
+
+    SPDLOG_WARN("Running threeSumMulti tests:");
+    TIMER_START(threeSumMulti);
+    threeSumMulti_scaffold("[1,1,2,2,3,3,4,4,5,5]", 8, 20);
+    threeSumMulti_scaffold("[1,1,2,2,2,2]", 5, 12);
+    threeSumMulti_scaffold("[2,1,3]", 6, 1);
+    TIMER_STOP(threeSumMulti);
+    SPDLOG_WARN("threeSumMulti tests use {} ms", TIMER_MSEC(threeSumMulti));
 
     SPDLOG_WARN("Running subarraysWithKDistinct tests:");
     TIMER_START(subarraysWithKDistinct);
@@ -351,6 +568,7 @@ int main() {
     subarraySum_scaffold(2, "[1,1,1]", 2);
     subarraySum_scaffold(2, "[1,2,3]", 1);
     subarraySum_scaffold(3, "[1,2,3]", 2);
+    subarraySum_scaffold(2, "[1,2,3]", 1);
     TIMER_STOP(subarraySum);
     SPDLOG_WARN("subarraySum tests use {} ms", TIMER_MSEC(subarraySum));
 }

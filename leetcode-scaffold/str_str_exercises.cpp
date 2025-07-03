@@ -6,6 +6,7 @@ using namespace std;
 class Solution {
 public:
     int strStr(string haystack, string pattern);
+    bool isSubsequence(string s, string t);
 
 private:
     int strStr_naive(string haystack, string pattern);
@@ -109,20 +110,19 @@ int Solution::strStr_kmp(string haystack, string pattern) {
     vector<int> lps = refined_build_lps();
     //SPDLOG_INFO("LPS={}", numberVectorToString(lps));
     // 2. perform KMP search
+    int i = 0;
     int j = 0;
-    int i=0;
-    while (i<(int)haystack.size()) {
+    while (i < (int)haystack.size()) {
         if (haystack[i] == pattern[j]) {
             i++; j++;
             if (j == pattern_len) {
                 //SPDLOG_INFO("i={}, j={}, pattern_len={}", i, j, pattern_len);
-                return i-pattern_len;
+                return i - pattern_len;
             }
         } else {
-            while (j>0 && haystack[i] != pattern[j]) {
+            if (j > 0) {
                 j = lps[j-1];
-            }
-            if (haystack[i] != pattern[j]) { // no partial match
+            } else {
                 i++;
             }
         }
@@ -142,6 +142,53 @@ void strStr_scaffold(string input1, string input2, int expectedResult) {
 }
 
 
+/*
+Given two strings s and t, return true if s is a subsequence of t, or false otherwise.
+
+A subsequence of a string is a new string that is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (i.e., "ace" is a subsequence of "abcde" while "aec" is not). 
+
+Example 1:
+Input: s = "abc", t = "ahbgdc"
+Output: true
+
+Example 2:
+Input: s = "axc", t = "ahbgdc"
+Output: false
+ 
+Constraints:
+0 <= s.length <= 100
+0 <= t.length <= 104
+s and t consist only of lowercase English letters.
+ 
+Follow up: Suppose there are lots of incoming s, say s1, s2, ..., sk where k >= 109, and you want to check one by one to see if t has its subsequence. In this scenario, how would you change your code?
+*/
+bool Solution::isSubsequence(string s, string t) {
+    int m = s.size();
+    int n = t.size();
+    int i = 0;
+    int j = 0;
+    while (i<m && j<n) {
+        if (s[i] == t[j]) {
+            i++; j++;
+        } else {
+            j++;
+        }
+    }
+    return i==m;
+}
+
+
+void isSubsequence_scaffold(string input1, string input2, int expectedResult) {
+    Solution ss;
+    bool actual = ss.isSubsequence(input1, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
+    }
+}
+
+
 int main() {
     SPDLOG_WARN("Running strStr tests:");
     TIMER_START(strStr);
@@ -156,7 +203,6 @@ int main() {
     strStr_scaffold("nicetomeetyou", "meet", 6);
     strStr_scaffold("nicetomeetyou", "you", 10);
     strStr_scaffold("ABABDABACDABABCABAB", "ABABCABAB", 10);
-
     strStr_scaffold("KMP algorithm is a classic string searching (pattern matching) algorithm that efficiently finds occurrences of a pattern string within a text string", "KMP", 0);
     strStr_scaffold("KMP algorithm is a classic string searching (pattern matching) algorithm that efficiently finds occurrences of a pattern string within a text string", "algorithm", 4);
     strStr_scaffold("KMP algorithm is a classic string searching (pattern matching) algorithm that efficiently finds occurrences of a pattern string within a text string", "pattern", 45);
@@ -165,6 +211,13 @@ int main() {
     strStr_scaffold("KMP algorithm is a classic string searching (pattern matching) algorithm that efficiently finds occurrences of a pattern string within a text string", "occurences", -1);
     TIMER_STOP(strStr);
     SPDLOG_WARN("strStr tests use {} ms", TIMER_MSEC(strStr));
+
+    SPDLOG_WARN("Running isSubsequence tests: ");
+    TIMER_START(isSubsequence);
+    isSubsequence_scaffold("abc", "ahbgdc", 1);
+    isSubsequence_scaffold("axc", "ahbgdc", 0);
+    TIMER_STOP(isSubsequence);
+    SPDLOG_WARN("isSubsequence using {} ms", TIMER_MSEC(isSubsequence));
 }
 
 
