@@ -5,7 +5,6 @@ using namespace std;
 /* leetcode: 150, 3, 223, 836, 189, 56 */
 class Solution {
 public:
-    int lengthOfLongestSubstring(string s);
     int computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2);
     bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2);
     void rotate(vector<int>& nums, int k);
@@ -125,44 +124,6 @@ int Solution::computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, 
 }
 
 
-/*
-Given a string s, find the length of the longest substring(not subsequence) without repeating characters.
-
-Example 1:
-    Input: s = "abcabcbb"
-    Output: 3
-    Explanation: The answer is "abc", with the length of 3.
-*/
-int Solution::lengthOfLongestSubstring(string str) {
-    int ans = 0;
-    map<char, int> m; // char, the latest position of char
-    int left = 0; // left boundary of substring without duplicate characters
-    int sz = str.size();
-    for (int i=0; i<sz; ++i) {
-        if (m.count(str[i]) != 0) { // duplicate found
-            left = max(left, m[str[i]]+1); // update left boundary
-            m[str[i]] = i; // update occurrence of str[i] to the latest position
-            ans = max(ans, i-left+1);
-        } else {
-            m[str[i]] = i; // update occurrence of str[i] to the latest position
-            ans = max(ans, i-left+1);
-        }
-    }
-    return ans;
-}
-
-
-void lengthOfLongestSubstring_scaffold(string input, int expectedResult) {
-    Solution ss;
-    int actual = ss.lengthOfLongestSubstring(input);
-    if(actual == expectedResult) {
-        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
-    } else {
-        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
-    }
-}
-
-
 void computeArea_scaffold(string input, int expectedResult) {
     Solution ss;
     vector<int> vi = stringTo1DArray<int>(input);
@@ -203,20 +164,6 @@ int qpow2(int a, int n) {
 
 
 int main() {
-    SPDLOG_WARN("Running lengthOfLongestSubstring tests:");
-    TIMER_START(lengthOfLongestSubstring);
-    lengthOfLongestSubstring_scaffold("", 0);
-    lengthOfLongestSubstring_scaffold("abba", 2);
-    lengthOfLongestSubstring_scaffold("ababab", 2);
-    lengthOfLongestSubstring_scaffold("bbbbb", 1);
-    lengthOfLongestSubstring_scaffold("abcdef", 6);
-    lengthOfLongestSubstring_scaffold("pwwkew", 3);
-    lengthOfLongestSubstring_scaffold("dvdf", 3);
-    lengthOfLongestSubstring_scaffold("aaabcdddd", 4);
-    lengthOfLongestSubstring_scaffold("aaabcddadd", 4);
-    TIMER_STOP(lengthOfLongestSubstring);
-    SPDLOG_WARN("lengthOfLongestSubstring tests use {} ms", TIMER_MSEC(lengthOfLongestSubstring));
-
     SPDLOG_WARN("Running computeArea tests:");
     TIMER_START(computeArea);
     computeArea_scaffold("[-3,0,3,4,0,-1,9,2]", 45);

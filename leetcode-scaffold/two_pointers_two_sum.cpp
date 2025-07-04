@@ -60,7 +60,7 @@ int Solution::minSubArrayLen(int s, vector<int>& nums) {
     for (int i=0, j=0; i<sz; i++) {
         while (j<sz&&sum<s) {
             sum += nums[j];
-            j++; // j is not inclusive when calculating sum
+            j++; // we j is not inclusive when calculating sum
         }
         if (sum < s) {
             break;
@@ -68,7 +68,7 @@ int Solution::minSubArrayLen(int s, vector<int>& nums) {
         assert(sum>=s);
         //printf("ans=%d, j=%d, i=%d\n", ans, j, i);
         ans = min(ans, j-i); // why not j-i+1? because nums[j] is not inclusive when calculating sum
-        sum -= nums[i]; // excluse nums[i] from next iteration, but we can reuse sum{nums[i+1:j]}
+        sum -= nums[i]; // excluse nums[i] from next iteration, and we can reuse sum{nums[i+1:j]}
     }
     return ans==INT32_MAX ? 0 : ans;
 }
