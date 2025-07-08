@@ -7,7 +7,6 @@ class Solution {
 public:
     int computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2);
     bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2);
-    void rotate(vector<int>& nums, int k);
     vector<vector<int>> merge(vector<vector<int>>& intervals);
 };
 

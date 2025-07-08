@@ -308,9 +308,10 @@ void Solution::rotate(vector<int>& nums, int k) {
 
 if (1) { // std solution
     // right is not inclusive
-    std::reverse(nums.begin(), nums.end());
-    std::reverse(nums.begin(), nums.begin()+k);
-    std::reverse(nums.begin()+k, nums.end());
+    std::reverse(nums.begin(), nums.end()); // 1. rotate(0, n)
+    std::reverse(nums.begin(), nums.begin()+k); // 2. rotate(0, k)
+    std::reverse(nums.begin()+k, nums.end());  // 3. rotate(k, n)
+    // the order between step 2, 3 doesn't matter, since the two regions don't overlap
 
     /*
     you may also to reverse nums in following orders:

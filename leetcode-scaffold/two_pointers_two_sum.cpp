@@ -279,32 +279,6 @@ Constraints:
 Case([1,1,2,2,3,3,4,4,5,5], 8, expectedResult=20)
 */
 int Solution::threeSumMulti(vector<int>& nums, int target) {
-if (0) {
-    // sort nums in ascending order
-    long res = 0, n = nums.size(), M = 1e9 + 7;
-    sort(nums.begin(), nums.end());
-    for (int i = 0; i < n - 2; ++i) {
-        int sum = target - nums[i];
-        int j = i + 1, k = n - 1;
-        while (j < k) {
-            if (nums[j] + nums[k] < sum) {
-                ++j;
-            } else if (nums[j] + nums[k] > sum) {
-                --k;
-            } else {
-                int left = 1, right = 1;
-                while (j + left < k && nums[j + left] == nums[j]) ++left;
-                while (j + left <= k - right && nums[k - right] == nums[k]) ++right;
-                res += nums[j] == nums[k] ? (k - j + 1) * (k - j) / 2 : left * right;
-                j += left;
-                k -= right;
-            }
-        }
-    }
-    return res % M;
-}
-
-if (1) {
     int ans = 0;
     int k_mod = 1e09 + 7;
     int sz = nums.size();
@@ -319,25 +293,30 @@ if (1) {
             } else if (m > target) {
                 r--;
             } else {
-                int left = 1;
-                while (l+left<r && nums[l+left]==nums[l]) {
-                    left++;
+                if (nums[l] == nums[r]) {
+                    // we have sort nums in advance, so all elements in nums[l:r] must be equal
+                    int count = (r-l)*(r-l+1)/2;
+                    ans = (ans + count) % k_mod;
+                    // no element left and we can stop here
+                    break; 
+                } else {
+                    int left = 1;
+                    while (l+left<r && nums[l+left]==nums[l]) {
+                        left++;
+                    }
+                    int right = 1;
+                    while (l+left<=r-right && nums[r-right]==nums[r]) {
+                        right++;
+                    }
+                    int count =  left*right;
+                    ans = (ans + count) % k_mod;
+                    l += left;
+                    r -= right;
                 }
-                int right = 1;
-                while (l+left<=r-right && nums[r-right]==nums[r]) {
-                    right++;
-                }
-                int count = nums[l] != nums[r] ? left*right : (left+right)*(left+right-1)/2;
-                ans = (ans + count) % k_mod;
-                //printf("[%d, %d, %d], i=%d, l=%d, r=%d, left=%d, right=%d, count=%d, ans=%d\n", nums[i], nums[l], nums[r], i, l, r, left, right, count, ans);
-                l += left;
-                r -= right;
-            }   
+            }
         }
     }
     return ans;
-}
-
 }
 
 
