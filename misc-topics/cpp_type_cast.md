@@ -1,4 +1,4 @@
-# Q: tell me the difference among const_cast, static_cast, dynamic_cast and reinterpret_cast in C++ and their usage.
+# tell me the difference among const_cast, static_cast, dynamic_cast and reinterpret_cast in C++ and their usage.
 
 In C++, type casting operators (`const_cast`, `static_cast`, `dynamic_cast`, and `reinterpret_cast`) are used to explicitly convert between different types. Each has specific use cases and constraints. Here's a breakdown of their differences and usage:
 

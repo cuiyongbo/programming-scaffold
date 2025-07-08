@@ -1,4 +1,4 @@
-Q: what is transformer in nlp domain? please recommend some learning materials
+# what is transformer in nlp domain? please recommend some learning materials
 
 在自然语言处理（NLP）领域，Transformer是一种用于处理序列数据的深度学习模型，特别是在机器翻译、文本生成和语言理解等任务中取得了重大突破。Transformer模型由Google在2017年提出，其核心思想是使用自注意力机制（self-attention）来捕捉输入序列中的上下文关系。
 
@@ -15,7 +15,7 @@ Q: what is transformer in nlp domain? please recommend some learning materials
 
 通过阅读这些学习材料，你将能够深入了解Transformer模型在NLP领域的应用和原理
 
-Q: what's the relationship between bert and transformer?
+# what's the relationship between bert and transformer?
 
 BERT (Bidirectional Encoder Representations from Transformers) and the Transformer model are closely related, with BERT being a specific application and implementation of the Transformer architecture. Here's a detailed explanation of their relationship:
 

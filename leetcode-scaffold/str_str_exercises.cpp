@@ -8,6 +8,7 @@ public:
     int strStr(string haystack, string pattern);
     bool isSubsequence(string s, string t);
     int lengthOfLongestSubstring(string str);
+    string minWindow(string s, string t);
 
 private:
     int strStr_naive(string haystack, string pattern);
@@ -205,7 +206,7 @@ int Solution::lengthOfLongestSubstring(string str) {
     int sz = str.size();
     for (int i=0; i<sz; ++i) {
         if (m.count(str[i]) != 0) { // duplicate found
-            left = max(left, m[str[i]]+1); // update left boundary
+            left = max(left, m[str[i]]+1); // update left boundary. Note that we must keep `max()` since str[i] may appear in previous position
             m[str[i]] = i; // update occurrence of str[i] to the latest position
             ans = max(ans, i-left+1);
         } else {
@@ -224,6 +225,79 @@ void lengthOfLongestSubstring_scaffold(string input, int expectedResult) {
         SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
     } else {
         SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
+    }
+}
+
+
+/*
+Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string "".
+
+The testcases will be generated such that the answer is unique.
+
+Example 1:
+Input: s = "ADOBECODEBANC", t = "ABC"
+Output: "BANC"
+Explanation: The minimum window substring "BANC" includes 'A', 'B', and 'C' from string t.
+
+Example 2:
+Input: s = "a", t = "a"
+Output: "a"
+Explanation: The entire string s is the minimum window.
+
+Example 3:
+Input: s = "a", t = "aa"
+Output: ""
+Explanation: Both 'a's from t must be included in the window.
+Since the largest window of s only has one 'a', return empty string.
+
+Constraints:
+m == s.length
+n == t.length
+1 <= m, n <= 105
+s and t consist of uppercase and lowercase English letters.
+
+Follow up: Could you find an algorithm that runs in O(m + n) time?
+*/
+string Solution::minWindow(string s, string t) {
+    vector<int> need(128, 0); // char, occurrences
+    for (auto c: t) {
+        need[c]++;
+    }
+    vector<int> window(128, 0); // char, occurrences
+    int m = s.size();
+    int n = t.size();
+    int cnt = 0;
+    int j = 0;
+    int k = -1;
+    int mi = INT32_MAX;
+    for (int i=0; i<m; i++) {
+        window[s[i]]++;
+        if (need[s[i]] >= window[s[i]]) { // we count s[i] no more than its occurrence in t
+            ++cnt;
+        }
+        while (cnt == n) {
+            if (i-j+1 < mi) {
+                mi = i-j+1;
+                k = j;
+            }
+            // 这两段代码的执行顺序不好理解
+            if (need[s[j]] >= window[s[j]]) { // we need more s[j] in the subtring
+                --cnt;
+            }
+            window[s[j]]--; j++;// decrease s[j]'s occurrence after moving j to right
+        }
+    }
+    return  k==-1 ? "" : s.substr(k, mi);
+}
+
+
+void minWindow_scaffold(string input1, string input2, string expectedResult) {
+    Solution ss;
+    string actual = ss.minWindow(input1, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
     }
 }
 
@@ -271,6 +345,14 @@ int main() {
     lengthOfLongestSubstring_scaffold("aaabcddadd", 4);
     TIMER_STOP(lengthOfLongestSubstring);
     SPDLOG_WARN("lengthOfLongestSubstring tests use {} ms", TIMER_MSEC(lengthOfLongestSubstring));
+
+    SPDLOG_WARN("Running minWindow tests:");
+    TIMER_START(minWindow);
+    minWindow_scaffold("ADOBECODEBANC", "ABC", "BANC");
+    minWindow_scaffold("a", "a", "a");
+    minWindow_scaffold("a", "aa", "");
+    TIMER_STOP(minWindow);
+    SPDLOG_WARN("minWindow tests use {} ms", TIMER_MSEC(minWindow));
 }
 
 

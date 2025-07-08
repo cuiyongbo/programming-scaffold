@@ -47,7 +47,7 @@ int main() {
 - They allow suspending and resuming execution at certain points, making them useful for scenarios like asynchronous programming, generators, and more.
 
 #### Characteristics
-1. **Cooperative Scheduling**:
+1. **Cooperative Scheduling**: [主动出让调度权]
    - Co-routines yield control voluntarily at specified points, making context switching explicit and controlled by the programmer.
 2. **Lightweight**:
    - Co-routines are generally more lightweight compared to threads, as they share the same stack and only save minimal state when suspended.
@@ -106,7 +106,7 @@ In C++, a coroutine is a special type of function that can suspend execution to 
 ### Resources Held by a Coroutine
 
 1. **Coroutine Frame**:
-   - The coroutine frame is a data structure allocated on the heap that holds the state of the coroutine. This includes local variables, the promise object, and any data necessary to resume execution.
+   - The coroutine frame is a data structure allocated on the **heap** that holds the state of the coroutine. This includes local variables, the promise object, and any data necessary to resume execution.
 
 2. **Promise Object**:
    - The promise object is a component of the coroutine machinery that facilitates communication between the coroutine and its caller. It holds values, status (such as whether the coroutine is finished), and handles exceptions.
@@ -227,7 +227,7 @@ When a coroutine suspends (for example, using `co_await`), it needs to preserve 
 #### 2. **Dynamic Lifetime Management**:
 The lifetime of a coroutine's state can be much longer than the stack frame of a typical function due to the possibility of suspension and asynchronous behavior. Heap allocation allows the coroutine state to live independently of the stack, making it capable of spanning across multiple function call stacks and execution contexts.
 
-#### 3. **Reentrant and Concurrency Support**:
+#### 3. **Reentrant and Concurrency Support**: [这个就无关就不相关了]
 Coroutines are often used for asynchronous operations and can be reentrant or run concurrently. Having their state on the heap allows different coroutine instances to be managed independently, supporting concurrency without interfering with each other’s stack frames.
 
 ### Technical Details
@@ -298,9 +298,23 @@ Threads are lightweight units of execution within a process and share many resou
 
 Each thread has its own stack for executing function calls, storing local variables, and keeping track of control flow. The stack size can be defined at thread creation and is unique to each thread. It is a critical resource for a thread's execution context.
 
+```c
+int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize);
+int pthread_attr_getstacksize(const pthread_attr_t *restrict attr, size_t *restrict stacksize);
+int pthread_attr_setstackaddr(pthread_attr_t *attr, void *stackaddr);
+int pthread_attr_getstackaddr(const pthread_attr_t *restrict attr, void **restrict stackaddr);
+```
+
 ### 2. **Thread Local Storage (TLS)**
 
 Threads can have their own local storage areas to store data that is unique to that thread. This data is not shared across other threads and can be accessed using thread-local variables in languages that support them (e.g., C++ using `thread_local` keyword).
+
+```c
+int pthread_key_create(pthread_key_t *key, void (*destructor)(void*));
+int pthread_key_delete(pthread_key_t key);
+int pthread_setspecific(pthread_key_t key, const void *value);
+void* pthread_getspecific(pthread_key_t key);
+```
 
 ### 3. **Registers and Program Counter**
 
@@ -318,9 +332,21 @@ Threads have scheduling information that includes:
 - **Priority:** Determines the thread's importance and order of execution.
 - **Scheduling State:** Information related to the thread's current state (running, blocked, waiting, etc.).
 
+```c
+int pthread_attr_setschedparam(pthread_attr_t *attr, const struct sched_param *param);
+int pthread_attr_getschedparam(const pthread_attr_t *attr, struct sched_param *param);
+int pthread_attr_getschedpolicy(const pthread_attr_t *restrict attr, int *restrict policy);
+int pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy);
+```
+
 ### 6. **Thread ID**
 
 Each thread has a unique identifier (Thread ID) that distinguishes it from other threads within the same process.
+
+```c
+pthread_t pthread_self(void);
+int pthread_equal(pthread_t t1, pthread_t t2);
+```
 
 ### Shared Resources
 
@@ -470,3 +496,74 @@ The Process Control Block is a data structure used by the operating system to st
 - The efficient use and management of resources, such as memory and I/O, significantly impact the performance of the process and the overall system.
 
 By understanding the resources held by a process, developers can write more efficient, secure, and reliable applications, ensuring proper synchronization, resource allocation, and cleanup practices are followed.
+
+
+# are `thread_local` in C++ implemented with pthread thread-specific data APIs?
+
+Great question! The relationship between C++ `thread_local` storage and pthread thread-specific data (TSD) APIs depends on the **platform**, **compiler**, and **standard library implementation**.
+
+---
+
+## What is `thread_local` in C++?
+
+- `thread_local` is a C++11 keyword that declares variables with **thread storage duration**.
+- Each thread has its **own instance** of a `thread_local` variable.
+- The compiler and runtime system ensure that each thread accesses its own copy.
+
+---
+
+## Is `thread_local` implemented using pthread TSD APIs?
+
+### In many Unix-like systems (Linux, macOS):
+
+- The **underlying implementation of `thread_local` often uses pthread TSD APIs**, such as:
+  - `pthread_key_create`
+  - `pthread_setspecific`
+  - `pthread_getspecific`
+
+- These APIs provide a way to associate thread-specific data with a key, allowing each thread to store and retrieve its own data.
+
+### However:
+
+- **Not always**:  
+  Modern compilers and platforms often implement `thread_local` using **faster, compiler/runtime-supported mechanisms** rather than directly calling pthread TSD APIs every time.
+
+- For example, on **x86_64 Linux with GCC or Clang**, `thread_local` variables are often implemented using **thread-local storage (TLS) sections** supported by the OS and CPU (via segment registers like FS or GS), which is much faster than pthread TSD calls.
+
+---
+
+## Summary of implementations
+
+| Platform / Compiler            | Typical `thread_local` Implementation                                  |
+|-------------------------------|------------------------------------------------------------------------|
+| Linux (GCC/Clang, x86_64)     | Native TLS via ELF TLS sections, accessed via FS/GS segment registers  |
+| macOS (Clang)                 | Native TLS, similar to Linux                                           |
+| Windows (MSVC)                | Windows TLS APIs or native TLS support                                |
+| Some platforms or fallback    | May use `pthread_key_create` and TSD APIs                             |
+
+---
+
+## Why prefer native TLS over pthread TSD?
+
+- **Native TLS** is **faster** because it uses CPU-supported mechanisms for direct access.
+- **pthread TSD** involves function calls and hash table lookups internally, which is slower.
+- Native TLS is set up at thread creation and accessed via fixed offsets.
+
+---
+
+## How to check?
+
+- You can inspect generated assembly code or compiler documentation.
+- For example, compiling with `-fPIC -O2` and inspecting symbols shows usage of TLS sections.
+- On platforms without native TLS support, the compiler falls back to pthread TSD.
+
+---
+
+## Summary
+
+- **`thread_local` is conceptually similar to pthread TSD but usually implemented using native TLS mechanisms on modern platforms.**
+- **Fallback to pthread TSD APIs happens only if native TLS is unavailable.**
+
+---
+
+If you want, I can help you inspect the assembly output for a `thread_local` variable or provide examples on specific platforms!

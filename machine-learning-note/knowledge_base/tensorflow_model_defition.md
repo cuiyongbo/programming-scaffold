@@ -1,5 +1,4 @@
-```
-Q: in tensorflow, what are tag, signature_def for?
+# in tensorflow, what are tag, signature_def for?
 
 In TensorFlow, tags and signature definitions (signature_defs) are used to identify and specify different aspects of a saved model.
 
@@ -9,7 +8,7 @@ In TensorFlow, tags and signature definitions (signature_defs) are used to ident
 
 By using tags and signature definitions, you can easily identify and access specific parts of a TensorFlow graph, and define the inputs and outputs for serving or executing the model.
 
-Q: and what is the relation between tag and signature_def?
+# and what is the relation between tag and signature_def?
 
 In TensorFlow, a tag is a string identifier that is used to differentiate different versions or instances of a saved model. It is commonly used when saving and loading models to specify a particular version or variant of the model.
 
@@ -17,7 +16,7 @@ A signature_def, on the other hand, is a protocol buffer that defines the input 
 
 The relation between tag and signature_def is that a tag is associated with a specific version or variant of a saved model, while a signature_def defines the input and output tensors of that model. When loading a saved model, you can specify the tag to load a specific version, and once loaded, you can access the signature_def to understand the model's input and output tensor specifications.
 
-Q: what is the difference between classification, prediction, and regression api in tensorflow?
+# what is the difference between classification, prediction, and regression api in tensorflow?
 
 In TensorFlow, the terms "classification," "prediction," and "regression" refer to different types of machine learning tasks. Here's a brief explanation of each:
 
@@ -30,7 +29,7 @@ In TensorFlow, the terms "classification," "prediction," and "regression" refer 
 To summarize, classification is focused on assigning data to specific classes, regression is focused on predicting continuous values, and prediction is a more general term that can encompass both classification and regression tasks.
 
 
-Q: please give me a detailed example about what tags and signature_def in tensorflow are, how to check them for a model and how to use them for model inference?
+# please give me a detailed example about what tags and signature_def in tensorflow are, how to check them for a model and how to use them for model inference?
 
 In TensorFlow, `tags` and `signature_def` are important concepts when working with SavedModels, which are the standard format for exporting trained models. They help in defining and identifying the different parts of the model, especially when serving the model for inference.
 
@@ -201,7 +200,7 @@ print("Output:", output)
 
 By understanding and using tags and `SignatureDef`, you can effectively manage and serve TensorFlow models for various use cases.
 
-Q: after saving the model, what is each file used for in `my_model`?
+# after saving the model, what is each file used for in `my_model`?
 
 When you save a TensorFlow model using the `tf.saved_model.save()` function, it creates a directory structure that contains all the necessary files to restore and use the model. Here's a breakdown of the files and directories created in the `my_model` directory:
 
@@ -248,7 +247,7 @@ saved_model/
   - **variables.data-00000-of-00001**: File containing the actual variable data.
   - **variables.index**: File containing the index information for the variable data.
 
-Q: tell me the detail about cuda stream management in tensorflow
+# tell me the detail about cuda stream management in tensorflow
 
 CUDA stream management in TensorFlow is a sophisticated mechanism designed to optimize the execution of operations on NVIDIA GPUs. By leveraging CUDA streams, TensorFlow can achieve better concurrency, overlap computation with data transfer, and improve overall performance. Here’s a detailed look at how TensorFlow manages CUDA streams:
 
