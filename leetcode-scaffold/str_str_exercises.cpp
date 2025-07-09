@@ -9,6 +9,8 @@ public:
     bool isSubsequence(string s, string t);
     int lengthOfLongestSubstring(string str);
     string minWindow(string s, string t);
+    string longestPalindrome(string s);
+    bool isPalindrome(int x);
 
 private:
     int strStr_naive(string haystack, string pattern);
@@ -302,6 +304,109 @@ void minWindow_scaffold(string input1, string input2, string expectedResult) {
 }
 
 
+/*
+Given a string s, return the longest palindromic substring in s.
+
+Example 1:
+Input: s = "babad"
+Output: "bab"
+Explanation: "aba" is also a valid answer.
+
+Example 2:
+Input: s = "cbbd"
+Output: "bb"
+
+Constraints:
+1 <= s.length <= 1000
+s consist of only digits and English letters.
+*/
+string Solution::longestPalindrome(string s) {
+    int n = s.size();
+    vector<vector<bool>> dp(n, vector<bool>(n, true));
+    int ans = 0;
+    int left = -1;
+    // dp[i][j] means s[i:j] is palindromic
+    // dp[i][j] = dp[i+1][j-1] and s[i]==s[j]
+    for (int i=n-2; i>=0; i--) {
+        for (int j=i+1; j<n; j++) {
+            if (s[i] == s[j]) {
+                dp[i][j] = dp[i+1][j-1];
+                if (dp[i][j]) {
+                    if (ans < j-i+1) {
+                        ans = j-i+1;
+                        left = i;
+                    }
+                }
+            }
+        }
+    }
+    return s.substr(left, ans);
+}
+
+
+void longestPalindrome_scaffold(string input, string expectedResult) {
+    Solution ss;
+    string actual = ss.longestPalindrome(input);
+    if(actual == expectedResult || actual.size() == expectedResult.size()) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
+    }
+}
+
+
+/*
+Given an integer x, return true if x is a palindrome, and false otherwise.
+
+Example 1:
+Input: x = 121
+Output: true
+Explanation: 121 reads as 121 from left to right and from right to left.
+
+Example 2:
+Input: x = -121
+Output: false
+Explanation: From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome.
+
+Example 3:
+Input: x = 10
+Output: false
+Explanation: Reads 01 from right to left. Therefore it is not a palindrome.
+ 
+Constraints:
+-231 <= x <= 231 - 1
+
+Follow up: Could you solve it without converting the integer to a string?
+
+Hint: given x, build y from LSB to MSB of x, y should be equal to x if x is a palindrome
+*/
+bool Solution::isPalindrome(int x) {
+    // trivial cases:
+    if (x<0) {
+        return false;
+    }
+    int n = x;
+    int y = 0;
+    while (n>0) {
+        int d = n%10;
+        y = y*10 + d;
+        n /= 10;
+    }
+    return x==y;
+}
+
+
+void isPalindrome_scaffold(int input, int expectedResult) {
+    Solution ss;
+    bool actual = ss.isPalindrome(input);
+    if(actual == expectedResult) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual={}", input, expectedResult, actual);
+    }
+}
+
+
 int main() {
     SPDLOG_WARN("Running strStr tests:");
     TIMER_START(strStr);
@@ -353,6 +458,25 @@ int main() {
     minWindow_scaffold("a", "aa", "");
     TIMER_STOP(minWindow);
     SPDLOG_WARN("minWindow tests use {} ms", TIMER_MSEC(minWindow));
+
+    SPDLOG_WARN("Running longestPalindrome tests:");
+    TIMER_START(longestPalindrome);
+    longestPalindrome_scaffold("abba", "abba");
+    longestPalindrome_scaffold("babad", "bab");
+    longestPalindrome_scaffold("cbbd", "bb");
+    TIMER_STOP(longestPalindrome);
+    SPDLOG_WARN("longestPalindrome tests use {} ms", TIMER_MSEC(longestPalindrome));
+
+    SPDLOG_WARN("Running isPalindrome tests:");
+    TIMER_START(isPalindrome);
+    isPalindrome_scaffold(121, true);
+    isPalindrome_scaffold(123, false);
+    isPalindrome_scaffold(10, false);
+    isPalindrome_scaffold(-121, false);
+    TIMER_STOP(isPalindrome);
+    SPDLOG_WARN("isPalindrome tests use {} ms", TIMER_MSEC(isPalindrome));
+
+    
 }
 
 

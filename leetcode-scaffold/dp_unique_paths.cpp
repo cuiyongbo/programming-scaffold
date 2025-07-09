@@ -41,8 +41,10 @@ int Solution::uniquePaths(int m, int n) {
 
 { // solution with optimization of space usage
     vector<vector<int>> dp(2, vector<int>(n, 0));
-    dp[0][0] = 1; dp[1][0] = 1;
+    dp[0][0] = 1; dp[1][0] = 1; // initialization
     for (int i=0; i<m; ++i) {
+        // we only use the last row when calculation current row
+        // and the other previous rows will never be used again
         for (int j=0; j<n; ++j) {
             if (i > 0) { // up
                 dp[1][j] += dp[0][j];
@@ -51,7 +53,7 @@ int Solution::uniquePaths(int m, int n) {
                 dp[1][j] += dp[1][j-1];
             }
         }
-        dp[0] = dp[1];
+        dp[0] = dp[1]; // update the last row
         dp[1].assign(n, 0);
     }
     return dp[0][n-1];
@@ -88,7 +90,7 @@ int Solution::uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
 
 
 /*
-Given a m x n grid filled with non-negative numbers, find a path from top-left to bottom-right which minimizes the sum of all numbers along its path.
+Given a mxn grid filled with non-negative numbers, find a path from top-left to bottom-right which minimizes the sum of all numbers along its path.
 Note: You can only move either down or right at any point in time.
 Example 1:
     [[1,3,1],
@@ -120,7 +122,7 @@ if (0) { // dp solution
 
 { // solution using dijkstra algorithm
     using Coordinate = std::pair<int, int>; // row, column
-    using element_type = pair<Coordinate, int>; // Coordinate, path_cost
+    using element_type = std::pair<Coordinate, int>; // Coordinate, path_cost
     int rows = grid.size();
     int columns = grid[0].size();
     Coordinate start = make_pair(0, 0);
@@ -130,7 +132,7 @@ if (0) { // dp solution
         {0, 1}, // go right
     };
     std::map<Coordinate, int> visited; // coor, min_path_cost from start to coor
-    visited[start] = grid[0][0]; // why not set visited[start] to 0?
+    visited[start] = grid[0][0]; // why not set visited[start] to 0? because the value means the sum of the numbers on the path ending with start
     auto cmp = [&] (const element_type& l, const element_type& r) {
         return l.second > r.second;
     };
@@ -463,7 +465,7 @@ if he follows the optimal path RIGHT-> RIGHT -> DOWN -> DOWN:
 */
 int Solution::calculateMinimumHP(vector<vector<int>>& dungeon) {
 // dp[i][j] means MinimumHP to get (m-1, n-1) from (i, j), assume (i, j) is the start point.
-// dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1])-dungeon[i][j])
+// dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1])-dungeon[i][j]))
 // we can build the answer from bottom to top: what is the MinimumHP to go through the sub-dungeon (i, j) to (m-1, n-1), then extend the solution from (m-1, n-1) to (0, 0)
 { // naive dp solution, brilliant
     int m = dungeon.size();
@@ -472,10 +474,13 @@ int Solution::calculateMinimumHP(vector<vector<int>>& dungeon) {
     // source: (0, 0)
     // destination: (m-1, n-1)
     // initialization: the knight starts from destination, and he must have 1 HP at least
-    dp[m][n-1] = 1; dp[m-1][n] = 1;
+    dp[m][n-1] = 1; // from downside
+    dp[m-1][n] = 1; // from right
     for (int i=m-1; i>=0; --i) {
         for (int j=n-1; j>=0; --j) {
-            dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1])-dungeon[i][j]);
+            dp[i][j] = max(1, // HP must be 1 at least
+                            min(dp[i+1][j], dp[i][j+1])-dungeon[i][j]
+                        );
         }
     }
     return dp[0][0];

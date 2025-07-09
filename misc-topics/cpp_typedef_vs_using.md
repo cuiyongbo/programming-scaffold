@@ -17,7 +17,7 @@ vInt v; // Now, v is a vector of integers
 
 Limitations:
 
-- Templates: typedef cannot be used with templates. (typedef 使用时被起别名的类型必须确定)
+- Templates: typedef cannot be used with templates. (使用 typedef 时被起别名的类型必须是确定的)
 - Readability: It can be less readable and harder to modify.
 - Pointer Declaration: The pointer declaration is not very clean.
 
@@ -59,7 +59,7 @@ int main() {
 
 ```cpp
 template<typename T>
-typedef vector<T> arr_ptr_t;
+typedef vector<T> arr_ptr_t; //  compilation error: a typedef cannot be a template
 
 int main() {
     // ...
@@ -91,7 +91,7 @@ Example with Templates:
 template<typename T>
 using Salary = std::unordered_map<Employee_id, std::vector<T>>;
 
-Salary<Employee_Salary> employeeSalary;
+Salary<float> employeeSalary;
 ```
 
 Example with Base Class Method:
@@ -118,7 +118,6 @@ int main() {
 
 Conclusion
 
-While both typedef and using serve the purpose of creating type aliases, using is generally preferred due to its flexibility, readability, and ability to work with templates.
-typedef is still useful in some contexts, but using provides a more modern and cleaner approach to type aliasing in C++
+While both `typedef` and `using` serve the purpose of creating type aliases, `using` is generally preferred due to its flexibility, readability, and ability to work with templates. `typedef` is still useful in some contexts, but `using` provides a more modern and cleaner approach to type aliasing in C++
 
 - [C++ typedef vs typedef](https://www.geeksforgeeks.org/cpp-using-vstypedef/)
