@@ -329,4 +329,3 @@ with tf.experimental.async_scope():
 - **Stream Synchronization**: TensorFlow ensures proper synchronization between streams to maintain data consistency.
 
 By understanding how TensorFlow manages CUDA streams, you can better optimize your models for GPU execution and achieve improved performance during inference.
-```

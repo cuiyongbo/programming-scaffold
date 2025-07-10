@@ -12,6 +12,7 @@ public:
     string longestPalindrome(string s);
     bool isPalindrome(int x);
 
+
 private:
     int strStr_naive(string haystack, string pattern);
     int strStr_kmp(string haystack, string pattern);
@@ -475,7 +476,6 @@ int main() {
     isPalindrome_scaffold(-121, false);
     TIMER_STOP(isPalindrome);
     SPDLOG_WARN("isPalindrome tests use {} ms", TIMER_MSEC(isPalindrome));
-
     
 }
 

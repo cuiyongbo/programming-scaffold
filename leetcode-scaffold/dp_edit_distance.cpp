@@ -7,6 +7,8 @@ class Solution {
 public:
     bool isMatch(string s, string p);
     int minDistance(string word1, string word2);
+    bool isInterleave(string s1, string s2, string s3);
+
 private:
     int minDistance_dp(string word1, string word2);
     int minDistance_memoization(string word1, string word2);
@@ -52,6 +54,7 @@ int Solution::minDistance_dp(string word1, string word2) {
     }
     return dp[m][n];
 }
+
 
 int Solution::minDistance_memoization(string word1, string word2) {
     int m = word1.size();
@@ -101,14 +104,15 @@ bool Solution::isMatch(string s, string p) {
     // i, j are not inclusive
     for (int i=1; i<=m; ++i) {
         for (int j=1; j<=n; ++j) {
-            if (p[j-1] == '.') { // a "." matches all possible characters
+            if (p[j-1] == '.') { // a "." matches all possible characters, so p[j-1] matches s[i-1]
                 dp[i][j] = dp[i-1][j-1];
             } else if (p[j-1] == '*') {
-                if (j>=2) {
+                if (j>1) {
                     // 1. Use '*' to match zero character in s
-                    dp[i][j] = dp[i][j-2];
-                    // 2. Use '*' to match one or more characters in s
-                    if (s[i-1] == p[j-2] || p[j-2]=='.') {
+                    dp[i][j] = dp[i][j-2]; // why `j-2`? because '*' matches zero or more of *the preceding element.* and p[j-1] is omitted in this case
+                    // 2. Use '*' to match one or more characters in s. p[j-1] is used as p[j-2]
+                    if (s[i-1] == p[j-2] /*exact match*/
+                        || p[j-2]=='.' /*wildcard*/) {
                         dp[i][j] = dp[i][j] || dp[i-1][j];
                     }
                 } else {
@@ -145,10 +149,82 @@ void isMatch_scaffold(string input1, string input2, bool expectedResult) {
 }
 
 
+/*
+Given strings s1, s2, and s3, find whether s3 is formed by an interleaving of s1 and s2.
+An interleaving of two strings s and t is a configuration where s and t are divided into n and m substrings respectively, such that:
+
+s = s1 + s2 + ... + sn
+t = t1 + t2 + ... + tm
+|n - m| <= 1
+The interleaving is s1 + t1 + s2 + t2 + s3 + t3 + ... or t1 + s1 + t2 + s2 + t3 + s3 + ...
+Note: a + b is the concatenation of strings a and b.
+
+Example 1:
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
+Output: true
+Explanation: One way to obtain s3 is:
+Split s1 into s1 = "aa" + "bc" + "c", and s2 into s2 = "dbbc" + "a".
+Interleaving the two splits, we get "aa" + "dbbc" + "bc" + "a" + "c" = "aadbbcbcac".
+Since s3 can be obtained by interleaving s1 and s2, we return true.
+
+Example 2:
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbbaccc"
+Output: false
+Explanation: Notice how it is impossible to interleave s2 with any other string to obtain s3.
+
+Example 3:
+Input: s1 = "", s2 = "", s3 = ""
+Output: true
+ 
+Constraints:
+0 <= s1.length, s2.length <= 100
+0 <= s3.length <= 200
+s1, s2, and s3 consist of lowercase English letters.
+
+Follow up: Could you solve it using only O(s2.length) additional memory space?
+*/
+bool Solution::isInterleave(string s1, string s2, string s3) {
+    int l1 = s1.size();
+    int l2 = s2.size();
+    int l3 = s3.size();
+    if (l1+l2 != l3) {
+        return false;
+    }
+    // dp[i][j] means whether s3[0:i+j] can be formed by interleaving by s1[0:i] and s2[0:j]
+    vector<vector<int>> dp(l1+1, vector<int>(l2+1, false));
+    dp[0][0] = true; // initialization
+    for (int i=0; i<=l1; i++) {
+        for (int j=0; j<=l2; j++) {
+            // i, j are not inclusive
+            if (i > 0) {
+                dp[i][j] |= dp[i-1][j] && s1[i-1]==s3[i+j-1]; // s3[i+j-1] = s2[0:j] + s1[0:i] 
+            }
+            if (j > 0) {
+                dp[i][j] |= dp[i][j-1] && s2[j-1]==s3[i+j-1]; // s3[i+j-1] = s1[0:i] + s2[0:j]
+            }
+        }
+    }
+    return dp[l1][l2];
+}
+
+
+void isInterleave_scaffold(string input1, string input2, string input3, int expectedResult) {
+    Solution ss;
+    bool actual = ss.isInterleave(input1, input2, input3);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, {}, expectedResult={}) passed", input1, input2, input3, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, {}, expectedResult={}) failed, actual: {}", input1, input2, input3, expectedResult, actual);
+    }
+}
+
+
 int main() {
     SPDLOG_WARN("Running minDistance tests:");
     TIMER_START(minDistance);
     minDistance_scaffold("hello", "hope", 4);
+    minDistance_scaffold("horse", "ros", 3);
+    minDistance_scaffold("intention", "execution", 5);
     TIMER_STOP(minDistance);
     SPDLOG_WARN("minDistance tests use {} ms", TIMER_MSEC(minDistance));
 
@@ -159,6 +235,15 @@ int main() {
     isMatch_scaffold("ab", ".*", true);
     isMatch_scaffold("aab", "c*a*b*", true);
     isMatch_scaffold("mississippi", "mis*is*p*.", false);
+    isMatch_scaffold("aaa", "ab*ac*a", true);
     TIMER_STOP(isMatch);
     SPDLOG_WARN("isMatch tests use {} ms", TIMER_MSEC(isMatch));
+
+    SPDLOG_WARN("Running isInterleave tests:");
+    TIMER_START(isInterleave);
+    isInterleave_scaffold("aabcc", "dbbca", "aadbbcbcac", 1);
+    isInterleave_scaffold("aabcc", "dbbca", "aadbbbaccc", 0);
+    isInterleave_scaffold("", "", "", 1);
+    TIMER_STOP(isInterleave);
+    SPDLOG_WARN("isInterleave tests use {} ms", TIMER_MSEC(isInterleave));
 }

@@ -3,7 +3,6 @@
 using namespace std;
 
 /* leetcode: 85, 221, 1277 */
-
 class Solution {
 public:
     int maxRectangle(vector<vector<int>>& grid);
@@ -24,7 +23,7 @@ Example:
     Output: 6
 */
 int Solution::maxRectangle(vector<vector<int>>& grid) {
-    // dp[i][j] means maxLen of all 1-sequence ending with grid[i][j] at row i
+    // dp[i][j] means maxLen of all 1 subarray ending with grid[i][j] at row i
     // dp[i][j] = dp[i][j-1]+1 if grid[i][j] == 1 else 0
     int rows = grid.size();
     int columns = grid[0].size();
@@ -41,8 +40,7 @@ int Solution::maxRectangle(vector<vector<int>>& grid) {
         for (int c=1; c<=columns; ++c) {
             int len = INT32_MAX;
             for (int k=r; k<=rows; ++k) {
-                // maxRectangle in grid[r:, c]. (r, c) as top-right corner
-                len = min(len, dp[k][c]);
+                len = min(len, dp[k][c]); // rectangle with bottom-right located at (k, c), top-right located at (r, c)
                 if (len == 0) { // stop when meeting a zero-row
                     break;
                 }
@@ -68,7 +66,7 @@ Example:
 int Solution::maxSquare(vector<vector<int>>& grid) {
     int rows = grid.size();
     int columns = grid[0].size();
-    // dp[i][j] means maximum length of all 1 sequence ending with grid[i][j] at row i
+    // dp[i][j] means maximum length of all 1 subarray ending with grid[i][j] at row i
     // dp[i][j] = dp[i][j-1]+1 if grid[i][j]==1 else 0
     vector<vector<int>> dp(rows+1, vector<int>(columns+1, 0));
     for (int r=1; r<=rows; ++r) {
@@ -86,7 +84,7 @@ int Solution::maxSquare(vector<vector<int>>& grid) {
             // maxSquare for grid[r:, c]
             int len = INT32_MAX;
             for (int k=r; k<=rows; k++) {
-                len = min(len, dp[k][c]);
+                len = min(len, dp[k][c]); // square with bottom-right located at (k, c), top-right located at (r, c)
                 if (len == 0) { // stop at row with all 0
                     break;
                 }
@@ -126,7 +124,7 @@ int Solution::countSquares(vector<vector<int>>& grid) {
     for (int r=1; r<=rows; ++r) {
         for (int c=1; c<=columns; ++c) {
             if (grid[r-1][c-1] == 1) {
-                dp[r][c] = min({dp[r-1][c], dp[r][c-1], dp[r-1][c-1]}) + 1;
+                dp[r][c] = min({dp[r-1][c]/*top*/, dp[r][c-1]/*left*/, dp[r-1][c-1]/*diagonal-left*/}) + 1;
                 ans += dp[r][c];
             }
         }
