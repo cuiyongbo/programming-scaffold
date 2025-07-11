@@ -9,7 +9,8 @@ public:
     vector<string> fullJustify(vector<string>& words, int maxWidth);
     // <two sum, three sum, three sum closest> problems
     // two_pointers_two_sum.cpp
-    
+    bool canConstruct(string ransomNote, string magazine);
+    bool isIsomorphic(string s, string t);
 
 };
 
@@ -233,6 +234,105 @@ void fullJustify_scaffold(string input1, int input2) {
 }
 
 
+/*
+Given two strings ransomNote and magazine, return true if ransomNote can be constructed by using the letters from magazine and false otherwise.
+Each letter in magazine can only be used once in ransomNote.
+
+Example 1:
+Input: ransomNote = "a", magazine = "b"
+Output: false
+
+Example 2:
+Input: ransomNote = "aa", magazine = "ab"
+Output: false
+
+Example 3:
+Input: ransomNote = "aa", magazine = "aab"
+Output: true
+
+Constraints:
+1 <= ransomNote.length, magazine.length <= 105
+ransomNote and magazine consist of lowercase English letters.
+*/
+bool Solution::canConstruct(string ransomNote, string magazine) {
+    vector<int> count(128, 0);
+    for (auto c: magazine) {
+        count[c]++;
+    }
+    for (auto c: ransomNote) {
+        count[c]--;
+        if (count[c] < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+void canConstruct_scaffold(string input1, string input2, int expectedResult) {
+    Solution ss;
+    bool actual = ss.canConstruct(input1, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
+    }
+}
+
+
+/*
+Given two strings s and t, determine if they are isomorphic.
+Two strings s and t are isomorphic if the characters in s can be replaced to get t.
+All occurrences of a character must be replaced with another character while preserving the order of characters.
+No two characters may map to the same character, but a character may map to itself.
+
+Example 1:
+Input: s = "egg", t = "add"
+Output: true
+
+Example 2:
+Input: s = "foo", t = "bar"
+Output: false
+
+Example 3:
+Input: s = "paper", t = "title"
+Output: true
+ 
+Constraints:
+1 <= s.length <= 5 * 104
+t.length == s.length
+s and t consist of any valid ascii character.
+*/
+bool Solution::isIsomorphic(string s, string t) {
+    if (s.size() != t.size()) {
+        return false;
+    }
+    int n = s.size();
+    // since no two characters may map to the same character, we cannot use one map to record the mapping from s to t
+    vector<int> ma(128, 0);
+    vector<int> mb(128, 0);
+    for (int i=0; i<n; i++) {
+        if (ma[s[i]] != mb[t[i]]) {
+            return false;
+        }
+        ma[s[i]] = i+1;
+        mb[t[i]] = i+1;
+    }
+    return true;
+}
+
+
+void isIsomorphic_scaffold(string input1, string input2, int expectedResult) {
+    Solution ss;
+    bool actual = ss.isIsomorphic(input1, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
+    }
+}
+
+
 int main() {
     SPDLOG_WARN("Running fullJustify tests: ");
     TIMER_START(fullJustify);
@@ -253,5 +353,25 @@ int main() {
     TIMER_STOP(isPalindrome);
     SPDLOG_WARN("isPalindrome using {} ms", TIMER_MSEC(isPalindrome));
 
+    SPDLOG_WARN("Running canConstruct tests: ");
+    TIMER_START(canConstruct);
+    canConstruct_scaffold("a", "b", 0);
+    canConstruct_scaffold("aa", "ab", 0);
+    canConstruct_scaffold("aa", "aab", 1);
+    canConstruct_scaffold("aa", "aba", 1);
+    TIMER_STOP(canConstruct);
+    SPDLOG_WARN("canConstruct using {} ms", TIMER_MSEC(canConstruct));
+
+    SPDLOG_WARN("Running isIsomorphic tests: ");
+    TIMER_START(isIsomorphic);
+    isIsomorphic_scaffold("a", "a", 1);
+    isIsomorphic_scaffold("a", "b", 1);
+    isIsomorphic_scaffold("egg", "add", 1);
+    isIsomorphic_scaffold("aa", "ab", 0);
+    isIsomorphic_scaffold("foo", "bar", 0);
+    isIsomorphic_scaffold("paper", "title", 1);
+    isIsomorphic_scaffold("paper", "abadd", 0);
+    TIMER_STOP(isIsomorphic);
+    SPDLOG_WARN("isIsomorphic using {} ms", TIMER_MSEC(isIsomorphic));
 
 }

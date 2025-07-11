@@ -9,9 +9,9 @@ public:
     // similar to <rotate array> problems
     void rotate(vector<vector<int>>& matrix);
     void setZeroes(vector<vector<int>>& matrix);
+    void gameOfLife(vector<vector<int>>& board);
 
 };
-
 
 
 /*
@@ -190,12 +190,12 @@ void Solution::setZeroes(vector<vector<int>>& matrix) {
             matrix[i][j] = 0;
         }
     }
-    for (int i=0; i<n; i++) {
-        if (!columns[i]) {
+    for (int j=0; j<n; j++) {
+        if (!columns[j]) {
             continue;
         }
-        for (int j=0; j<n; j++) {
-            matrix[j][i] = 0;
+        for (int i=0; i<m; i++) {
+            matrix[i][j] = 0;
         }
     }
 }
@@ -205,6 +205,135 @@ void setZeroes_scaffold(string input1, string expectedResult) {
     Solution ss;
     vector<vector<int>> matrix = stringTo2DArray<int>(input1);
     ss.setZeroes(matrix);
+    vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
+    if (matrix == expected) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input1, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual:", input1, expectedResult);
+        for (auto m: matrix) {
+            print_vector(m);
+        }
+    }
+}
+
+
+/*
+According to Wikipedia's article: "The Game of Life, also known simply as Life, is a cellular automaton devised by the British mathematician John Horton Conway in 1970."
+
+The board is made up of an m x n grid of cells, where each cell has an initial state: live (represented by a 1) or dead (represented by a 0). Each cell interacts with its eight neighbors (horizontal, vertical, diagonal) using the following four rules (taken from the above Wikipedia article):
+
+- Any live cell with fewer than two live neighbors dies as if caused by under-population.
+- Any live cell with two or three live neighbors lives on to the next generation.
+- Any live cell with more than three live neighbors dies, as if by over-population.
+- Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+The next state is created by applying the above rules simultaneously to every cell in the current state, where births and deaths occur simultaneously. Given the current state of the m x n grid board, return the next state.
+
+Example 1:
+Input: board = [[0,1,0],[0,0,1],[1,1,1],[0,0,0]]
+Output: [[0,0,0],[1,0,1],[0,1,1],[0,1,0]]
+
+Example 2:
+Input: board = [[1,1],[1,0]]
+Output: [[1,1],[1,1]]
+
+Constraints:
+m == board.length
+n == board[i].length
+1 <= m, n <= 25
+board[i][j] is 0 or 1.
+ 
+Follow up:
+
+Could you solve it in-place? Remember that the board needs to be updated simultaneously: You cannot update some cells first and then use their updated values to update other cells.
+In this question, we represent the board using a 2D array. In principle, the board is infinite, which would cause problems when the active area encroaches upon the border of the array (i.e., live cells reach the border). How would you address these problems?
+
+Hint: we should distinguish the next state of current cell from current state if its state changed.
+such as when a cell goes from live to dead, we mark its state to 2.(any number which is not 0 or 1). similarly when a cell goes from dead to live, we mark its state to -1(any number which is not 0 or 1, of course, not 2 either).
+*/
+void Solution::gameOfLife(vector<vector<int>>& board) {
+    int m = board.size();
+    int n = board[0].size();
+    auto live_cell_num = [&] (int i, int j) {
+        int num = 0;
+        int nr = 0, nc = 0;
+        // upper
+        nr = i-1; nc = j;
+        if (0<=nr&&nr<m&&0<=nc&&nc<n) {
+            num += (board[nr][nc] >= 1);
+        }
+        // upper-right
+        nr = i-1; nc = j+1;
+        if (0<=nr&&nr<m&&0<=nc&&nc<n) {
+            num += (board[nr][nc] >= 1);
+        }
+        // right
+        nr = i; nc = j+1;
+        if (0<=nr&&nr<m&&0<=nc&&nc<n) {
+            num += (board[nr][nc] >= 1);
+        }
+        // bottom-right
+        nr = i+1; nc = j+1;
+        if (0<=nr&&nr<m&&0<=nc&&nc<n) {
+            num += (board[nr][nc] >= 1);
+        }
+        // bottom
+        nr = i+1; nc = j;
+        if (0<=nr&&nr<m&&0<=nc&&nc<n) {
+            num += (board[nr][nc] >= 1);
+        }
+        // bottom-left
+        nr = i+1; nc = j-1;
+        if (0<=nr&&nr<m&&0<=nc&&nc<n) {
+            num += (board[nr][nc] >= 1);
+        }
+        // left
+        nr = i; nc = j-1;
+        if (0<=nr&&nr<m&&0<=nc&&nc<n) {
+            num += (board[nr][nc] >= 1);
+        }
+        // upper-left
+        nr = i-1; nc = j-1;
+        if (0<=nr&&nr<m&&0<=nc&&nc<n) {
+            num += (board[nr][nc] >= 1);
+        }
+        return num;
+    };
+    for (int i=0; i<m; i++) {
+        for (int j=0; j<n; j++) {
+            int cells = live_cell_num(i, j);
+            if (cells < 2) {
+                if (board[i][j] == 1) {
+                    board[i][j] = 2; // live -> dead
+                }
+            } else if (cells == 2) {
+                // do nothing
+            } else if (cells == 3) {
+                if (board[i][j] == 0) {
+                    board[i][j] = -1; // dead -> live
+                }
+            } else {
+                if (board[i][j] == 1) {
+                    board[i][j] = 2; // live -> dead
+                }
+            }
+        }
+    }
+    for (int i=0; i<m; i++) {
+        for (int j=0; j<n; j++) {
+            if (board[i][j] == -1) {
+                board[i][j] = 1;
+            } else if (board[i][j] == 2) {
+                board[i][j] = 0;
+            }
+        }
+    }
+}
+
+
+void gameOfLife_scaffold(string input1, string expectedResult) {
+    Solution ss;
+    vector<vector<int>> matrix = stringTo2DArray<int>(input1);
+    ss.gameOfLife(matrix);
     vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
     if (matrix == expected) {
         SPDLOG_INFO("Case({}, expectedResult={}) passed", input1, expectedResult);
@@ -240,5 +369,11 @@ int main() {
     TIMER_STOP(setZeroes);
     SPDLOG_WARN("setZeroes using {} ms", TIMER_MSEC(setZeroes));
 
+    SPDLOG_WARN("Running gameOfLife tests: ");
+    TIMER_START(gameOfLife);
+    gameOfLife_scaffold("[[1,1,1],[1,0,1],[1,1,1]]", "[[1,0,1],[0,0,0],[1,0,1]]");
+    gameOfLife_scaffold("[[0,1,0],[0,0,1],[1,1,1],[0,0,0]]", "[[0,0,0],[1,0,1],[0,1,1],[0,1,0]]");
+    gameOfLife_scaffold("[[1,1],[1,0]]", "[[1,1],[1,1]]");
+    TIMER_STOP(gameOfLife);
+    SPDLOG_WARN("gameOfLife using {} ms", TIMER_MSEC(gameOfLife));
 }
-
