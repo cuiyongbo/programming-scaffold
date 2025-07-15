@@ -1,5 +1,4 @@
-```
-Q: how to convert a json file into a yaml file in python?
+# how to convert a json file into a yaml file in python?
 
 You can easily convert a JSON file to a YAML file in Python using the `json` and `yaml` libraries. First, you need to install the `pyyaml` package if you don't have it already.
 
@@ -91,4 +90,3 @@ favorites:
 ```
 
 By running the provided Python code, the JSON file `input.json` is read and then converted into a YAML file `output.yaml`. This conversion process can handle nested JSON structures and arrays seamlessly.
-```

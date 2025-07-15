@@ -1,5 +1,4 @@
-```
-Q: tell me about python thread, are threads really independent when executing?
+# tell me about python thread, are threads really independent when executing?
 
 In Python, threads are not entirely independent in their execution, primarily due to the presence of the Global Interpreter Lock (GIL). Understanding the GIL and its implications is crucial when working with threading in Python, especially in the context of the standard CPython interpreter.
 
@@ -31,7 +30,7 @@ The Global Interpreter Lock (GIL) is a mutex that protects access to Python obje
 
 While Python threads are not truly independent in their execution due to the GIL, they are still useful for certain types of applications, particularly those that are I/O-bound. For CPU-bound tasks, consider using the `multiprocessing` module or exploring other concurrency models or Python interpreters.
 
-Q: how to handle signal in python?
+# how to handle signal in python?
 
 Handling signals in Python allows you to perform specific actions when your program receives signals, such as cleanly shutting down a long-running process when it receives a termination signal (like SIGINT from Ctrl+C). The `signal` module in Python provides mechanisms to handle such signals.
 
@@ -105,5 +104,3 @@ if __name__ == "__main__":
 - **Custom Signal Handling**: You can also create custom handlers for other signals like `SIGALRM`, `SIGHUP`, etc., depending on your application requirements.
 
 By registering signal handlers, you can ensure your program responds appropriately to various signals, allowing for graceful termination and resource cleanup.
-
-```

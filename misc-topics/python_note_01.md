@@ -1,5 +1,4 @@
-```
-Q: what's the difference between static method and class method in python?
+# what's the difference between static method and class method in python?
 
 In Python, both static methods and class methods are types of methods that belong to a class rather than an instance of the class. However, they serve different purposes and have different behaviors. Here's a detailed explanation of the differences between static methods and class methods:
 
@@ -80,7 +79,7 @@ instance.class_method()  # Output: This is a class method. Class variable: Hello
 
 By understanding these differences, you can choose the appropriate method type for your specific use case in Python.
 
-Q: how to implement "+", "-", "*", "/", "+=", "-=", "*=", "/=" operations for a python class?
+# how to implement "+", "-", "*", "/", "+=", "-=", "*=", "/=" operations for a python class?
 
 Refer to [3.3.8. Emulating numeric types¶](https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types)
 
@@ -169,7 +168,7 @@ In this example:
 - The `__iadd__`, `__isub__`, `__imul__`, and `__itruediv__` methods handle the `+=`, `-=`, `*=`, and `/=` operations by modifying the instance in place and returning `self`. 
 - The `__repr__` method is defined to provide a readable string representation of the instance for debugging and logging purposes.
 
-Q: is it mandatory for `__iadd__` to return `self`?
+# is it mandatory for `__iadd__` to return `self`?
 Yes, for the `+=` operator (and similarly for `-=`, `*=`, and `/=`), it is generally expected that the `__iadd__` method (and the corresponding `__isub__`, `__imul__`, and `__itruediv__` methods) return `self`. The reason is that these methods define in-place operations, meaning they modify the object on which they are called rather than creating and returning a new object.
 
 By returning `self`, you ensure that the modified object is returned to the caller, which is the expected behavior for in-place operations. If `self` is not returned, the in-place operation won't work as expected, and it could lead to unexpected behavior.
@@ -226,7 +225,7 @@ print(a)  # Output: None, a is now None because __iadd__ did not return self
 
 In this incorrect implementation, `a` would end up being `None` after `a += b` because `__iadd__` did not return `self`. It is crucial to return `self` to maintain the expected behavior of in-place operations.
 
-Q: can I add multiple '__init__" for a python class?
+# can I add multiple '__init__" for a python class?
 
 In Python, a class cannot have multiple `__init__` methods because defining multiple methods with the same name in a class will override the previous ones. However, you can achieve similar functionality by using default arguments, method overloading (via class methods or static methods), or factory methods. These techniques allow you to simulate multiple initializers and handle different ways of constructing an object.
 
@@ -326,7 +325,7 @@ print(obj3.value)
 Python does not support multiple `__init__` methods directly. However, you can achieve similar results using default arguments, class methods, or static methods to create various initializers for your class. These approaches increase flexibility and readability, allowing you to instantiate objects in different ways while maintaining a clean and maintainable codebase.
 
 
-Q: how to overload '==' operator for a python class?
+# how to overload '==' operator for a python class?
 
 In Python, you can overload the equality operator `==` by defining the `__eq__` method in your class. This allows to customize the behavior of the `==` operator for instances of your class.
 

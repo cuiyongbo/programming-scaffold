@@ -1,5 +1,4 @@
-```
-Q: how to use python dataclasses package?
+# how to use python dataclasses package?
 
 The `dataclasses` package in Python provides a decorator and functions for automatically adding special methods to user-defined classes. This can simplify the creation of classes that are primarily used to store data. Below is a guide on how to use the `dataclasses` package.
 
@@ -135,7 +134,7 @@ print(Person.__dataclass_fields__['age'].metadata)  # Output: {'unit': 'years'}
 
 The `dataclasses` package is a powerful tool for simplifying the creation of classes that are primarily used to store data. By using the `@dataclass` decorator, you can automatically generate common special methods and reduce boilerplate code.
 
-Q: how to define a class with all fields optional decorated with dataclass
+# how to define a class with all fields optional decorated with dataclass
 
 To define a class with all fields optional using the `@dataclass` decorator, you can use the `typing` module to specify that each field can be of type `Optional` (which is an alias for `Union[T, None]`). Additionally, you can provide a default value of `None` for each field.
 
@@ -198,5 +197,3 @@ print(p3)  # Output: Person(name='Jane Doe', age=30, email='jane.doe@example.com
 ```
 
 In this example, the fields `name`, `age`, and `email` have default values of `"Unknown"`, `0`, and `"unknown@example.com"`, respectively. This way, if no value is provided for a field, it will use the specified default value instead of `None`.
-
-```

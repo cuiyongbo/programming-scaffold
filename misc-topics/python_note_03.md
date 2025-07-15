@@ -1,5 +1,4 @@
-```
-Q: how to merge python lists?
+# how to merge python lists?
 
 You can merge multiple Python lists of integers into a single list by using several methods. For simplicity, I'll describe three common ways:
 
@@ -92,4 +91,3 @@ print(merged_list)
 - **Using List Comprehension**: Compact and Pythonic.
 
 You can choose the method that best fits your needs based on readability, performance, and usage context.
-```

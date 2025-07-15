@@ -1,5 +1,4 @@
-```
-Q: what is abc package used for in python?
+# what is abc package used for in python?
 
 The `abc` module in Python provides tools for defining abstract base classes (ABCs). Abstract base classes are a way to define interfaces in Python, which can help ensure that derived classes implement certain methods. The `abc` module is part of Python’s standard library and helps in building class hierarchies that enforce method implementations.
 
@@ -103,4 +102,3 @@ The `abc` module in Python is used to define abstract base classes and abstract 
    - Provides interface consistency, improves design, and helps in early error detection.
 
 By leveraging the `abc` module, you can create robust and maintainable object-oriented designs in Python.
-```

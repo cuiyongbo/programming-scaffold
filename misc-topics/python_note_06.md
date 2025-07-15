@@ -1,5 +1,4 @@
-```
-Q: how to declare th signature of a python function?
+# how to declare the signature of a python function?
 
 In Python, you can declare the signature of a function using type hints, which are part of the `typing` module. Type hints allow you to specify the expected types of the function's arguments and its return value. This can improve code readability and help with static type checking.
 
@@ -150,7 +149,7 @@ def get_first_element(elements: List[T]) -> T:
 
 This example covers basic types, optional types, collections, custom classes, and generic types.
 
-Q: my function return two values: list of Meta1, RunMeta, how to declare my function then?
+# my function return two values: list of Meta1, RunMeta, how to declare my function then?
 
 To declare the signature of your function `foo` that returns a tuple containing a list of `Meta` objects and an instance of `RunMetadata`, you can use the `typing` module. Specifically, you will use `List` and `Tuple` to specify the types of the returned values.
 
@@ -202,4 +201,3 @@ print(run_meta)   # Output: <__main__.RunMetadata object at 0x...>
 ```
 
 This way, the function signature clearly indicates what types of values the function returns, improving code readability and enabling better static type checking.
-```
