@@ -1,5 +1,51 @@
+# I have 2 pytorch.tensors: a, b, a.shape = (10, 1), b.shape=(10, 4), how to concatenate a to b to form a new tensor c, c.shape = (10, 5), where c[:, 0] == a, c[:, 1:] == b?
+
+你有两个 PyTorch 张量：
+
+- `a`，形状 `(10, 1)`
+- `b`，形状 `(10, 4)`
+
+你想把它们拼接成一个新张量 `c`，形状 `(10, 5)`，并且满足：
+
+- `c[:, 0] == a.squeeze()`（`a` 的值在第一列）
+- `c[:, 1:] == b`（`b` 的值在后面四列）
+
+---
+
+## 代码示例
+
+```python
+import torch
+
+# 假设已有张量 a 和 b
+a = torch.randn(10, 1)
+b = torch.randn(10, 4)
+
+# 拼接
+c = torch.cat([a, b], dim=1)
+
+print(c.shape)  # torch.Size([10, 5])
+
+# 验证
+print(torch.allclose(c[:, 0], a.squeeze()))  # True
+print(torch.allclose(c[:, 1:], b))           # True
 ```
-Q: how to merge pytorch tensors?
+
+---
+
+## 说明
+
+- `torch.cat` 按维度拼接，`dim=1` 表示按列拼接。
+- `a` 的形状是 `(10, 1)`，`b` 是 `(10, 4)`，拼接后是 `(10, 5)`。
+- `c[:, 0]` 是第一列，等于 `a.squeeze()`，因为 `a` 是 `(10,1)`，`c[:,0]` 是 `(10,)`。
+
+如果你想保持维度一致，也可以用 `c[:, 0:1] == a`。
+
+---
+
+如果你还想了解 `torch.stack` 或其他拼接方法，也可以告诉我！
+
+# how to merge pytorch tensors?
 
 To merge multiple PyTorch tensors with the same number of columns but different numbers of rows into a single tensor, you can use the `torch.cat` function. This function concatenates the given sequence of tensors along a specified dimension.
 
@@ -70,7 +116,7 @@ Shape of merged tensor: torch.Size([11, 16])
 
 By following this method, you can merge multiple tensors with varying numbers of rows but the same number of columns into a single tensor efficiently in PyTorch.
 
-Q: how to turn np.ndarray into torch.Tensor
+# how to turn np.ndarray into torch.Tensor
 
 To convert a NumPy array (`np.ndarray`) into a PyTorch tensor (`torch.Tensor`), you can use the `torch.from_numpy()` function provided by the PyTorch library. This function creates a tensor that shares memory with the NumPy array, which means changes to one will affect the other. If you need the tensor to be independent of the NumPy array, you can use the `.clone()` method or `torch.tensor()` function.
 
@@ -173,5 +219,3 @@ print("2D tensor:", torch_tensor_2d)
 ```
 
 By following these steps, you can easily convert any NumPy array into a PyTorch tensor, ensuring compatibility and flexibility for various deep learning tasks using PyTorch.
-
-```

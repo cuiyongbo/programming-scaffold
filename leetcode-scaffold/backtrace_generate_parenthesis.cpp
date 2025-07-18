@@ -20,7 +20,8 @@ An input string is valid if:
 Note that an empty string is also considered valid.
 */
 bool Solution::isValidParenthesisString_20(string s) {
-    map<char, char> m;
+    //std::map<char, char> m;
+    std::unordered_map<char, char> m;
     m[')'] = '(';
     m[']'] = '[';
     m['}'] = '{';
@@ -131,7 +132,7 @@ vector<string> Solution::removeInvalidParentheses(const string& s) {
     string candidate;
     set<string> ans;
     // cur_index, numberOfLeftParenthesis, numberOfRightParenthesis
-    function<void(int, int, int)> backtrace = [&] (int u, int l , int r) {
+    function<void(int, int, int)> backtrace = [&] (int u, int l, int r) {
         // r > l means candidate is invalid, no need to go further
         if (r > l || u == (int)s.size()) {
             int cs = candidate.size();

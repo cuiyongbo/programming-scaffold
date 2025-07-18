@@ -9,6 +9,8 @@ public:
     vector<vector<int>> merge(vector<vector<int>>& intervals);
     vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval);
     int findMinArrowShots(vector<vector<int>>& points);
+    string simplifyPath(string path);
+
 };
 
 
@@ -17,10 +19,8 @@ You are given a sorted unique integer array nums. A range [a,b] is the set of al
 Return the smallest sorted list of ranges that cover all the numbers in the array exactly. That is, each element of nums is covered by exactly one of the ranges, and there is no integer x such that x is in one of the ranges but not in nums.
 
 Each range [a,b] in the list should be output as:
-
 "a->b" if a != b
 "a" if a == b
- 
 
 Example 1:
 Input: nums = [0,1,2,4,5,7]
@@ -256,6 +256,106 @@ void findMinArrowShots_scaffold(string input, int expectedResult) {
 }
 
 
+
+/*
+Given a string path, which is an absolute path (starting with a slash '/') to a file or directory in a Unix-style file system, convert it to the simplified canonical path.
+In a Unix-style file system, a period '.' refers to the current directory, a double period '..' refers to the directory up a level, and any multiple consecutive slashes (i.e. '//') are treated as a single slash '/'. For this problem, any other format of periods such as '...' are treated as file/directory names.
+The canonical path should have the following format:
+- The path starts with a single slash '/'.
+- Any two directories are separated by a single slash '/'.
+- The path does not end with a trailing '/'.
+The path only contains the directories on the path from the root directory to the target file or directory (i.e., no period '.' or double period '..')
+Return the simplified canonical path.
+
+Example 1:
+Input: path = "/home/"
+Output: "/home"
+Explanation: Note that there is no trailing slash after the last directory name.
+
+Example 2:
+Input: path = "/../"
+Output: "/"
+Explanation: Going one level up from the root directory is a no-op, as the root level is the highest level you can go.
+
+Example 3:
+Input: path = "/home//foo/"
+Output: "/home/foo"
+Explanation: In the canonical path, multiple consecutive slashes are replaced by a single one.
+ 
+Constraints:
+1 <= path.length <= 3000
+path consists of English letters, digits, period '.', slash '/' or '_'.
+path is a valid absolute Unix path.
+*/
+string Solution::simplifyPath(string path) {
+    string ans;
+    int sz = path.size();
+    stack<pair<int, int>> st;
+    for (int i=0; i<sz; i++) {
+        char cur = path[i];
+        if (st.empty()) {
+            st.emplace(i, i);
+        } else {
+            char prev = path[st.top().second];
+            if (cur == '.' || cur == '/') {
+                if (prev == cur) { // cases: "..", "//"
+                    st.top().second = i;
+                } else {
+                    st.emplace(i, i);
+                }
+            } else {
+                if (prev == '.' || prev == '/') {
+                    st.emplace(i, i);
+                } else {
+                    st.top().second = i;
+                }
+            }
+        }
+    }
+    vector<string> buffer;
+    while (!st.empty()) {
+        auto t = st.top(); st.pop();
+        string p = path.substr(t.first, t.second-t.first+1);
+        if (p == ".") { // case: "/./" -> "/"
+            st.pop();
+            continue;
+        }
+        if (p == "..") { // case: "/foo/../bar" --> "/foo"
+            st.pop(); // skip the next upper directory
+            continue;
+        }
+        if (p == "//") {
+            p = "/";
+        }
+        buffer.push_back(p);
+    }
+    //print_vector(buffer); // DEBUG
+    // note the order of stack is last-in, first-out
+    for (int i=buffer.size()-1; i>0; i--) {
+        ans.append(buffer[i]);
+    }
+    if (buffer[0]=="/") {
+        if (ans.empty()) { // there is only "/"
+            ans = buffer[0];
+        }
+    } else {
+        ans.append(buffer[0]);
+    }
+    return ans;
+}
+
+
+void simplifyPath_scaffold(string input1, string expectedResult) {
+    Solution ss;
+    auto actual = ss.simplifyPath(input1);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input1, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input1, expectedResult, actual);
+    }
+}
+
+
 int main() {
     SPDLOG_WARN("Running summaryRanges tests: ");
     TIMER_START(summaryRanges);
@@ -288,5 +388,17 @@ int main() {
     merge_scaffold("[[1,10],[4,5],[6, 8]]", "[[1,10]]");
     TIMER_STOP(findMinArrowShots);
     SPDLOG_WARN("findMinArrowShots tests use {} ms", TIMER_MSEC(findMinArrowShots));
+
+    SPDLOG_WARN("Running simplifyPath tests:");
+    TIMER_START(simplifyPath);
+    simplifyPath_scaffold("/foo/bar", "/foo/bar");
+    simplifyPath_scaffold("/foo/bar/", "/foo/bar");
+    simplifyPath_scaffold("/foo/./bar/", "/foo/bar");
+    simplifyPath_scaffold("/foo//bar/", "/foo/bar");
+    simplifyPath_scaffold("/foo//bar/", "/foo/bar");
+    simplifyPath_scaffold("/", "/");
+    simplifyPath_scaffold("/../", "/");
+    TIMER_STOP(simplifyPath);
+    SPDLOG_WARN("simplifyPath tests use {} ms", TIMER_MSEC(simplifyPath));
 
 }

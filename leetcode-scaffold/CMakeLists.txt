@@ -425,6 +425,10 @@ add_executable(spiral_matrix spiral_matrix.cpp ${PUB_UTIL_FILES})
 target_compile_features(spiral_matrix PUBLIC cxx_auto_type)
 target_link_libraries(spiral_matrix PRIVATE spdlog::spdlog_header_only)
 
+add_executable(min_stack min_stack.cpp ${PUB_UTIL_FILES})
+target_compile_features(min_stack PUBLIC cxx_auto_type)
+target_link_libraries(min_stack PRIVATE spdlog::spdlog_header_only)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
