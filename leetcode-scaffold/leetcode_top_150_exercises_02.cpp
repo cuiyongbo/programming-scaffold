@@ -11,6 +11,11 @@ public:
     // two_pointers_two_sum.cpp
     bool canConstruct(string ransomNote, string magazine);
     bool isIsomorphic(string s, string t);
+    bool wordPattern(string pattern, string s);
+    bool isAnagram(string s, string t);
+    vector<vector<string>> groupAnagrams(vector<string>& strs);
+    bool isHappy(int n);
+    bool containsNearbyDuplicate(vector<int>& nums, int k);
 
 };
 
@@ -180,7 +185,7 @@ vector<string> Solution::fullJustify(vector<string>& words, int maxWidth) {
                         buffer.append(spaces, ' ');
                     }
                     buffer.append(words[right]);
-                    if (buffer.size() < maxWidth) {
+                    if ((int)buffer.size() < maxWidth) {
                         buffer.append(maxWidth-buffer.size(), ' ');
                     }
                     ans.push_back(buffer);
@@ -333,6 +338,302 @@ void isIsomorphic_scaffold(string input1, string input2, int expectedResult) {
 }
 
 
+/*
+Given a pattern and a string s, find if s follows the same pattern.
+Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty word in s. Specifically:
+
+Each letter in pattern maps to exactly one unique word in s.
+Each unique word in s maps to exactly one letter in pattern.
+No two letters map to the same word, and no two words map to the same letter.
+
+Example 1:
+Input: pattern = "abba", s = "dog cat cat dog"
+Output: true
+Explanation:
+The bijection can be established as:
+'a' maps to "dog".
+'b' maps to "cat".
+
+Example 2:
+Input: pattern = "abba", s = "dog cat cat fish"
+Output: false
+
+Example 3:
+Input: pattern = "aaaa", s = "dog cat cat dog"
+Output: false
+
+Constraints:
+1 <= pattern.length <= 300
+pattern contains only lower-case English letters.
+1 <= s.length <= 3000
+s contains only lowercase English letters and spaces ' '.
+s does not contain any leading or trailing spaces.
+All the words in s are separated by a single space.
+*/
+bool Solution::wordPattern(string pattern, string s) {
+    string item;
+    std::stringstream ss(s);
+    vector<string> words;
+    while (std::getline(ss, item, ' ')) {
+        words.push_back(item);
+    }
+    if (pattern.size() != words.size()) {
+        return false;
+    }
+    map<char, string> d1;
+    map<string, char> d2;
+    int sz = pattern.size();
+    for (int i=0; i<sz; i++) {
+        if (d1.count(pattern[i]) && d1[pattern[i]] != words[i]) {
+            return false;
+        }
+        if (d2.count(words[i]) && d2[words[i]] != pattern[i]) {
+            return false;
+        }
+        d1[pattern[i]] = words[i];
+        d2[words[i]] = pattern[i];
+    }
+    return true;
+}
+
+
+void wordPattern_scaffold(string input1, string input2, int expectedResult) {
+    Solution ss;
+    bool actual = ss.wordPattern(input1, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
+    }
+}
+
+
+/*
+Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+
+Example 1:
+Input: s = "anagram", t = "nagaram"
+Output: true
+
+Example 2:
+Input: s = "rat", t = "car"
+Output: false
+
+Constraints:
+1 <= s.length, t.length <= 5 * 104
+s and t consist of lowercase English letters.
+
+Follow up: What if the inputs contain Unicode characters? How would you adapt your solution to such a case?
+*/
+bool Solution::isAnagram(string s, string t) {
+    if (t.size() != s.size()) {
+        return false;
+    }
+    vector<int> counting(128, 0);
+    for (auto c: s) {
+        counting[c]++;
+    }
+    for (auto c: t) {
+        counting[c]--;
+        if (counting[c]<0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+void isAnagram_scaffold(string input1, string input2, int expectedResult) {
+    Solution ss;
+    bool actual = ss.isAnagram(input1, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
+    }
+}
+
+
+/*
+Given an array of strings strs, group the anagrams together. You can return the answer in any order.
+
+Example 1:
+Input: strs = ["eat","tea","tan","ate","nat","bat"]
+Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+
+Explanation:
+
+There is no string in strs that can be rearranged to form "bat".
+The strings "nat" and "tan" are anagrams as they can be rearranged to form each other.
+The strings "ate", "eat", and "tea" are anagrams as they can be rearranged to form each other.
+
+Example 2:
+Input: strs = [""]
+Output: [[""]]
+
+Example 3:
+Input: strs = ["a"]
+Output: [["a"]]
+
+Constraints:
+1 <= strs.length <= 104
+0 <= strs[i].length <= 100
+strs[i] consists of lowercase English letters.
+*/
+vector<vector<string>> Solution::groupAnagrams(vector<string>& strs) {
+if(0) { // naive solution
+    int sz = strs.size();
+    vector<bool> used(sz, false);
+    vector<vector<string>> ans;
+    for (int i=0; i<sz; i++) {
+        if (used[i]) {
+            continue;
+        }
+        vector<string> buffer;
+        buffer.push_back(strs[i]);
+        for (int j=i+1; j<sz; j++) {
+            if (isAnagram(strs[i], strs[j])) {
+                buffer.push_back(strs[j]);
+                used[j] = true;
+            }
+        }
+        used[i] = true;
+        ans.push_back(buffer);
+    }
+    return ans;
+}
+
+{
+    map<string, vector<string>> mp;
+    for (auto w: strs) {
+        auto k = w;
+        std::sort(k.begin(), k.end());
+        mp[k].push_back(w);
+    }
+    vector<vector<string>> ans;
+    for (auto p: mp) {
+        ans.push_back(p.second);
+    }
+    return ans;
+}
+
+}
+
+
+void groupAnagrams_scaffold(string input1, string expectedResult) {
+    Solution ss;
+    auto words = stringTo1DArray<string>(input1);
+    auto actual = ss.groupAnagrams(words);
+    auto expected = stringTo2DArray<string>(expectedResult);
+    if (actual == expected) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input1, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual:", input1, expectedResult);
+        printf("actual.size: %d, expected.size: %d\n", (int)actual.size(), (int)expected.size());
+        for (auto p: actual) {
+            print_vector(p);
+        }
+    }
+}
+
+
+/*
+Write an algorithm to determine if a number n is happy. A happy number is a number defined by the following process:
+
+- Starting with any positive integer, replace the number by the sum of the squares of its digits.
+- Repeat the process until the number equals 1 (where it will stay), or it loops endlessly in a cycle which does not include 1.
+- Those numbers for which this process ends in 1 are happy.
+
+Return true if n is a happy number, and false if not.
+
+Example 1:
+Input: n = 19
+Output: true
+Explanation:
+12 + 92 = 82
+82 + 22 = 68
+62 + 82 = 100
+12 + 02 + 02 = 1
+
+Example 2:
+Input: n = 2
+Output: false
+
+Constraints:
+1 <= n <= 2^31 - 1
+*/
+bool Solution::isHappy(int n) {
+    set<int> nums;
+    while (n!=1 && nums.count(n)!=1) {
+        nums.insert(n);
+        int tmp = 0;
+        while (n > 0) {
+            tmp += (n%10) * (n%10);
+            n /= 10;
+        }
+        n = tmp;
+    }
+    return n==1;
+}
+
+
+void isHappy_scaffold(int input1, int expectedResult) {
+    Solution ss;
+    auto actual = ss.isHappy(input1);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, expectedResult={}) passed", input1, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual: {}", input1, expectedResult, actual);
+    }
+}
+
+
+/*
+Given an integer array nums and an integer k, return true if there are two distinct indices i and j in the array such that nums[i] == nums[j] and abs(i - j) <= k.
+
+Example 1:
+Input: nums = [1,2,3,1], k = 3
+Output: true
+
+Example 2:
+Input: nums = [1,0,1,1], k = 1
+Output: true
+
+Example 3:
+Input: nums = [1,2,3,1,2,3], k = 2
+Output: false
+ 
+Constraints:
+1 <= nums.length <= 10^5
+-10^9 <= nums[i] <= 10^9
+0 <= k <= 105
+*/
+bool Solution::containsNearbyDuplicate(vector<int>& nums, int k) {
+    map<int, int> mp; // val, index in nums
+    for (int i=0; i<(int)nums.size(); i++) {
+        if (mp.count(nums[i]) == 1) {
+            if (i-mp[nums[i]] <= k) {
+                return true;
+            }
+        }
+        mp[nums[i]] = i;
+    }
+    return false;
+}
+
+
+void containsNearbyDuplicate_scaffold(string input1, int input2, int expectedResult) {
+    Solution ss;
+    auto nums = stringTo1DArray<int>(input1);
+    bool actual = ss.containsNearbyDuplicate(nums, input2);
+    if (actual == expectedResult) {
+        SPDLOG_INFO("Case({}, {}, expectedResult={}) passed", input1, input2, expectedResult);
+    } else {
+        SPDLOG_ERROR("Case({}, {}, expectedResult={}) failed, actual: {}", input1, input2, expectedResult, actual);
+    }
+}
+
+
 int main() {
     SPDLOG_WARN("Running fullJustify tests: ");
     TIMER_START(fullJustify);
@@ -373,5 +674,45 @@ int main() {
     isIsomorphic_scaffold("paper", "abadd", 0);
     TIMER_STOP(isIsomorphic);
     SPDLOG_WARN("isIsomorphic using {} ms", TIMER_MSEC(isIsomorphic));
+
+    SPDLOG_WARN("Running wordPattern tests: ");
+    TIMER_START(wordPattern);
+    wordPattern_scaffold("abba", "dog cat cat dog", 1);
+    wordPattern_scaffold("abba", "dog cat cat fish", 0);
+    wordPattern_scaffold("aaaa", "dog cat cat dog", 0);
+    TIMER_STOP(wordPattern);
+    SPDLOG_WARN("wordPattern using {} ms", TIMER_MSEC(wordPattern));
+
+    SPDLOG_WARN("Running isAnagram tests: ");
+    TIMER_START(isAnagram);
+    isAnagram_scaffold("abba", "dog cat cat dog", 0);
+    isAnagram_scaffold("anagram", "nagaram", 1);
+    TIMER_STOP(isAnagram);
+    SPDLOG_WARN("isAnagram using {} ms", TIMER_MSEC(isAnagram));
+
+    SPDLOG_WARN("Running groupAnagrams tests: ");
+    TIMER_START(groupAnagrams);
+    groupAnagrams_scaffold("[a]", "[[a]]");
+    groupAnagrams_scaffold("[eat,tea,tan,ate,nat,bat]", "[[eat,tea,ate],[tan,nat],[bat]]");
+    groupAnagrams_scaffold("[]", "[]");
+    TIMER_STOP(groupAnagrams);
+    SPDLOG_WARN("groupAnagrams using {} ms", TIMER_MSEC(groupAnagrams));
+
+    SPDLOG_WARN("Running isHappy tests: ");
+    TIMER_START(isHappy);
+    isHappy_scaffold(1, 1);
+    isHappy_scaffold(2, 0);
+    isHappy_scaffold(19, 1);
+    TIMER_STOP(isHappy);
+    SPDLOG_WARN("isHappy using {} ms", TIMER_MSEC(isHappy));
+
+    SPDLOG_WARN("Running containsNearbyDuplicate tests: ");
+    TIMER_START(containsNearbyDuplicate);
+    containsNearbyDuplicate_scaffold("[1,2,3,1]", 3, 1);
+    containsNearbyDuplicate_scaffold("[1,0,1,1]", 1, 1);
+    containsNearbyDuplicate_scaffold("[1,2,3,1,2,3]", 2, 0);
+    containsNearbyDuplicate_scaffold("[1,2,3,1,2,3]", 3, 1);
+    TIMER_STOP(containsNearbyDuplicate);
+    SPDLOG_WARN("containsNearbyDuplicate using {} ms", TIMER_MSEC(containsNearbyDuplicate));
 
 }

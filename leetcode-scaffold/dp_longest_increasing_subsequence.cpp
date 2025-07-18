@@ -192,7 +192,7 @@ Your algorithm should run in O(n) complexity.
 */
 int Solution::longestConsecutive(vector<int>& nums) {
 
-{ // dp solution
+if (0) { // dp solution
     // sort the array in ascending order
     std::sort(nums.begin(), nums.end(), std::less<int>());
     int n = nums.size();
@@ -214,15 +214,17 @@ int Solution::longestConsecutive(vector<int>& nums) {
     int ans = 0;
     map<int, int> m; // element, longestConsecutive containing element
     for (auto n: nums) {
-        if (m.count(n) == 1) { // IMPORTANT, make sure only end nodes will be used hereafter
+        if (m.count(n)) { // IMPORTANT, make sure only end nodes will be used hereafter
             continue;
         }
-        // n hasn't appeared so far
+        // n hasn't appeared so far. so m[n-1], m[n+1] do not overlap
         bool left = m.count(n-1) != 0;
         bool right = m.count(n+1) != 0;
         if (left && right) {
-            int l = m[n-1]; // length of subarray ending with n-1 
+            int l = m[n-1]; // length of subarray ending with n-1
             int r = m[n+1]; // length of subarray beginning with n+1
+            // [n-l, n-l+1, ..., n-1], n, [n+1, n+2, ..., n+r]
+            // 更新值域两端的值
             m[n] = m[n-l] = m[n+r] = l+r+1;
         } else if (left) {
             int l = m[n-1]; // length of subarray ending with n-1

@@ -7,63 +7,7 @@ class Solution {
 public:
     int computeArea(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2);
     bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2);
-    vector<vector<int>> merge(vector<vector<int>>& intervals);
 };
-
-
-/*
-Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.
-
-Example 1:
-    Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
-    Output: [[1,6],[8,10],[15,18]]
-    Explanation: Since intervals [1,3] and [2,6] overlap, merge them into [1,6].
-
-Example 2:
-    Input: intervals = [[1,4],[4,5]]
-    Output: [[1,5]]
-    Explanation: Intervals [1,4] and [4,5] are considered overlapping.
-*/
-vector<vector<int>> Solution::merge(vector<vector<int>>& intervals) {
-    // sort interval by left boundary then right boundary in ascending order
-    std::sort(intervals.begin(), intervals.end(), [](const vector<int>& l, const vector<int>& r) {
-        if (l[0] < r[0]) {
-            return true;
-        } else if (l[0] == r[0]) {
-            return l[1] < r[1];
-        } else {
-            return false;
-        }
-    });
-    vector<vector<int>> ans;
-    ans.push_back(intervals[0]);
-    for (int i=1; i<(int)intervals.size(); i++) {
-        auto& b = ans.back(); // NOTE that it has to be a reference type
-        if (b[1] < intervals[i][0]) { // not overlapped
-            ans.push_back(intervals[i]);
-        } else { // overlapped, merge two intervals
-            b[1] = std::max(b[1], intervals[i][1]);
-        }
-    }
-    return ans;
-}
-
-
-void merge_scaffold(string input, string expectedResult) {
-    Solution ss;
-    vector<vector<int>> intervals = stringTo2DArray<int>(input);
-    vector<vector<int>> expected = stringTo2DArray<int>(expectedResult);
-    vector<vector<int>> actual = ss.merge(intervals);
-    if (actual == expected) {
-        SPDLOG_INFO("Case({}, expectedResult={}) passed", input, expectedResult);
-    } else {
-        SPDLOG_ERROR("Case({}, expectedResult={}) failed, actual:", input, expectedResult);
-        for (const auto& row: actual) {
-            cout << numberVectorToString<int>(row) << endl;
-        }
-    }
-}
-
 
 
 /*
@@ -181,11 +125,4 @@ int main() {
     TIMER_STOP(isRectangleOverlap);
     SPDLOG_WARN("isRectangleOverlap tests use {} ms", TIMER_MSEC(isRectangleOverlap));
 
-    SPDLOG_WARN("Running merge tests:");
-    TIMER_START(merge);
-    merge_scaffold("[[1,3],[2,6],[8,10],[15,18]]", "[[1,6],[8,10],[15,18]]");
-    merge_scaffold("[[1,4],[4,5]]", "[[1,5]]");
-    merge_scaffold("[[1,10],[4,5],[6, 8]]", "[[1,10]]");
-    TIMER_STOP(merge);
-    SPDLOG_WARN("merge tests use {} ms", TIMER_MSEC(merge));
 }
