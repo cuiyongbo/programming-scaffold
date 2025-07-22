@@ -288,57 +288,57 @@ path consists of English letters, digits, period '.', slash '/' or '_'.
 path is a valid absolute Unix path.
 */
 string Solution::simplifyPath(string path) {
-    string ans;
-    int sz = path.size();
     stack<pair<int, int>> st;
+    // 1. split path by '/'
+    int left=-1, right=-1;
+    int sz = path.size();
     for (int i=0; i<sz; i++) {
         char cur = path[i];
-        if (st.empty()) {
-            st.emplace(i, i);
+        if (cur != '/') {
+            if (left == -1) {
+                left = i;
+            }
+            right = i;
         } else {
-            char prev = path[st.top().second];
-            if (cur == '.' || cur == '/') {
-                if (prev == cur) { // cases: "..", "//"
-                    st.top().second = i;
-                } else {
-                    st.emplace(i, i);
-                }
-            } else {
-                if (prev == '.' || prev == '/') {
-                    st.emplace(i, i);
-                } else {
-                    st.top().second = i;
-                }
+            if (left != -1) {
+                st.emplace(left, right);
+                left = right = -1;
             }
         }
     }
+    if (left != -1) {
+        st.emplace(left, right);
+        left = right = -1;
+    }
+    // 2. pop stack to vector
+    int jumps = 0;
     vector<string> buffer;
     while (!st.empty()) {
         auto t = st.top(); st.pop();
         string p = path.substr(t.first, t.second-t.first+1);
-        if (p == ".") { // case: "/./" -> "/"
-            st.pop();
+        if (p == ".") { // skip current directory
             continue;
         }
-        if (p == "..") { // case: "/foo/../bar" --> "/foo"
-            st.pop(); // skip the next upper directory
+        if (p == "..") { // skip the next upper directory
+            jumps++;
             continue;
         }
-        if (p == "//") {
-            p = "/";
+        if (jumps > 0) {
+            jumps--;
+            continue;
         }
         buffer.push_back(p);
     }
     //print_vector(buffer); // DEBUG
-    // note the order of stack is last-in, first-out
-    for (int i=buffer.size()-1; i>0; i--) {
-        ans.append(buffer[i]);
-    }
-    if (buffer[0]=="/") {
-        if (ans.empty()) { // there is only "/"
-            ans = buffer[0];
+    // 3. concatenate directory components
+    string ans = "/";
+    ans.reserve(sz);
+    if (!buffer.empty()) {
+        // note the order of stack is last-in, first-out
+        for (int i=buffer.size()-1; i>0; i--) {
+            ans.append(buffer[i]);
+            ans.push_back('/');
         }
-    } else {
         ans.append(buffer[0]);
     }
     return ans;
@@ -395,10 +395,14 @@ int main() {
     simplifyPath_scaffold("/foo/bar/", "/foo/bar");
     simplifyPath_scaffold("/foo/./bar/", "/foo/bar");
     simplifyPath_scaffold("/foo//bar/", "/foo/bar");
-    simplifyPath_scaffold("/foo//bar/", "/foo/bar");
     simplifyPath_scaffold("/", "/");
     simplifyPath_scaffold("/../", "/");
+    simplifyPath_scaffold("/.../a/../b/c/../d/./", "/.../b/d");
+    simplifyPath_scaffold("/home/user/Documents/../Pictures", "/home/user/Pictures");
+    simplifyPath_scaffold("/a/./b/../../c/", "/c");
     TIMER_STOP(simplifyPath);
     SPDLOG_WARN("simplifyPath tests use {} ms", TIMER_MSEC(simplifyPath));
 
 }
+
+
