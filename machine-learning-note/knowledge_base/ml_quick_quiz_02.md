@@ -1,4 +1,4 @@
-Q: what are frequently asked questions when I prepare an interview for model inference, especially for tensorflow model?
+# what are frequently asked questions when I prepare an interview for model inference, especially for tensorflow model?
 
 When preparing for an interview focused on model inference, especially with TensorFlow models, you might encounter a variety of questions that test your understanding of the TensorFlow framework, model deployment, optimization, and general machine learning concepts. Here are some frequently asked questions you might come across:
 
@@ -43,7 +43,7 @@ When preparing for an interview focused on model inference, especially with Tens
 Remember that the specific questions you'll face can vary depending on the role and the company. It's also important to be prepared to discuss any relevant projects or experiences you have that demonstrate your skills in TensorFlow and model inference.
 
 
-Q: What is TensorFlow, and how does it differ from other deep learning frameworks?
+# What is TensorFlow, and how does it differ from other deep learning frameworks?
 
 TensorFlow is an open-source machine learning library developed by the Google Brain team. It is widely used for building and deploying machine learning models, particularly deep learning models. TensorFlow provides a comprehensive ecosystem of tools, libraries, and community resources that enable researchers and developers to build and deploy ML-powered applications.
 
@@ -67,7 +67,7 @@ Differences from other deep learning frameworks:
 
 Each framework has its strengths and is chosen by developers and researchers based on specific needs, such as ease of use, performance, scalability, and the specific tools and features they offer. TensorFlow's broad adoption, extensive documentation, and strong community support make it a go-to choice for many machine learning tasks.
 
-Q: Can you explain the difference between TensorFlow 1.x and TensorFlow 2.x?
+# Can you explain the difference between TensorFlow 1.x and TensorFlow 2.x?
 
 TensorFlow 1.x and TensorFlow 2.x are two major versions of the TensorFlow machine learning library, with significant differences in their design, API, and usability. Here are the key differences between the two:
 
@@ -89,7 +89,7 @@ TensorFlow 1.x and TensorFlow 2.x are two major versions of the TensorFlow machi
 Overall, TensorFlow 2.x represents a significant shift towards a more user-friendly and Pythonic approach to deep learning, with a focus on simplicity, ease of use, and flexibility. It retains the scalability and performance of TensorFlow 1.x while making it more accessible to a broader audience of developers and researchers.
 
 
-Q: what is the difference between ``torch.sum(a, 0)`` and ``torch.sum(a, 1)``?
+# what is the difference between ``torch.sum(a, 0)`` and ``torch.sum(a, 1)``?
 
 ```py
 >>> a = torch.tril(torch.ones(3,3))
@@ -117,7 +117,7 @@ tensor([[1.],
     output tensor having 1 (or ``len(dim)``) fewer dimension(s).
 ```
 
-Q: in tensorflow, what are broadcast, tile? what are they for?
+# in tensorflow, what are broadcast, tile? what are they for?
 
 In TensorFlow, both **broadcasting** and the `tf.tile` function serve the purpose of working with tensors of varying shapes, especially during operations that involve multiple tensors. Each provides a mechanism to facilitate operations between tensors in different but compatible shapes.
 
@@ -183,7 +183,7 @@ Here, each row of `A` is replicated 3 times vertically (no replication horizonta
 Both techniques are powerful tools in TensorFlow, facilitating the implementation of complex tensor operations and manipulations required in high-dimensional data processing typical in machine learning and neural networks.
 
 
-Q: in machine learning, what does the term "autoregressive" mean?
+# in machine learning, what does the term "autoregressive" mean?
 
 In machine learning, the term "autoregressive" refers to a type of model that predicts future values based on past or current values in a sequence. The concept is widely used in time series forecasting, where the goal is to model the next value (or values) in a sequence as a function of the historical values.
 
@@ -220,7 +220,7 @@ In the realm of machine learning, many tools and libraries can model autoregress
 
 Autoregressive models are a cornerstone in the analysis and forecasting of time series data, providing a foundation upon which more complex models and forecasts can be built.
 
-Q: what is model distillation in deep learning?
+# what is model distillation in deep learning?
 
 Model distillation, also known as knowledge distillation, is a technique in deep learning where a smaller, simpler model (called the "student" model) is trained to replicate the behavior of a larger, more complex model (called the "teacher" model). The goal is to transfer the knowledge from the teacher model to the student model, enabling the student model to achieve similar performance while being more efficient in terms of computational resources, memory usage, and inference speed.
 
