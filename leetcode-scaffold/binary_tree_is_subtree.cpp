@@ -59,9 +59,13 @@ The tree s could also be considered as a subtree of itself.
 */
 bool Solution::isSubtree(TreeNode* s, TreeNode* t)  {
 { // recursive solution, traverse s in pre-order way
-    return isSameTree(s, t) ||
-            (s!=nullptr && isSubtree(s->left, t)) || 
-            (s!=nullptr && isSubtree(s->right, t));
+    if (isSameTree(s, t)) {
+        return true;
+    } else if (s == nullptr) {
+        return false;
+    } else {
+        return isSubtree(s->left, t) || isSubtree(s->right, t);
+    }
 }
 
 { // iterative solution

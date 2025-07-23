@@ -10,6 +10,30 @@ loop interview:
 https://www.youtube.com/watch?v=exgYMdo8Vdk
 
 
+# how to prepare amazon inerview
+
+## Setting the stage
+
+- **Ensure focus.** Be in a quiet and comfortable place with no distractions.
+- **Check connection.** Have a computer with a reliable connection and access to email. 
+- **Face the camera.** Position yourself so you're facing the camera to allow for eye contact with the interviewer. 
+- **Put on headset.** Use a headset with a microphone to make sure the sound is clear and understandable. If access to reliable technology may be an issue during your interview, please let your recruiter know.
+- **Take notes.** Interviewers aren't the only ones who take notes. Have a way to take notes readily available.
+- **Remember your resume.** Interviewers may talk about specific items on your resume. Keep yours close to see what they're referencing.
+- **Consider questions.** If you’d like, come prepared with questions that you would  like to explore in more detail (e.g., initiatives/projects, team culture, scope of role).
+- **Reach out.** If you need clarity on anything, or have any additional follow-up questions, reach out to your recruiting point of contact.
+
+## Responding to questions
+
+- **Start with the customer.** Amazon is customer-obsessed, and it is essential you include the customer, whether internal or external, in your situation. Be able to put the customer's viewpoint by starting with the customer working backwards.
+- **Use multiple examples.** We recommend not using the same story or example more than once.
+- **Be detailed and specific.** Don't generalize about several events; give a detailed account of one event when providing examples. Share details and provide data to support your reasoning.
+- **I, before we.** This interview is an opportunity for Amazon to learn about what you have owned and accomplished. Use words like "I owned" or "I did" and avoid "we did" or "my manager…".
+- **Show how you deal with ambiguity.** Demonstrate that you can handle intentionally vague requirements; change strategies quickly when the approach doesn't work; work through open-ended questions; be adaptable & quick learning.
+- **Leverage notes.** You are allowed to have notes during the interview, but don't become dependent on them. Make sure you call it out to the interviewer as well.
+
+
+
 请结合亚马逊领导力准则, 讲述下面的案例:
 
 电商业务有40亿候选数据, 需要构建hnsw索引, 建索引时设定索引分片数是40, 也就是说一个分片会有1亿数据. 构建索引时遇到了一个问题: 使用512G内存机器, 构建服务经常出现oom, 按照我以往的经验, 内存占用峰值应该在300G左右, 还有近200G的buffer, 不应该这样. 另外同样的机器规格, 机房a的oom的频率比机房b的oom频率高了3倍多. 为了确定问题原因, 我拉上存储的研发同事, 电商同事一起做问题分析. 首先从存储的研发同事那里了解到, 存储侧为电商业务做了业务定制, 构建服务扫描得到的数据量有放大, 放大系数一般在1.4左右. 这也就解释了为什么构建服务的内存占用峰值远比经验值要高, 但512G内存机器应该还有50G左右的buffer才是, 摆在大家面前的有两个选择, 一是换用内存更大的机器, 可以临时解决问题, 但是资源不够. 二是扩大索引分片数, 比如扩大到80, 但这就需要重新构建索引, 并且业务方需要重新上线, 耗时估计1周. 为此我拉上sre同学, 临时借来一批大内存机器来快速解决业务当前的问题.  然后我再去研究问题的原因, 还有就是同样的机器规格, 为什么机房a的oom频率要比机房b的高? 我从服务监控发现机房a扫描的失败率比较高, 分析日志发现失败重试时服务的内存没有释放, 怀疑是程序扫描失败后没有释放之前的内存, 我通过关闭失败重试, 增加相应日志, 确定的确是这个原因. 反馈给存储同事, 告知我发扫描失败后, 需要把scanner关掉, 重新建立scanner扫描. 程序适配后, 在电商场景验证, 仍使用512G内存的机器, 索引可以成功构建. 从而解决了电商库索引构建的问题.

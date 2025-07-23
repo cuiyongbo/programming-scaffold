@@ -210,10 +210,9 @@ int Solution::calculate_772(string s) {
     for (int i=0; i<sz; i++) {
         if (std::isdigit(s[i])) {
             if (left == -1) {
-                left = right = i;
-            } else {
-                right = i;
+                left = i;
             }
+            right = i;
         } else if (is_operator(s[i])) {
             if (left != -1) { // save last operand
                 rpn.push_back(s.substr(left, right-left+1));
@@ -248,7 +247,7 @@ int Solution::calculate_772(string s) {
         } else if (s[i] == '(') {
             op_st.push("(");
         } else if (s[i] == ')') {
-            // note that there is not '()' in rpn expression
+            // note that there is no '()' in rpn expression
             if (left != -1) { // save last operand
                 rpn.push_back(s.substr(left, right-left+1));
                 left = right = -1;

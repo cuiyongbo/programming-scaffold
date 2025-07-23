@@ -73,9 +73,7 @@ ListNode* Solution::detectCycle(ListNode* head) {
         so after fast, slow rendezvous at p, we set fast to re-traverse from head at speed 1, and slow also continue to traverse from p at speed 1, they would rendezvous at intersection
         path for fast: head -(x)-> intersection -(r)-> p
         path for slow:    p -(x)-> intersection -(r)-> p
-
     */
-
     fast = head;
     while (fast != slow) {
         fast = fast->next;
@@ -83,6 +81,7 @@ ListNode* Solution::detectCycle(ListNode* head) {
     }
     return fast;
 }
+
 
 void hasCycle_scaffold(const std::vector<int>& input1, int pos) {
     ListNode* l1 = vectorToListNode(input1);
