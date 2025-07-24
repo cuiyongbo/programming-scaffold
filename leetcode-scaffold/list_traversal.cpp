@@ -13,15 +13,15 @@ public:
     ListNode* reverseKGroup(ListNode* head, int k);
     ListNode* getIntersectionNode(ListNode* l1, ListNode* l2);
     ListNode* removeElements(ListNode* head, int val);
-    ListNode* deleteDuplicates_083(ListNode* head);
     ListNode* deleteDuplicates_082(ListNode* head);
+    ListNode* deleteDuplicates_083(ListNode* head);
     ListNode* partition(ListNode* head, int x);
     ListNode* removeNthFromEnd(ListNode* head, int n);
 };
 
 
 ListNode* Solution::reverseList(ListNode* head) {
-    ListNode dummy;
+    ListNode dummy;  // dummy is a doorkeeper, we won't return it in the result
     ListNode* p = &dummy;
     while (head != nullptr) {
         ListNode* tmp = head->next;
@@ -67,16 +67,19 @@ ListNode* Solution::reverseBetween(ListNode* head, int left, int right) {
         if (i<left) {
             p1->next = head; p1 = p1->next; // push_back
         } else if (left<=i && i<=right) {
-            head->next = p2->next; p2->next = head; // push_front;
+            head->next = p2->next; p2->next = head; // push_front
         } else {
             p3->next = head; p3 = p3->next; // push_back
         }
         head = tmp;
     }
+    // concatenate p1 and p2
     p1->next = dummy2.next;
+    // find the tail of p2
     while (p2->next != nullptr) {
         p2 = p2->next;
     }
+    // concatenate p2 and p3
     p2->next = dummy3.next;
     return dummy1.next;
 }
@@ -106,7 +109,7 @@ ListNode* Solution::reverseKGroup(ListNode* head, int k) {
         if ((int)st.size() == k) {
             while (!st.empty()) {
                 auto node = st.top(); st.pop();
-                p->next = node; p = p->next; // push_backs
+                p->next = node; p = p->next; // push_back
             }
         }
         head = tmp;
@@ -153,7 +156,7 @@ ListNode* Solution::removeNthFromEnd(ListNode* head, int n) {
     while (!st.empty()) {
         auto t = st.top(); st.pop();
         index++;
-        if (index == n) {
+        if (index == n) { // skip node to be deleted
             continue;
         }
         t->next = p->next; p->next = t; // push_front
@@ -173,8 +176,8 @@ Examples:
 */
 ListNode* Solution::partition(ListNode* head, int x) {
     ListNode dummy1, dummy2;
-    ListNode* p1 = &dummy1;
-    ListNode* p2 = &dummy2;
+    ListNode* p1 = &dummy1; // sublist with nodes whose values are less than x
+    ListNode* p2 = &dummy2; // sublist with nodes whose values are greater than or equal to x
     while (head != nullptr) {
         ListNode* tmp = head->next; head->next = nullptr;
         if (head->val < x) {
@@ -184,7 +187,7 @@ ListNode* Solution::partition(ListNode* head, int x) {
         }
         head = tmp;
     }
-    p1->next = dummy2.next; // connect two sublists
+    p1->next = dummy2.next; // concatenate two sublists
     return dummy1.next;
 }
 
@@ -218,7 +221,7 @@ ListNode* Solution::deleteDuplicates_082(ListNode* head) {
     ListNode* p = &dummy;
     while (!st.empty()) {
         auto t = st.top(); st.pop();
-        if (t.second == 1) {
+        if (t.second == 1) { // only keep distinct numbers
             t.first->next = p->next; p->next = t.first; // push_front
         }
     }

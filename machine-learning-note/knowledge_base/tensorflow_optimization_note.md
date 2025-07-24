@@ -384,11 +384,9 @@ v = tf.Variable(0)
 @tf.function
 def update_var():
     assign_op = v.assign(10)  # 赋值操作
-
     with tf.control_dependencies([assign_op]):
         # 这个操作保证在赋值完成后执行
         add_op = v.assign_add(5)  # v 变为 15
-
     return v.read_value()
 
 print(update_var().numpy())  # 输出 15

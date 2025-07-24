@@ -52,11 +52,10 @@ class LRUCache {
 private:
     std::mutex m_mutex;
     int m_capacity;
-    std::list<pair<int, int>> m_nodes; // <key, value>
-    std::map<int, list<pair<int, int>>::iterator> m_node_map;
-    /* data */
+    std::list<std::pair<int, int>> m_nodes; // <key, value>
+    std::map<int, list<std::pair<int, int>>::iterator> m_node_map; // key, position in the list 
 public:
-    LRUCache(int cap) {m_capacity = cap;}
+    LRUCache(int cap) { m_capacity = cap; }
     ~LRUCache() {}
     int get(int key);
     void put(int key, int value);
@@ -100,7 +99,7 @@ int LRUCache::get(int key) {
     No iterators or references become invalidated, the iterators to moved elements remain valid, but now refer into *this, not into other.
     */
     // void splice(const_iterator pos, list& other, const_iterator it);
-    // Transfers the element pointed to by it from other into *this. The element is inserted before the element pointed to by pos.
+    // Transfers the element pointed to by `it` from other into *this. The element is inserted before the element pointed to by `pos`.
     m_nodes.splice(m_nodes.begin(), m_nodes, it->second); // move key to the front of m_nodes
     return it->second->second;
 }
