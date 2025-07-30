@@ -24,7 +24,7 @@ int Solution::getDistance(TreeNode* root, TreeNode* p, TreeNode* q) {
     if (lca == nullptr) {
         return 0;
     }
-    // 2. use bfs to find the path between p and q
+    // 2. perform bfs to find the path between p and q
     int ans = 0;
     int steps = 0;
     int found_node_cnt = 0;
@@ -32,10 +32,12 @@ int Solution::getDistance(TreeNode* root, TreeNode* p, TreeNode* q) {
     while (!qu.empty()) {
         for (int k=qu.size(); k!=0; k--) {
             auto t = qu.front(); qu.pop();
+            // when we find a node, we record its steps from lca
             if (t == p || t == q) {
                 ans += steps;
                 found_node_cnt += 1;
             }
+            // when both node are found, we may exit
             if (found_node_cnt == 2) { // termination
                 return ans;
             }
