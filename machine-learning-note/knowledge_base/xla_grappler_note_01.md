@@ -653,9 +653,9 @@ Yes, in TensorFlow’s execution pipeline, **Grappler optimizations run before X
 
 2. **Grappler Optimization:**  
    Before execution, TensorFlow passes the graph through **Grappler**, its graph optimization framework. Grappler applies various graph-level optimizations such as:
+   - Pruning unused nodes
    - Constant folding
    - Operator fusion (e.g., fusing BiasAdd + Relu)
-   - Pruning unused nodes
    - Common subexpression elimination
    - Layout optimizations
 

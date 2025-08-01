@@ -133,9 +133,9 @@ what does a model repository look like? consider [sagemaker-triton/resnet50](htt
 ```bash
 # tree resnet/
 resnet/
-├── 1  # different versions, required
+├── 1  # model versions, required
 │   └── model.plan
-├── 2  # different versions, required
+├── 2  # model versions, required
 │   └── model.plan
 ├── config.pbtxt  # model configuration, required
 ├── inception_labels.txt # optional, for example, [ImageNetLabels.text](https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt)
@@ -395,6 +395,30 @@ Due to python GIL lock, python_backend is different from other backends when ser
 call `TritonPythonModel.execute` to perform model inference, write result back into shared memory; the triton main process reads inference result from shared memory, assemble responses and send back to caller.
 
 ```c++
+// triton-inference-server/python_backend/src/pb_stub.cc
+void Stub::Initialize(bi::managed_external_buffer::handle_t map_handle) {
+  py::object TritonPythonModel = sys.attr("TritonPythonModel");
+  model_instance_ = TritonPythonModel();
+  // Call initialize if exists.
+  if (py::hasattr(model_instance_, "initialize")) {
+    model_instance_.attr("initialize")(model_config_params);
+  }
+  initialized_ = true;
+}
+void Stub::Finalize() {
+  if (initialized_) {
+    // Call finalize if exists.
+    if (py::hasattr(model_instance_, "finalize")) {
+      try {
+        model_instance_.attr("finalize")();
+      }
+      catch (const py::error_already_set& e) {
+        LOG_INFO << e.what();
+      }
+    }
+  }
+}
+
 // python_backend/src/python_be.cc
 TRITONBACKEND_ModelInstanceExecute(
     RETURN_IF_ERROR(TRITONBACKEND_ModelInstanceState(instance, reinterpret_cast<void**>(&instance_state)));
@@ -411,11 +435,11 @@ int main(int argc, char*- argv) {
 }
 Stub::RunCommand()
     AllocatedSharedMemory<char> request_batch = shm_pool_->Load<char>(ipc_message->Args());
-    RequestBatch- request_batch_shm_ptr = reinterpret_cast<RequestBatch*>(request_batch.data_.get());
+    RequestBatch* request_batch_shm_ptr = reinterpret_cast<RequestBatch*>(request_batch.data_.get());
     ProcessRequests(request_batch_shm_ptr);
         py::list py_request_list = LoadRequestsFromSharedMemory(request_batch_shm_ptr);
         ScopedDefer execute_finalize([this] { stub_message_queue_->Pop(); });
-        ScopedDefer _([this, &execute_response] { SendIPCMessage(execute_response); });
+        ScopedDefer *([this, &execute_response] { SendIPCMessage(execute_response); });
         py::object execute_return = model_instance_.attr("execute")(py_request_list); // call TritonPythonModel::execute
 ```
 
